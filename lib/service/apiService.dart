@@ -1,0 +1,50 @@
+import 'dart:convert';
+import 'package:automasters/models/parts.dart';
+import 'package:http/http.dart' as http;
+import '../models/vehicle.dart';
+import 'base_api.dart';
+
+class APIService extends BaseAPI {
+  // 3CZRU6H35NM701659
+//await Future.delayed(const Duration(seconds: 1));
+  /// Get Vehicle by VIN[getVehicleByVin]
+  Future<VehicleModel> getVehicleByVin(String vin) async {
+    var response = await http.get(
+      Uri.parse(url("${apiEndpoints['vehicles']}/$vin")),
+      headers: headers,
+    );
+
+    if (response.statusCode == 200) {
+      // If the server did return a 200 OK response,
+      // then parse the JSON.
+      // Map<String, dynamic> data = json.decode(response.body)['content'][0];
+
+      return VehicleModel.fromJson(json.decode(response.body));
+    } else {
+      // If the server did not return a 200 OK response,
+      // then throw an exception.
+      return VehicleModel().copy();
+    }
+  }
+
+  /// Get Parts by VFAM[getPartsByVfam]
+  Future<List<PartModel>> getPartsByVfam(String vfam) async {
+
+    var response = await http.get(
+      Uri.parse(url("${apiEndpoints['parts']}/$vfam")),
+      headers: headers,
+    );
+
+    if (response.statusCode == 200) {
+      // If the server did return a 200 OK response,
+      // then parse the JSON.
+      List jsonList = json.decode(response.body)['content'];
+      return jsonList.map((job) => PartModel.fromJson(job)).toList();
+    } else {
+      // If the server did not return a 200 OK response,
+      // then throw an exception.
+      return [];
+      // throw Exception('Failed to load album:');
+    }
+  }
+}
