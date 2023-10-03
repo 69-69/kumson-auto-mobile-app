@@ -1,12 +1,14 @@
 import 'package:automasters/models/animation_item.dart';
-import 'package:automasters/view/part_details.dart';
 import 'package:automasters/utils/animation_transition.dart';
 import 'package:automasters/view/vehicle_details.dart';
 import 'package:automasters/widgets/fade_slide.dart';
 import 'package:flutter/material.dart';
+import 'package:string_capitalize/string_capitalize.dart';
 
 import '../models/parts.dart';
 import '../models/vehicle.dart';
+import '../utils/custom_line.dart';
+import '../utils/size_config.dart';
 
 class PartList extends StatefulWidget {
   final List<PartModel> carParts;
@@ -61,149 +63,189 @@ class _PartListState extends State<PartList>
 
   @override
   Widget build(BuildContext context) {
+    SizeConfig().init(context);
+
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SafeArea(child: SizedBox.shrink()),
-              // Lets make setups for animations
-              FadeSlide(
-                offsetX: 0.0,
-                offsetY: 60.0,
-                duration: getSlideDuration("slide-1", animationItems),
-                direction: getItemVisibility("slide-1", animationItems),
-                child: Row(
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) =>
-                                VehicleDetails(vehicle: widget.vehicle),
-                          ),
-                        );
-                      },
-                      child: Container(
-                        height: 55.0,
-                        width: 55.0,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: Colors.grey.shade300,
-                          ),
-                        ),
-                        child: const Icon(Icons.chevron_left),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(
-                height: 25.0,
-              ),
-              buildHeader(),
-              buildListView()
-            ],
-          ),
-        ),
-      ),
+      backgroundColor: Theme.of(context).colorScheme.primary,
+      body: buildNestedScrollView(context),
     );
   }
 
-  FadeSlide buildHeader() {
+  NestedScrollView buildNestedScrollView(BuildContext context) {
+    return NestedScrollView(
+      headerSliverBuilder: (_, __) {
+        return [
+          SliverAppBar(
+            primary: true,
+            floating: false,
+            centerTitle: true,
+            expandedHeight: getProportionateScreenHeight(80),
+            leadingWidth: 100,
+            leading: GestureDetector(
+              onTap: () => animateTransition(
+                  context, VehicleDetails(vehicle: widget.vehicle)),
+              child: buildBackButton(),
+            ),
+            flexibleSpace: const FlexibleSpaceBar(
+              centerTitle: true,
+              title: Text("Available Parts"),
+              collapseMode: CollapseMode.pin,
+            ),
+          ),
+        ];
+      },
+      physics: const BouncingScrollPhysics(),
+      body: buildPartsDetails(context),
+    );
+  }
+
+  buildBackButton() => Container(
+    height: getProportionateScreenHeight(40.0),
+    width: getProportionateScreenWidth(40.0),
+    decoration: BoxDecoration(
+      shape: BoxShape.circle,
+      border: Border.all(
+        color: Colors.grey.withOpacity(0.7),
+      ),
+    ),
+    child: const Icon(Icons.chevron_left),
+  );
+
+  /// Parts Details [buildPartsDetails]
+  FadeSlide buildPartsDetails(BuildContext context) {
     return FadeSlide(
+      duration: getSlideDuration("slide-4", animationItems),
+      direction: getItemVisibility("slide-4", animationItems),
       offsetX: 0.0,
       offsetY: 60.0,
-      duration: getSlideDuration("slide-2", animationItems),
-      direction: getItemVisibility("slide-2", animationItems),
-      child: const Text(
-        "Choose your\n car part!",
-        style: TextStyle(
-          fontWeight: FontWeight.w600,
-          color: Color(0xFF333333),
-          fontSize: 18,
-          height: 1.3,
+      child: Container(
+        height: SizeConfig.screenHeight!,
+        width: SizeConfig.screenWidth!,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(50.0),
+            topRight: Radius.circular(50.0),
+          ),
+        ),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 24.0,
+          vertical: 32.0,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            customLine("Choose Your\n Car Part", true, context),
+            const Divider(thickness: 2, indent: 40),
+            Expanded(
+              child: buildListView(),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  ListView buildListView() {
-    return ListView.separated(
-      shrinkWrap: true,
-      itemCount: widget.carParts.length,
-      physics: const NeverScrollableScrollPhysics(),
-      itemBuilder: (BuildContext context, int index) {
-        PartModel cPart = widget.carParts[index];
+  /// List view display[buildListView]
+  buildListView() {
+    List<PartModel> result = widget.carParts;
 
-        return FadeSlide(
-          offsetX: 0.0,
-          offsetY: 60.0,
-          duration: getSlideDuration("slide-${index + 1}", animationItems),
-          direction: getItemVisibility("slide-${index + 1}", animationItems),
-          child: Container(
-            padding: const EdgeInsets.symmetric(
-              vertical: 16.0,
-              horizontal: 20.0,
-            ),
-            height: 190.0,
-            decoration: BoxDecoration(
-              color: const Color(0xFFF0EEF6),
-              borderRadius: BorderRadius.circular(12.0),
-            ),
-            child: GestureDetector(
-              onTap: () {
-                animateTransition(
-                  context,
-                  PartDetails(
-                    carParts: widget.carParts,
-                    vehicle: widget.vehicle,
-                  ),
-                );
-              },
-              child: buildBody(cPart),
-            ),
+    return ListView.builder(
+      shrinkWrap: true,
+      padding: EdgeInsets.zero,
+      itemCount: result.length,
+      physics: const NeverScrollableScrollPhysics(),
+      itemBuilder: (context, index) {
+        PartModel huntPart = result[index];
+        bool isLastIndex = index == result.length - 1;
+
+        return GestureDetector(
+          onTap: () {},
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 2.0),
+            child: buildCard(huntPart, isLastIndex),
           ),
         );
       },
-      separatorBuilder: (BuildContext context, int index) => const SizedBox(
-        height: 10.0,
+    );
+  }
+
+  /// Card [buildCard]
+  Card buildCard(PartModel cPart, bool isLastIndex) {
+    return Card(
+      elevation: 3.0,
+      color: const Color(0xFFF0EEF6), //Colors.grey.shade300,
+      shape: isLastIndex
+          ? const ContinuousRectangleBorder(
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(80),
+          bottomRight: Radius.circular(80),
+        ),
+      )
+          : null,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              buildContainerImage(),
+              buildProductInfo(cPart),
+            ],
+          ),
+        ],
       ),
     );
   }
 
-  Row buildBody(PartModel cPart) {
-    return Row(
-      children: [
-        Expanded(
+  SizedBox buildContainerImage() {
+    return SizedBox(
+      width: getProportionateScreenWidth(88),
+      child: AspectRatio(
+        aspectRatio: 0.88,
+        child: Container(
+          padding: EdgeInsets.all(getProportionateScreenWidth(5)),
+          decoration: const BoxDecoration(
+            boxShadow: [
+              BoxShadow(
+                blurRadius: 15,
+                offset: Offset(4, 7),
+                color: Colors.white54,
+              )
+            ],
+          ),
           child: Image.asset("assets/part-p.png"),
         ),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              cPart.part.toUpperCase(),
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 15.0,
-              ),
+      ),
+    );
+  }
+
+  buildProductInfo(PartModel product) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 10.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            product.part.capitalizeEach(),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: getProportionateScreenWidth(14),
+              fontWeight: FontWeight.bold,
             ),
-            const SizedBox(height: 2.0),
-            Text(
-              "Model: ${cPart.model}",
-              style: TextStyle(color: Colors.grey.shade800),
+          ),
+          SizedBox(height: getProportionateScreenHeight(2)),
+          Text(product.model.capitalize(),
+            style: TextStyle(
+              color: Colors.black87,
+              fontWeight: FontWeight.w500,
+              fontSize: getProportionateScreenWidth(13),
             ),
-            Text("Make: ${cPart.make}")
-          ],
-        )
-      ],
+            maxLines: 1,
+          ),
+        ],
+      ),
     );
   }
 }

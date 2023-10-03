@@ -1,3 +1,4 @@
+import 'package:automasters/utils/keyboard.dart';
 import 'package:flutter/material.dart';
 
 import '../models/panel.dart';
@@ -5,7 +6,7 @@ import '../models/vehicle.dart';
 import '../service/apiService.dart';
 import '../utils/animation_transition.dart';
 import '../view/vehicle_details.dart';
-import 'car_modal.dart';
+import 'model_make_modal.dart';
 
 List<String> label = ["VIN", "Part No.", "Vehicle - (Make | Model)"];
 
@@ -27,9 +28,9 @@ Future<dynamic> buildShowModalBottomSheet(BuildContext context) =>
           topRight: Radius.circular(50.0),
         ),
       ),
-      barrierColor: Colors.black.withOpacity(.8),
+      barrierColor: const Color.fromRGBO(0, 0, 0, 0.001),
       context: context,
-      builder: (_) => const CarModal(term: ""),
+      builder: (_) => const ModelMakeModal(),
     );
 
 class CollapsePanel extends StatefulWidget {
@@ -46,6 +47,7 @@ class _CollapsePanelState extends State<CollapsePanel> {
   final List<PanelModel> _data = generateItems(3);
   TextEditingController txt = TextEditingController();
   VehicleModel? vehicleData;
+  bool isSearching = false;
 
   @override
   void initState() {
@@ -77,7 +79,7 @@ class _CollapsePanelState extends State<CollapsePanel> {
   Widget _buildPanel() {
     return ExpansionPanelList.radio(
       // key: GlobalKey(),
-      // initialOpenPanelValue: 0,
+      initialOpenPanelValue: txt.value.text.isNotEmpty ? 0 : null,
       expandedHeaderPadding: EdgeInsets.zero,
       children: _data.map<ExpansionPanelRadio>((PanelModel item) {
         return ExpansionPanelRadio(
@@ -108,7 +110,21 @@ class _CollapsePanelState extends State<CollapsePanel> {
         ),
       ),
       onPressed: () => buildShowModalBottomSheet(context),
-      child: const Text("Year | Make | Model"),
+      child: const Text("Make | Model | Year"),
+    );
+  }
+
+  Center buildProgressBar() {
+    return const Center(
+      heightFactor: 1,
+      widthFactor: 1,
+      child: SizedBox(
+        height: 15,
+        width: 15,
+        child: CircularProgressIndicator(
+          strokeWidth: 2,
+        ),
+      ),
     );
   }
 
@@ -121,9 +137,13 @@ class _CollapsePanelState extends State<CollapsePanel> {
       key: Key(index.toString()),
       controller: txt,
       onFieldSubmitted: (_) {
+        setState(() => isSearching = true);
+
         APIService()
             .getVehicleByVin(searchTerm)
             .then((data) => setState(() => vehicleData = data));
+
+        setState(() => isSearching = false);
       },
       onChanged: (value) {
         if (value.isNotEmpty || widget.vin.isNotEmpty) {
@@ -140,7 +160,9 @@ class _CollapsePanelState extends State<CollapsePanel> {
     return InputDecoration(
       filled: true,
       isDense: true,
-      prefixText: "${label[index]} -> ",
+      prefixIcon: isSearching ? buildProgressBar() : null,
+      prefixText: !isSearching ? "${label[index]}: " : null,
+      prefixStyle: const TextStyle(fontWeight: FontWeight.w600, color: Colors.black26),
       hintText: "Enter your ${label[index]}...",
       alignLabelWithHint: true,
       border: OutlineInputBorder(
@@ -159,6 +181,9 @@ class _CollapsePanelState extends State<CollapsePanel> {
           alignment: Alignment.center,
           onPressed: () {
             if (searchTerm.isNotEmpty) {
+              setState(() => isSearching = true);
+              KeyboardUtil.hide(context);
+
               APIService()
                   .getVehicleByVin(searchTerm)
                   .then((VehicleModel vehicle) {
@@ -167,8 +192,15 @@ class _CollapsePanelState extends State<CollapsePanel> {
                   // Lets create an animated router and the page
                   // We want to navigate to
                   animateTransition(context, VehicleDetails(vehicle: vehicle));
+
+                  setState(() => isSearching = false);
                 } else {
-                  buildShowModalBottomSheet(context);
+                  setState(() {
+                    isSearching = false;
+                    searchTerm ="";
+                  });
+
+                  // buildShowModalBottomSheet(context);
                 }
                 // By default, show a loading spinner.
                 return const CircularProgressIndicator();

@@ -8,11 +8,12 @@ import 'package:automasters/view/parts_category.dart';
 import 'package:automasters/widgets/fade_slide.dart';
 import 'package:automasters/widgets/scale_animation.dart';
 import 'package:flutter/material.dart';
+import 'package:string_capitalize/string_capitalize.dart';
 
 import '../models/vehicle.dart';
 import '../service/apiService.dart';
 import '../utils/custom_line.dart';
-import '../utils/text_tools.dart';
+import '../utils/keyboard.dart';
 
 class VehicleDetails extends StatefulWidget {
   final VehicleModel vehicle;
@@ -25,19 +26,18 @@ class VehicleDetails extends StatefulWidget {
 
 class _VehicleDetailsState extends State<VehicleDetails>
     with SingleTickerProviderStateMixin {
+  final FocusNode focusNode = FocusNode();
+
   // Animation setups
   late AnimationController animationController;
   late Animation animation;
   List<AnimationItem> animationItems = [];
 
-  late Future<List<PartModel>> partsQuery;
-
-  // Keep track of selected car index;
-  int selectedIndex = 0;
+  late Future<List<PartModel>> getCarParts;
 
   @override
   void initState() {
-    partsQuery = APIService().getPartsByVfam(widget.vehicle.vfam);
+    getCarParts = APIService().getPartsByVfam(widget.vehicle.vfam);
 
     animationController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 700));
@@ -73,12 +73,13 @@ class _VehicleDetailsState extends State<VehicleDetails>
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
-
+    //build/app/outputs/flutter-apk/app-debug.apk.
+    //Installing build/app/outputs/flutter-apk/app-debug.apk.
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: Theme.of(context).colorScheme.primary,
       body: NestedScrollView(
-        physics: const BouncingScrollPhysics(),
+        physics: const AlwaysScrollableScrollPhysics(),
         headerSliverBuilder: (_, __) {
           return [
             buildSliverAppBar(context),
@@ -91,79 +92,90 @@ class _VehicleDetailsState extends State<VehicleDetails>
 
   SliverAppBar buildSliverAppBar(BuildContext context) {
     return SliverAppBar(
-            primary: true,
-            pinned: true,
-            floating: false,
-            centerTitle: true,
-            expandedHeight: 250,
-            leadingWidth: 100,
-            leading: GestureDetector(
-              onTap: () =>
-                  animateTransition(context, Home(vin: widget.vehicle.vin)),
-              child: Container(
-                height: 55.0,
-                width: 55.0,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: Colors.grey.shade300,
-                  ),
-                ),
-                child: const Icon(Icons.chevron_left),
-              ),
-            ),
-            flexibleSpace: FlexibleSpaceBar(
-              centerTitle: true,
-              background: buildVehicleImage(),
-              title: buildVehicleName(),
-              collapseMode: CollapseMode.pin,
-            ),
-            bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(0.0),
-              child: Transform.translate(
-                offset: const Offset(0, 50),
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 10.0),
-                  child: Text(
-                      "${widget.vehicle.make} - ${widget.vehicle.model}"),
-                ),
-              ),
-            ),
-            /*shape: const ContinuousRectangleBorder(
+      primary: true,
+      scrolledUnderElevation: 5.0,
+      pinned: true,
+      floating: false,
+      centerTitle: true,
+      expandedHeight:
+          getProportionateScreenHeight(focusNode.hasPrimaryFocus ? 100 : 250),
+      leadingWidth: 100,
+      leading: GestureDetector(
+        onTap: () => animateTransition(context, Home(vin: widget.vehicle.vin)),
+        child: buildBackButton(),
+      ),
+      flexibleSpace: FlexibleSpaceBar(
+        centerTitle: true,
+        background: buildVehicleImage(),
+        title: buildVehicleName(),
+        collapseMode: CollapseMode.pin,
+      ),
+      bottom: PreferredSize(
+        preferredSize: const Size.fromHeight(0.0),
+        child: Transform.translate(
+          offset: const Offset(0, 50),
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 10.0),
+            child: Text("${widget.vehicle.make} - ${widget.vehicle.model}"),
+          ),
+        ),
+      ),
+      /*shape: const ContinuousRectangleBorder(
                 borderRadius: BorderRadius.only(
                     bottomLeft: Radius.circular(30), bottomRight: Radius.circular(30)),
             ),*/
-          );
+    );
   }
 
-  FadeSlide buildVehicleName() {
+   buildBackButton() => Container(
+        height: getProportionateScreenHeight(40.0),
+        width: getProportionateScreenWidth(40.0),
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: Colors.grey.withOpacity(0.7),
+          ),
+        ),
+        child: const Icon(Icons.chevron_left),
+      );
+
+  buildVehicleName() {
     VehicleModel vehicle = widget.vehicle;
 
-    return FadeSlide(
-      direction: getItemVisibility("slide-2", animationItems),
-      duration: getSlideDuration("slide-2", animationItems),
-      offsetY: 60.0,
-      offsetX: 0.0,
-      child: Text.rich(
-        TextSpan(
-          children: [
-            TextSpan(
-              text: "${vehicle.make} - ${vehicle.model}\n",
-              style: const TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 22.0,
-                color: Color(0xFFFFFFFF),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 2),
+      decoration: const BoxDecoration(
+        color: Color.fromRGBO(0, 0, 0, 0.3),
+        borderRadius: BorderRadius.only(
+            topRight: Radius.circular(20.0), topLeft: Radius.circular(20.0)),
+      ),
+      child: FadeSlide(
+        direction: getItemVisibility("slide-2", animationItems),
+        duration: getSlideDuration("slide-2", animationItems),
+        offsetY: 60.0,
+        offsetX: 0.0,
+        child: Text.rich(
+          textAlign: TextAlign.center,
+          TextSpan(
+            children: [
+              TextSpan(
+                text: "${vehicle.model.capitalizeEach()}\n",
+                style: const TextStyle(
+                  fontSize: 15.0,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFFFFFFFF),
+                ),
               ),
-            ),
-            TextSpan(
-              text: "2022 - ${vehicle.category} - ${vehicle.fuelType}",
-              style: const TextStyle(
-                height: 1.7,
-                fontSize: 14.0,
-                color: Colors.white70,
+              TextSpan(
+                text: "${vehicle.year} ${vehicle.make} ${vehicle.model}".capitalizeEach(),
+                style: const TextStyle(
+                  height: 1.7,
+                  fontSize: 13.0,
+                  color: Colors.white70,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -171,7 +183,7 @@ class _VehicleDetailsState extends State<VehicleDetails>
 
   Container buildVehicleImage() {
     return Container(
-      margin: const EdgeInsets.only(top: 60),
+      margin: const EdgeInsets.only(top: 50),
       child: AnimatedSwitcher(
         duration: const Duration(milliseconds: 500),
         child: ScaleAnimation(
@@ -217,26 +229,49 @@ class _VehicleDetailsState extends State<VehicleDetails>
             topRight: Radius.circular(50.0),
           ),
         ),
-        padding: const EdgeInsets.fromLTRB(32.0, 24.0, 32.0, 24.0),
-        child: FutureBuilder<List<PartModel>>(
-          future: partsQuery,
-          builder: (BuildContext context, AsyncSnapshot snapshot) {
-            switch (snapshot.connectionState) {
-              case ConnectionState.waiting:
-                // By default, show a loading spinner.
-                return buildProgressBar();
-              default:
-                if (snapshot.hasError) {
-                  return const Text('Refresh App');
-                } else {
-                  List<PartModel> result = snapshot.data;
-                  return searchableProducts(result);
-                }
-            }
-          },
+        padding: const EdgeInsets.fromLTRB(
+          24.0,32.0,24.0,0.0,
         ),
+        child: buildFutureBuilder(),
       ),
     );
+  }
+
+  FutureBuilder<List<PartModel>> buildFutureBuilder() {
+    return FutureBuilder<List<PartModel>>(
+      future: getCarParts,
+      builder: (BuildContext context, AsyncSnapshot snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.waiting:
+            // By default, show a loading spinner.
+            return buildProgressBar();
+          default:
+            if (snapshot.hasError) {
+              return const Text('Refresh App');
+            } else {
+              List<PartModel> result = snapshot.data;
+              return snapshot.data.length > 0
+                  ? searchableProducts(result)
+                  : buildMakeRequestButton(context);
+            }
+        }
+      },
+    );
+  }
+
+  Center buildMakeRequestButton(BuildContext context) {
+    return Center(
+                    child: OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(
+                          width: 1.0,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                      onPressed: () {},
+                      child: const Text("Make a Request"),
+                    ),
+                  );
   }
 
   UnderlineInputBorder enabledBorder() {
@@ -250,12 +285,35 @@ class _VehicleDetailsState extends State<VehicleDetails>
   }
 
   UnderlineInputBorder focusedBorder() {
+    /*focusedBorder: OutlineInputBorder(
+      borderSide: BorderSide(color: Colors.white),
+      borderRadius: BorderRadius.circular(25.7),
+    ),*/
     return const UnderlineInputBorder(
       borderSide: BorderSide(color: Colors.grey),
       borderRadius: BorderRadius.only(
         bottomLeft: Radius.circular(30),
         bottomRight: Radius.circular(30),
       ),
+    );
+  }
+
+  /// List View Header[buildListViewHeader]
+  Row buildListViewHeader(BuildContext context, List<PartModel> carParts) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        customLine("Select Your Part", true, context),
+        TextButton(
+          onPressed: () {
+            animateTransition(
+              context,
+              PartList(carParts: carParts, vehicle: widget.vehicle),
+            );
+          },
+          child: const Text("See All"),
+        ),
+      ],
     );
   }
 
@@ -266,7 +324,8 @@ class _VehicleDetailsState extends State<VehicleDetails>
         ValueNotifier<List<PartModel>>([]);
     TextEditingController searchController = TextEditingController();
 
-    prefixIcon() => Icon(Icons.search, color: Color( isSearching ? 0xFFD5300C : 0xFF979797));
+    prefixIcon() =>
+        Icon(Icons.search, color: Color(isSearching ? 0xFFD5300C : 0xFF979797));
 
     suffixIcon() => IconButton(
           icon: const Icon(Icons.close, color: Color(0xFF979797)),
@@ -278,19 +337,22 @@ class _VehicleDetailsState extends State<VehicleDetails>
         );
 
     Container buildSearchField() {
+      final txtFieldKey = GlobalKey<State<StatefulWidget>>();
+
       return Container(
-        margin: const EdgeInsets.only(top: 10),
+        height: getProportionateScreenHeight(40.0),
+        margin: const EdgeInsets.only(top: 10, bottom: 10),
+        // padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom,),
         child: TextField(
+          focusNode: focusNode,
           controller: searchController,
           decoration: InputDecoration(
             filled: true,
-            /*focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.white),
-              borderRadius: BorderRadius.circular(25.7),
-            ),*/
             focusedBorder: focusedBorder(),
             enabledBorder: enabledBorder(),
             focusColor: Colors.grey,
+            fillColor: const Color(0xFFF0EEF6),
+            //Colors.grey.shade300,
             contentPadding: EdgeInsets.all(
               getProportionateScreenHeight(10),
             ),
@@ -298,6 +360,14 @@ class _VehicleDetailsState extends State<VehicleDetails>
             prefixIcon: prefixIcon(),
             suffixIcon: isSearching ? suffixIcon() : const SizedBox.shrink(),
           ),
+          onTap: () => ensureVisibleOnTextArea(textFieldKey: txtFieldKey),
+          onTapOutside: (event) {
+            KeyboardUtil.hide(context);
+            focusNode.unfocus();
+            FocusManager.instance.primaryFocus?.unfocus();
+            TextEditingController().clear();
+            // FocusScope.of(context).unfocus();
+          },
           onChanged: (val) {
             filtered.value = [];
             if (val.isNotEmpty) {
@@ -316,23 +386,9 @@ class _VehicleDetailsState extends State<VehicleDetails>
       valueListenable: filtered,
       builder: (context, value, _) {
         return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                customLine("Select Your Parts", true, context),
-                TextButton(
-                  onPressed: () {
-                    animateTransition(
-                      context,
-                      PartList(carParts: carParts, vehicle: widget.vehicle),
-                    );
-                  },
-                  child: const Text("See All"),
-                ),
-              ],
-            ),
+            buildListViewHeader(context, carParts),
             const Divider(thickness: 2, indent: 40),
             Expanded(child: buildListView(carParts, isSearching, filtered)),
             buildSearchField(),
@@ -340,6 +396,28 @@ class _VehicleDetailsState extends State<VehicleDetails>
         );
       },
     );
+  }
+
+  Future<void> ensureVisibleOnTextArea(
+      {required GlobalKey textFieldKey}) async {
+    final keyContext = textFieldKey.currentContext;
+    if (keyContext != null) {
+      await Future.delayed(const Duration(milliseconds: 500)).then(
+        (value) => Scrollable.ensureVisible(
+            keyContext,
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.decelerate,
+          ),
+      );
+      // Optional if doesnt work with the first
+      // await Future.delayed(const Duration(milliseconds: 500)).then(
+      //   (value) => Scrollable.ensureVisible(
+      //     keyContext,
+      //     duration: const Duration(milliseconds: 200),
+      //     curve: Curves.decelerate,
+      //   ),
+      // );
+    }
   }
 
   /// Filter list of products[filterCondition]
@@ -357,33 +435,39 @@ class _VehicleDetailsState extends State<VehicleDetails>
   buildListView(
       result, bool searching, ValueNotifier<List<PartModel>> filtered) {
     return ListView.builder(
+      shrinkWrap: true,
       padding: EdgeInsets.zero,
       itemCount: searching ? filtered.value.length : result.length,
       itemBuilder: (context, index) {
         PartModel item = searching ? filtered.value[index] : result[index];
 
-        return Container(
-          width: double.infinity,
-          color: Colors.grey.shade200,
-          padding: const EdgeInsets.all(10),
-          margin: const EdgeInsets.only(top: 5.0),
-          child: InkWell(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  TextTools.toUppercaseFirstLetterEach(item.part),
-                  style: const TextStyle(
-                      fontWeight: FontWeight.bold, color: Colors.black87),
-                ),
-                const Icon(Icons.arrow_forward, size: 16),
-              ],
-            ),
-            onTap: () => animateTransition(
-                context, PartsCategory(cPart: item, vehicle: widget.vehicle)),
-          ),
-        );
+        return buildCard(item, context);
       },
+    );
+  }
+
+  Card buildCard(PartModel item, BuildContext context) {
+    return Card(
+      elevation: 3.0,
+      color: const Color(0xFFF0EEF6), //Colors.grey.shade300,
+      margin: const EdgeInsets.only(top: 10.0),
+      child: InkWell(
+        child: Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(item.part.capitalizeEach(),
+                style: const TextStyle(
+                    fontWeight: FontWeight.bold, color: Colors.black87),
+              ),
+              const Icon(Icons.arrow_forward, size: 16),
+            ],
+          ),
+        ),
+        onTap: () => animateTransition(
+            context, PartsCategory(cPart: item, vehicle: widget.vehicle)),
+      ),
     );
   }
 }

@@ -9,6 +9,9 @@ class PartModel {
   final String make;
   final String makeRef;
   final String description;
+  final String hunter;
+  final String note;
+  final String personnel;
 
   // final Map<String, dynamic> images;
 
@@ -23,6 +26,9 @@ class PartModel {
     this.make = "",
     this.makeRef = "",
     this.description = "",
+    this.hunter = "",
+    this.note = "",
+    this.personnel = "",
     // required this.images
   });
 
@@ -38,6 +44,9 @@ class PartModel {
       make: json['make'],
       makeRef: json['makeRef'],
       description: json['description'],
+      hunter: json['hunter'],
+      note: json['note'],
+      personnel: json['personnel'],
       // images: json['vehicleImages'],
     );
   }
@@ -54,6 +63,9 @@ class PartModel {
         "make": item.make,
         "makeRef": item.makeRef,
         "description": item.description,
+        "hunter": item.hunter,
+        "note": item.note,
+        "personnel": item.personnel,
       };
 
   /// Update Parts Object/Model property[copy]
@@ -64,7 +76,11 @@ class PartModel {
     String? part,
     String? model,
     String? make,
+    String? makeRef,
     String? description,
+    String? hunter,
+    String? note,
+    String? personnel,
     // Map<String, dynamic>? images,
   }) =>
       PartModel(
@@ -73,8 +89,12 @@ class PartModel {
         vfam: vfam ?? "",
         model: model ?? "",
         make: make ?? "",
+        makeRef: makeRef ?? "",
         part: part ?? "",
         description: description ?? "",
+        hunter: hunter ?? "",
+        note: note ?? "",
+        personnel: personnel ?? "",
         // images: images ?? {},
       );
 }

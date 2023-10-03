@@ -1,12 +1,16 @@
 import 'dart:convert';
+import 'package:automasters/models/hunter.dart';
 import 'package:automasters/models/parts.dart';
 import 'package:http/http.dart' as http;
+import '../models/make.dart';
+import '../models/model.dart';
 import '../models/vehicle.dart';
 import 'base_api.dart';
 
 class APIService extends BaseAPI {
-  // 3CZRU6H35NM701659
-//await Future.delayed(const Duration(seconds: 1));
+  // 3CZRU6H35NM701659 - JTEBB71J8LB015918- kkoomson@yahoo.com
+  //await Future.delayed(const Duration(seconds: 1));
+
   /// Get Vehicle by VIN[getVehicleByVin]
   Future<VehicleModel> getVehicleByVin(String vin) async {
     var response = await http.get(
@@ -40,6 +44,70 @@ class APIService extends BaseAPI {
       // then parse the JSON.
       List jsonList = json.decode(response.body)['content'];
       return jsonList.map((job) => PartModel.fromJson(job)).toList();
+    } else {
+      // If the server did not return a 200 OK response,
+      // then throw an exception.
+      return [];
+      // throw Exception('Failed to load album:');
+    }
+  }
+
+  /// Get Part-Hunter by hunter or personnel[getProductsByHunter]
+  Future<List<HunterModel>> getProductsByHunter(String hunter) async {
+
+    var response = await http.get(
+      Uri.parse(url("${apiEndpoints['hunter']}/$hunter")),
+      headers: headers,
+    );
+
+    if (response.statusCode == 200) {
+      // If the server did return a 200 OK response,
+      // then parse the JSON.
+      List jsonList = json.decode(response.body)['content'];
+      return jsonList.map((job) => HunterModel.fromJson(job)).toList();
+    } else {
+      // If the server did not return a 200 OK response,
+      // then throw an exception.
+      return [];
+      // throw Exception('Failed to load album:');
+    }
+  }
+
+  /// Get Vehicle Make[getMake]
+  Future<List<MakeModel>> getMake() async {
+
+    var response = await http.get(
+      Uri.parse(url("${apiEndpoints['make']}${pagination(100, "make")}")),
+      headers: headers,
+    );
+
+    if (response.statusCode == 200) {
+      // If the server did return a 200 OK response,
+      // then parse the JSON.
+      List jsonList = json.decode(response.body)['content'];
+      return jsonList.map((job) => MakeModel.fromJson(job)).toList();
+    } else {
+      // If the server did not return a 200 OK response,
+      // then throw an exception.
+      return [];
+      // throw Exception('Failed to load album:');
+    }
+  }
+
+  /// Get Vehicle Model By Make Reference[getModel]
+  Future<List<Model>> getModel(String makeRef) async {
+
+    var response = await http.get(
+      // ${pagination(100, "make")}
+      Uri.parse(url("${apiEndpoints['model']}/make_ref/$makeRef${pagination(100, "id")}")),
+      headers: headers,
+    );
+
+    if (response.statusCode == 200) {
+      // If the server did return a 200 OK response,
+      // then parse the JSON.
+      List jsonList = json.decode(response.body)['content'];
+      return jsonList.map((job) => Model.fromJson(job)).toList();
     } else {
       // If the server did not return a 200 OK response,
       // then throw an exception.

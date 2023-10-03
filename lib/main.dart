@@ -6,7 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 void main() {
   runApp(const MyApp());
   // Disable screen orientation to PORTRAIT-UP ONLY
-  // SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   // Force System UI to use my defined colors
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(statusBarColor: Colors.transparent),

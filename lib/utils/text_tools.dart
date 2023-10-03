@@ -58,14 +58,14 @@ class TextTools {
   /// This will put the first letter in UpperCase, will print 'What Is Your Name'
   /// print(TextTools.toUppercaseFirstLetter(text: 'what is your name'));
   static toUppercaseFirstLetter({required String text}) {
-    text = text.replaceFirst(text[0], text[0].toUpperCase());
+    text =  text.isEmpty ? text : text.replaceFirst(text[0], text[0].toUpperCase());
     return text;
   }
 
   /// This will put the first letter in UpperCase, will print 'What Is Your Name'
   /// print(TextTools.toUppercaseFirstLetterEach('what is your name'));
   static String toUppercaseFirstLetterEach(String s) {
-    return s
+    return s.isEmpty ? s :s
         .split(' ')
         .map((word) => word[0].toUpperCase() + word.substring(1))
         .join(' ');

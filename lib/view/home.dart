@@ -1,17 +1,57 @@
 import 'package:flutter/material.dart';
+import '../models/animation_item.dart';
 import '../utils/size_config.dart';
 import '../widgets/collapse_panel.dart';
+import '../widgets/scale_animation.dart';
 
 class Home extends StatefulWidget {
   final String vin;
 
-  const Home({super.key, this.vin=""});
+  const Home({super.key, this.vin = ""});
 
   @override
   State<Home> createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
+  // Animation setups
+  late AnimationController animationController;
+  late Animation animation;
+  List<AnimationItem> animationItems = [];
+
+  @override
+  void initState() {
+    animationController = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 700));
+    for (int i = 0; i < 10; i++) {
+      animationItems.add(
+        AnimationItem(
+          id: "slide-${i + 1}",
+          entry: 30 * (i + 1),
+          entryDuration: 250,
+          visible: false,
+        ),
+      );
+    }
+    animation = Tween<double>(begin: 0, end: 300).animate(animationController)
+      ..addListener(() {
+        setState(() {
+          animationItems = updateVisibleState(
+            animationItems,
+            animation.value,
+          );
+        });
+      });
+    animationController.forward();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    animationController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
@@ -28,6 +68,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
 
   AppBar buildAppBar(BuildContext context) {
     return AppBar(
+      centerTitle: true,
       leading: const SizedBox.shrink(),
       backgroundColor: Theme.of(context).colorScheme.primary,
       title: const Text(
@@ -90,7 +131,15 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
             horizontal: 12,
             vertical: SizeConfig.screenHeight! / 4,
           ),
-          child: buildBody(customTheme, context),
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 500),
+            child: ScaleAnimation(
+              key: const ValueKey("home-main"),
+              duration: getSlideDuration("slide-3", animationItems),
+              direction: getItemVisibility("slide-3", animationItems),
+              child: buildBody(customTheme, context),
+            ),
+          ),
         ),
       ),
     );
@@ -113,9 +162,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                 .copyWith(fontWeight: FontWeight.bold, color: Colors.white),
           ),
         ),
-        // search form
         CollapsePanel(vin: widget.vin),
-
         buildColoredBorder(
           context,
           const BorderRadius.only(

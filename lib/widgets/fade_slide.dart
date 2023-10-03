@@ -7,7 +7,8 @@ class FadeSlide extends StatelessWidget {
   final Widget child;
   final bool direction;
 
-  FadeSlide({
+  const FadeSlide({
+    super.key,
     required this.offsetX,
     required this.offsetY,
     required this.duration,
