@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:automasters/models/make.dart';
 import 'package:string_capitalize/string_capitalize.dart';
 import '../service/apiService.dart';
+import 'widgetery.dart';
 import '../utils/size_config.dart';
 
 class ModelMakeModal extends StatefulWidget {
@@ -14,7 +15,7 @@ class ModelMakeModal extends StatefulWidget {
 
 class _ModelMakeModalState extends State<ModelMakeModal> {
   late String getMakeRef;
-  bool isCarMakeClicked = false;
+  bool isMakeSelected = false;
   late Future<List<MakeModel>> getVehicleMake;
 
   @override
@@ -38,42 +39,70 @@ class _ModelMakeModalState extends State<ModelMakeModal> {
       primary: true,
       physics: const BouncingScrollPhysics(),
       child: Container(
-        height: SizeConfig.screenHeight! * 0.9,
+        height: SizeConfig.screenHeight! * 0.85,
         padding: const EdgeInsets.only(
           top: 7.0,
           bottom: 20.0,
         ),
         child: Column(
           children: [
-            IconButton.outlined(
-              tooltip: isCarMakeClicked ? "Go Back" : "Close",
-              onPressed: () {
-                isCarMakeClicked
-                    ? setState(() => isCarMakeClicked = false)
-                    : Navigator.pop(context);
-              },
-              icon: Icon(
-                isCarMakeClicked ? Icons.arrow_back : Icons.clear,
-                color: Colors.black26,
-              ),
-            ),
-            Text(
-              isCarMakeClicked ? "Car Model" : "Car Make",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: getProportionateScreenWidth(20),
-                color: Theme.of(context).colorScheme.primary,
-              ),
-            ),
-            const Divider(),
+            buildListViewHeader(context),
+            const Divider(thickness: 1),
             Expanded(
-              child: isCarMakeClicked && getMakeRef.isNotEmpty
+              child: isMakeSelected && getMakeRef.isNotEmpty
                   ? buildFutureBuilderCarModel()
                   : buildFutureBuilderCarMake(),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  /// List View Header[buildListViewHeader]
+  Row buildListViewHeader(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 30.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              GestureDetector(
+                child: customLine(
+                  "Car Make",
+                  isMakeSelected ? false : true,
+                  context,
+                  isMark: false,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                onTap: () => setState(() => isMakeSelected = false),
+              ),
+              const Icon(Icons.chevron_right, color: Colors.black26, size: 15),
+              customLine(
+                "Car Model",
+                isMakeSelected ? true : false,
+                context,
+                isMark: false,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ],
+          ),
+        ),
+        IconButton(
+          tooltip: isMakeSelected ? "Go Back" : "Close",
+          onPressed: () {
+            isMakeSelected
+                ? setState(() => isMakeSelected = false)
+                : Navigator.pop(context);
+          },
+          icon: Icon(
+            isMakeSelected ? Icons.arrow_back : Icons.clear,
+            //color: Colors.black26,
+          ),
+        ),
+      ],
     );
   }
 
@@ -134,18 +163,6 @@ class _ModelMakeModalState extends State<ModelMakeModal> {
         ),
       );
 
-  Center buildProgressBar() => const Center(
-        heightFactor: 1,
-        widthFactor: 1,
-        child: SizedBox(
-          height: 40,
-          width: 40,
-          child: CircularProgressIndicator(
-            strokeWidth: 5,
-          ),
-        ),
-      );
-
   /// List view display[buildGridView]
   buildGridViewCarMake(List<MakeModel> result) {
     return GridView.builder(
@@ -164,15 +181,16 @@ class _ModelMakeModalState extends State<ModelMakeModal> {
 
         return OutlinedButton(
           style: OutlinedButton.styleFrom(
-            side: BorderSide(width: 1.0, color: Colors.red.shade100),
+            side: BorderSide(width: 1.0, color: Theme.of(context).colorScheme.primaryContainer),
           ),
           onPressed: () {
             setState(() {
-              isCarMakeClicked = true;
+              isMakeSelected = true;
               getMakeRef = carMake.makeRef;
             });
           },
-          child: Text(carMake.make.capitalizeEach(),
+          child: Text(
+            carMake.make.capitalizeEach(),
             style: const TextStyle(
               fontWeight: FontWeight.w500,
               color: Colors.black,
@@ -204,7 +222,8 @@ class _ModelMakeModalState extends State<ModelMakeModal> {
             side: BorderSide(width: 1.0, color: Colors.red.shade100),
           ),
           onPressed: () {},
-          child: Text(carMake.model.capitalizeEach(),
+          child: Text(
+            carMake.model.capitalizeEach(),
             style: const TextStyle(
               fontWeight: FontWeight.w500,
               color: Colors.black,

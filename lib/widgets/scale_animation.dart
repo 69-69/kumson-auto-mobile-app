@@ -5,7 +5,7 @@ class ScaleAnimation extends StatefulWidget {
   final Widget child;
   final bool direction;
 
-  ScaleAnimation({
+  const ScaleAnimation({
     Key? key,
     required this.duration,
     required this.child,
@@ -14,7 +14,7 @@ class ScaleAnimation extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _ScaleAnimationState createState() => _ScaleAnimationState();
+  State<ScaleAnimation> createState() => _ScaleAnimationState();
 }
 
 class _ScaleAnimationState extends State<ScaleAnimation>
@@ -24,7 +24,7 @@ class _ScaleAnimationState extends State<ScaleAnimation>
   @override
   void initState() {
     animationController = AnimationController(
-      duration: Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 300),
       vsync: this,
     );
     super.initState();

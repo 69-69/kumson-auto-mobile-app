@@ -5,7 +5,8 @@ class BaseAPI {
     "parts": "/api/v1/auto/parts",
     "hunter": "/api/v1/auto/hunting",
     "make": "/api/v1/auto/make",
-    "model": "/api/v1/auto/model"
+    "model": "/api/v1/auto/model",
+    "vendor": "/api/v1/auto/vendor"
   };
 
   Map<String, String> headers = {
@@ -24,7 +25,8 @@ class BaseAPI {
     'Cache-Control': 'private, max-age=120'
   };
 
-  String url(String s) => "http://ec2-3-82-240-226.compute-1.amazonaws.com$s";
+  String url(String s) => "http://localhost:8080$s";
+  //"http://ec2-3-82-240-226.compute-1.amazonaws.com$s";
 
   // http://localhost:8080/path?page=0&size=100&sort=product,desc
   String pagination(int size, String sort) => "?page=0&size=$size&sort=$sort,asc";

@@ -17,13 +17,13 @@ class AnimationItem {
 bool getItemVisibility(String id, List<AnimationItem> items) {
   // A helper to check if an animation is in play mode
   AnimationItem item = items.firstWhere((element) => element.id == id);
-  return item != null ? item.visible : false;
+  return item.visible ?? false;
 }
 
 int getSlideDuration(String id, List<AnimationItem> items) {
   // A helper to find the duration for each animation
   AnimationItem item = items.firstWhere((element) => element.id == id);
-  return item != null ? item.entryDuration : 0;
+  return item.entryDuration ?? 0;
 }
 
 List<AnimationItem> updateVisibleState(

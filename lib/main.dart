@@ -1,6 +1,7 @@
 import 'package:automasters/view/home.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'color_schemes.g.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 void main() {
@@ -23,27 +24,87 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
+        useMaterial3: true,
+        colorScheme: lightColorScheme,
         textTheme: GoogleFonts.poppinsTextTheme(),
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a blue toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.redAccent),
-        // useMaterial3: true,
+
+        appBarTheme: AppBarTheme(
+          backgroundColor: lightColorScheme.primary,
+        ),
+
+        inputDecorationTheme: InputDecorationTheme(
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: Colors.black26),
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: Colors.black26),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: const BorderSide(color: Color(0xFFBA1A1A)),
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+
+        outlinedButtonTheme: OutlinedButtonThemeData(
+          style: OutlinedButton.styleFrom(
+            side: const BorderSide(width: 1.0),
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(10)),
+            ),
+          ),
+        ),
+        // primarySwatch: Colors.red,
       ),
+
+      darkTheme: ThemeData(
+        useMaterial3: true,
+        colorScheme: darkColorScheme,
+      ),
+
+      // theme: ThemeData.light(useMaterial3: true,),
+      //darkTheme: DarkTheme.darkTheme,
+      // themeMode: ThemeMode.system,
       home: const Home(),
       // home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
 }
+/*
+      theme: ThemeData(
+        textTheme: GoogleFonts.poppinsTextTheme(),
+        // This is the theme of your application.
+
+        useMaterial3: true,
+
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFFA10808),
+          primary: const Color(0xFFA10808),
+          //onPrimary: const Color(0xFFA10808),
+        ),
+
+        appBarTheme: const AppBarTheme(backgroundColor:  Color(0xFFA10808)),
+
+        cardTheme: const CardTheme(color: Color(0xFFF0EEF6)),
+
+        inputDecorationTheme: InputDecorationTheme(
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: Colors.black26),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: const BorderSide(color: Colors.redAccent),
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+
+        outlinedButtonTheme: OutlinedButtonThemeData(
+          style: OutlinedButton.styleFrom(
+            side: const BorderSide(width: 1.0),
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(10)),
+            ),
+          ),
+        ),
+      ),*/

@@ -5,38 +5,36 @@ import 'package:automasters/view/part_details_checkout.dart';
 import 'package:automasters/utils/animation_transition.dart';
 import 'package:automasters/view/vehicle_details.dart';
 import 'package:automasters/widgets/fade_slide.dart';
-import 'package:automasters/widgets/scale_animation.dart';
 import 'package:flutter/material.dart';
 import 'package:string_capitalize/string_capitalize.dart';
 
 import '../models/hunter.dart';
 import '../models/vehicle.dart';
 import '../service/apiService.dart';
-import '../utils/custom_line.dart';
-import '../utils/text_tools.dart';
+import '../widgets/widgetery.dart';
 
-class PartsCategory extends StatefulWidget {
+class PartsCrossRef extends StatefulWidget {
   final PartModel cPart;
   final VehicleModel vehicle;
 
-  const PartsCategory({super.key, required this.cPart, required this.vehicle});
+  const PartsCrossRef({super.key, required this.cPart, required this.vehicle});
 
   @override
-  State<PartsCategory> createState() => _PartsCategoryState();
+  State<PartsCrossRef> createState() => _PartsCrossRefState();
 }
 
-class _PartsCategoryState extends State<PartsCategory>
+class _PartsCrossRefState extends State<PartsCrossRef>
     with SingleTickerProviderStateMixin {
   // Animation setups
   late AnimationController animationController;
   late Animation animation;
   List<AnimationItem> animationItems = [];
 
-  late Future<List<HunterModel>> getProductsHunter;
+  late Future<List<HunterModel>> getPartsHunter;
 
   @override
   void initState() {
-    getProductsHunter = APIService().getProductsByHunter(widget.cPart.hunter);
+    getPartsHunter = APIService().getHunterParts(hunterNo: widget.cPart.hunter);
 
     animationController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 700));
@@ -74,6 +72,7 @@ class _PartsCategoryState extends State<PartsCategory>
     SizeConfig().init(context);
 
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       backgroundColor: Theme.of(context).colorScheme.primary,
       body: buildNestedScrollView(context),
     );
@@ -81,63 +80,24 @@ class _PartsCategoryState extends State<PartsCategory>
 
   NestedScrollView buildNestedScrollView(BuildContext context) {
     return NestedScrollView(
-      headerSliverBuilder: (_, __) {
-        return [
-          buildSliverAppBar(context),
-        ];
-      },
+      headerSliverBuilder: (_, __) => [buildSliverAppBar(context)],
       physics: const BouncingScrollPhysics(),
       body: buildPartsDetails(context),
     );
   }
 
-  SliverAppBar buildSliverAppBar(BuildContext context) {
-    return SliverAppBar(
-          primary: true,
-          pinned: true,
-          floating: false,
-          centerTitle: true,
-          expandedHeight: getProportionateScreenHeight(250),
-          leadingWidth: 100,
-          leading: GestureDetector(
-            onTap: () => animateTransition(
-                context, VehicleDetails(vehicle: widget.vehicle)),
-            child: buildBackButton(),
-          ),
-          flexibleSpace: FlexibleSpaceBar(
-            background: buildAppBarImage(),
-            centerTitle: true,
-            title: buildPartName(),
-            collapseMode: CollapseMode.pin,
-          ),
-          bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(0.0),
-            child: Transform.translate(
-              offset: const Offset(0, 50),
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 10.0),
-                child: Text("Available ${widget.cPart.part}".capitalizeEach()),
-              ),
-            ),
-          ),
-          /*shape: const ContinuousRectangleBorder(
-              borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(30), bottomRight: Radius.circular(30)),
-          ),*/
-        );
-  }
-
-  buildBackButton() => Container(
-    height: getProportionateScreenHeight(40.0),
-    width: getProportionateScreenWidth(40.0),
-    decoration: BoxDecoration(
-      shape: BoxShape.circle,
-      border: Border.all(
-        color: Colors.grey.withOpacity(0.7),
+  SliverAppBar buildSliverAppBar(BuildContext context) => buildSliverAppBars(
+      context,
+      getProportionateScreenHeight(250),
+      buildBackButton(context, route: VehicleDetails(vehicle: widget.vehicle)),
+      FlexibleSpaceBar(
+        background: buildAppBarImage(),
+        centerTitle: true,
+        title: buildPartName(),
+        collapseMode: CollapseMode.pin,
       ),
-    ),
-    child: const Icon(Icons.chevron_left),
-  );
+      preferredSize: buildPreferredSize("Available ${widget.cPart.part}".capitalizeEach()),
+    );
 
   Container buildPartName() {
     PartModel vPart = widget.cPart;
@@ -149,35 +109,10 @@ class _PartsCategoryState extends State<PartsCategory>
         borderRadius: BorderRadius.only(
             topRight: Radius.circular(20.0), topLeft: Radius.circular(20.0)),
       ),
-      child: FadeSlide(
-        direction: getItemVisibility("slide-2", animationItems),
-        duration: getSlideDuration("slide-2", animationItems),
-        offsetY: 60.0,
-        offsetX: 0.0,
-        child: Text.rich(
-          textAlign: TextAlign.center,
-          TextSpan(
-            children: [
-              TextSpan(
-                text:
-                    "${vPart.part.capitalizeEach()} for\n",
-                style: const TextStyle(
-                  height: 1.7,
-                  fontSize: 13.0,
-                  color: Colors.white,
-                ),
-              ),
-              TextSpan(
-                text:  "${widget.vehicle.year} ${vPart.make} ${vPart.model}".capitalizeEach(),
-                style: const TextStyle(
-                  fontSize: 15.0,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFFFFFFFF),
-                ),
-              ),
-            ],
-          ),
-        ),
+      child: buildFadeSlide(
+        animationItems,
+        child: buildRichText("${vPart.part} for",
+            "${widget.vehicle.year} ${vPart.make} ${vPart.model}"),
       ),
     );
   }
@@ -187,21 +122,8 @@ class _PartsCategoryState extends State<PartsCategory>
     return Container(
       margin: const EdgeInsets.only(top: 50),
       // Lets create a list of all car image colors
-      child: AnimatedSwitcher(
-        // This switcher doesn't work, flutter can't
-        // understand the child change without a key property here
-        // I will include a link to a video talking more about keys
-        duration: const Duration(milliseconds: 500),
-        child: ScaleAnimation(
-          key: const ValueKey("assets/part-p.png"),
-          duration: getSlideDuration("slide-3", animationItems),
-          direction: getItemVisibility("slide-3", animationItems),
-          child: Align(
-            alignment: Alignment.center,
-            child: Image.asset("assets/part-p.png"),
-          ),
-        ),
-      ),
+      child: buildAnimatedSwitcher(
+          Image.asset("assets/part-p.png"), animationItems),
     );
   }
 
@@ -222,25 +144,10 @@ class _PartsCategoryState extends State<PartsCategory>
 
   /// Parts Details [buildPartsDetails]
   FadeSlide buildPartsDetails(BuildContext context) {
-    return FadeSlide(
-      duration: getSlideDuration("slide-4", animationItems),
-      direction: getItemVisibility("slide-4", animationItems),
-      offsetX: 0.0,
-      offsetY: 60.0,
-      child: Container(
-        height: SizeConfig.screenHeight!,
-        width: SizeConfig.screenWidth!,
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(50.0),
-            topRight: Radius.circular(50.0),
-          ),
-        ),
-        padding: const EdgeInsets.symmetric(
-          horizontal: 24.0,
-          vertical: 32.0,
-        ),
+    return buildFadeSlide(
+      animationItems,
+      child: buildCurveContainer(
+        const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
         child: buildFutureBuilder(),
       ),
     );
@@ -248,7 +155,7 @@ class _PartsCategoryState extends State<PartsCategory>
 
   FutureBuilder<List<HunterModel>> buildFutureBuilder() {
     return FutureBuilder<List<HunterModel>>(
-      future: getProductsHunter,
+      future: getPartsHunter,
       builder: (BuildContext context, AsyncSnapshot snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.waiting:
@@ -263,24 +170,13 @@ class _PartsCategoryState extends State<PartsCategory>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         buildListViewHeader(context, snapshot),
-                        const Divider(thickness: 2, indent: 40),
+                        const Divider(indent: 40),
                         Expanded(
                           child: buildListView(snapshot.data),
                         ),
                       ],
                     )
-                  : Center(
-                      child: OutlinedButton(
-                        style: OutlinedButton.styleFrom(
-                          side: BorderSide(
-                            width: 1.0,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                        ),
-                        onPressed: () {},
-                        child: const Text("Make a Request"),
-                      ),
-                    );
+                  : buildMakeARequestButton(context);
             }
         }
       },
@@ -336,7 +232,7 @@ class _PartsCategoryState extends State<PartsCategory>
   Card buildCard(BuildContext context, HunterModel huntPart, bool isLastIndex) {
     return Card(
       elevation: 3.0,
-      color: const Color(0xFFF0EEF6), //Colors.grey.shade300,
+      // color: const Color(0xFFF0EEF6), //Colors.grey.shade300,
       shape: isLastIndex
           ? const ContinuousRectangleBorder(
               borderRadius: BorderRadius.only(
@@ -346,19 +242,10 @@ class _PartsCategoryState extends State<PartsCategory>
             )
           : null,
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              buildContainerImage(),
-              buildProductInfo(huntPart),
-            ],
-          ),
-          /*const SizedBox(width: 12),
-          const Padding(
-            padding: EdgeInsets.only(right: 10.0),
-            child: Icon(Icons.arrow_forward, size: 16),
-          ),*/
+          buildContainerImage(),
+          buildProductInfo(huntPart),
         ],
       ),
     );
@@ -390,10 +277,11 @@ class _PartsCategoryState extends State<PartsCategory>
   buildProductInfo(HunterModel product) {
     return Padding(
       padding: const EdgeInsets.only(left: 10.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(product.brand.capitalizeEach(),
+          Text(
+            product.brand.capitalizeEach(),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
@@ -401,12 +289,13 @@ class _PartsCategoryState extends State<PartsCategory>
               fontWeight: FontWeight.bold,
             ),
           ),
-          SizedBox(height: getProportionateScreenHeight(2)),
-          Text(product.partNo.capitalize(),
+          SizedBox(width: getProportionateScreenWidth(20)),
+          Text(
+            product.partNo.capitalize(),
             style: TextStyle(
-                color: Colors.black87,
-                fontWeight: FontWeight.w500,
-                fontSize: getProportionateScreenWidth(13),
+              color: Colors.black87,
+              fontWeight: FontWeight.w500,
+              fontSize: getProportionateScreenWidth(13),
             ),
             maxLines: 1,
           ),

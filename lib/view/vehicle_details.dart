@@ -4,15 +4,16 @@ import 'package:automasters/utils/size_config.dart';
 import 'package:automasters/view/part_list.dart';
 import 'package:automasters/utils/animation_transition.dart';
 import 'package:automasters/view/home.dart';
-import 'package:automasters/view/parts_category.dart';
+import 'package:automasters/view/parts_by_price.dart';
+import 'package:automasters/view/parts_cross_ref.dart';
 import 'package:automasters/widgets/fade_slide.dart';
-import 'package:automasters/widgets/scale_animation.dart';
 import 'package:flutter/material.dart';
 import 'package:string_capitalize/string_capitalize.dart';
 
 import '../models/vehicle.dart';
 import '../service/apiService.dart';
-import '../utils/custom_line.dart';
+import '../widgets/show_confirmation_dialog.dart';
+import '../widgets/widgetery.dart';
 import '../utils/keyboard.dart';
 
 class VehicleDetails extends StatefulWidget {
@@ -73,71 +74,29 @@ class _VehicleDetailsState extends State<VehicleDetails>
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
-    //build/app/outputs/flutter-apk/app-debug.apk.
-    //Installing build/app/outputs/flutter-apk/app-debug.apk.
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: Theme.of(context).colorScheme.primary,
       body: NestedScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        headerSliverBuilder: (_, __) {
-          return [
-            buildSliverAppBar(context),
-          ];
-        },
+        physics: const BouncingScrollPhysics(),
+        headerSliverBuilder: (_, __) => [buildSliverAppBar(context)],
         body: buildPartsDetails(context),
       ),
     );
   }
 
-  SliverAppBar buildSliverAppBar(BuildContext context) {
-    return SliverAppBar(
-      primary: true,
-      scrolledUnderElevation: 5.0,
-      pinned: true,
-      floating: false,
-      centerTitle: true,
-      expandedHeight:
-          getProportionateScreenHeight(focusNode.hasPrimaryFocus ? 100 : 250),
-      leadingWidth: 100,
-      leading: GestureDetector(
-        onTap: () => animateTransition(context, Home(vin: widget.vehicle.vin)),
-        child: buildBackButton(),
-      ),
-      flexibleSpace: FlexibleSpaceBar(
-        centerTitle: true,
-        background: buildVehicleImage(),
-        title: buildVehicleName(),
-        collapseMode: CollapseMode.pin,
-      ),
-      bottom: PreferredSize(
-        preferredSize: const Size.fromHeight(0.0),
-        child: Transform.translate(
-          offset: const Offset(0, 50),
-          child: Padding(
-            padding: const EdgeInsets.only(bottom: 10.0),
-            child: Text("${widget.vehicle.make} - ${widget.vehicle.model}"),
-          ),
+  SliverAppBar buildSliverAppBar(BuildContext context) => buildSliverAppBars(
+        context,
+        getProportionateScreenHeight(focusNode.hasPrimaryFocus ? 100 : 250),
+        buildBackButton(context, route: Home(vin: widget.vehicle.vin)),
+        FlexibleSpaceBar(
+          centerTitle: true,
+          background: buildVehicleImage(),
+          title: buildVehicleName(),
+          collapseMode: CollapseMode.pin,
         ),
-      ),
-      /*shape: const ContinuousRectangleBorder(
-                borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(30), bottomRight: Radius.circular(30)),
-            ),*/
-    );
-  }
-
-   buildBackButton() => Container(
-        height: getProportionateScreenHeight(40.0),
-        width: getProportionateScreenWidth(40.0),
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          border: Border.all(
-            color: Colors.grey.withOpacity(0.7),
-          ),
-        ),
-        child: const Icon(Icons.chevron_left),
-      );
+        preferredSize: buildPreferredSize("${widget.vehicle.make} - ${widget.vehicle.model}"),
+       );
 
   buildVehicleName() {
     VehicleModel vehicle = widget.vehicle;
@@ -149,34 +108,10 @@ class _VehicleDetailsState extends State<VehicleDetails>
         borderRadius: BorderRadius.only(
             topRight: Radius.circular(20.0), topLeft: Radius.circular(20.0)),
       ),
-      child: FadeSlide(
-        direction: getItemVisibility("slide-2", animationItems),
-        duration: getSlideDuration("slide-2", animationItems),
-        offsetY: 60.0,
-        offsetX: 0.0,
-        child: Text.rich(
-          textAlign: TextAlign.center,
-          TextSpan(
-            children: [
-              TextSpan(
-                text: "${vehicle.model.capitalizeEach()}\n",
-                style: const TextStyle(
-                  fontSize: 15.0,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFFFFFFFF),
-                ),
-              ),
-              TextSpan(
-                text: "${vehicle.year} ${vehicle.make} ${vehicle.model}".capitalizeEach(),
-                style: const TextStyle(
-                  height: 1.7,
-                  fontSize: 13.0,
-                  color: Colors.white70,
-                ),
-              ),
-            ],
-          ),
-        ),
+      child: buildFadeSlide(
+        animationItems,
+        child: buildRichText(
+            vehicle.model, "${vehicle.year} ${vehicle.make} ${vehicle.model}"),
       ),
     );
   }
@@ -184,54 +119,16 @@ class _VehicleDetailsState extends State<VehicleDetails>
   Container buildVehicleImage() {
     return Container(
       margin: const EdgeInsets.only(top: 50),
-      child: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 500),
-        child: ScaleAnimation(
-          key: const ValueKey("assets/car3.png"),
-          duration: getSlideDuration("slide-3", animationItems),
-          direction: getItemVisibility("slide-3", animationItems),
-          child: Align(
-            alignment: Alignment.center,
-            child: Image.asset("assets/car3.png"),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Center buildProgressBar() {
-    return const Center(
-      heightFactor: 1,
-      widthFactor: 1,
-      child: SizedBox(
-        height: 40,
-        width: 40,
-        child: CircularProgressIndicator(
-          strokeWidth: 5,
-        ),
-      ),
+      child:
+          buildAnimatedSwitcher(Image.asset("assets/car3.png"), animationItems),
     );
   }
 
   FadeSlide buildPartsDetails(BuildContext context) {
-    return FadeSlide(
-      duration: getSlideDuration("slide-4", animationItems),
-      direction: getItemVisibility("slide-4", animationItems),
-      offsetX: 0.0,
-      offsetY: 60.0,
-      child: Container(
-        height: SizeConfig.screenHeight!,
-        width: SizeConfig.screenWidth!,
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(50.0),
-            topRight: Radius.circular(50.0),
-          ),
-        ),
-        padding: const EdgeInsets.fromLTRB(
-          24.0,32.0,24.0,0.0,
-        ),
+    return buildFadeSlide(
+      animationItems,
+      child: buildCurveContainer(
+        const EdgeInsets.fromLTRB(24.0, 32.0, 24.0, 0.0),
         child: buildFutureBuilder(),
       ),
     );
@@ -252,26 +149,11 @@ class _VehicleDetailsState extends State<VehicleDetails>
               List<PartModel> result = snapshot.data;
               return snapshot.data.length > 0
                   ? searchableProducts(result)
-                  : buildMakeRequestButton(context);
+                  : buildMakeARequestButton(context);
             }
         }
       },
     );
-  }
-
-  Center buildMakeRequestButton(BuildContext context) {
-    return Center(
-                    child: OutlinedButton(
-                      style: OutlinedButton.styleFrom(
-                        side: BorderSide(
-                          width: 1.0,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                      ),
-                      onPressed: () {},
-                      child: const Text("Make a Request"),
-                    ),
-                  );
   }
 
   UnderlineInputBorder enabledBorder() {
@@ -351,7 +233,7 @@ class _VehicleDetailsState extends State<VehicleDetails>
             focusedBorder: focusedBorder(),
             enabledBorder: enabledBorder(),
             focusColor: Colors.grey,
-            fillColor: const Color(0xFFF0EEF6),
+            // fillColor: const Color(0xFFF0EEF6),
             //Colors.grey.shade300,
             contentPadding: EdgeInsets.all(
               getProportionateScreenHeight(10),
@@ -389,35 +271,13 @@ class _VehicleDetailsState extends State<VehicleDetails>
           mainAxisSize: MainAxisSize.min,
           children: [
             buildListViewHeader(context, carParts),
-            const Divider(thickness: 2, indent: 40),
+            const Divider(indent: 40),
             Expanded(child: buildListView(carParts, isSearching, filtered)),
             buildSearchField(),
           ],
         );
       },
     );
-  }
-
-  Future<void> ensureVisibleOnTextArea(
-      {required GlobalKey textFieldKey}) async {
-    final keyContext = textFieldKey.currentContext;
-    if (keyContext != null) {
-      await Future.delayed(const Duration(milliseconds: 500)).then(
-        (value) => Scrollable.ensureVisible(
-            keyContext,
-            duration: const Duration(milliseconds: 200),
-            curve: Curves.decelerate,
-          ),
-      );
-      // Optional if doesnt work with the first
-      // await Future.delayed(const Duration(milliseconds: 500)).then(
-      //   (value) => Scrollable.ensureVisible(
-      //     keyContext,
-      //     duration: const Duration(milliseconds: 200),
-      //     curve: Curves.decelerate,
-      //   ),
-      // );
-    }
   }
 
   /// Filter list of products[filterCondition]
@@ -435,6 +295,7 @@ class _VehicleDetailsState extends State<VehicleDetails>
   buildListView(
       result, bool searching, ValueNotifier<List<PartModel>> filtered) {
     return ListView.builder(
+      key: UniqueKey(),
       shrinkWrap: true,
       padding: EdgeInsets.zero,
       itemCount: searching ? filtered.value.length : result.length,
@@ -449,7 +310,7 @@ class _VehicleDetailsState extends State<VehicleDetails>
   Card buildCard(PartModel item, BuildContext context) {
     return Card(
       elevation: 3.0,
-      color: const Color(0xFFF0EEF6), //Colors.grey.shade300,
+      // color: const Color(0xFFF0EEF6), //Colors.grey.shade300,
       margin: const EdgeInsets.only(top: 10.0),
       child: InkWell(
         child: Padding(
@@ -457,7 +318,8 @@ class _VehicleDetailsState extends State<VehicleDetails>
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(item.part.capitalizeEach(),
+              Text(
+                item.part.capitalizeEach(),
                 style: const TextStyle(
                     fontWeight: FontWeight.bold, color: Colors.black87),
               ),
@@ -465,8 +327,21 @@ class _VehicleDetailsState extends State<VehicleDetails>
             ],
           ),
         ),
-        onTap: () => animateTransition(
-            context, PartsCategory(cPart: item, vehicle: widget.vehicle)),
+        onTap: () async {
+          final isPrice = await showConfirmationDialog(
+            context,
+            positiveResponse: "Price",
+            negativeResponse: "Cross Ref",
+            const Text("Shop by Price or Cross Reference?"),
+          );
+          if (context.mounted) {
+            animateTransition(
+                context, isPrice ?
+            PartsByPrice(cPart: item, vehicle: widget.vehicle)
+            : PartsCrossRef(cPart: item, vehicle: widget.vehicle));
+          }
+
+        },
       ),
     );
   }

@@ -1,37 +1,16 @@
+import 'package:automasters/models/hunter.dart';
 import 'package:automasters/utils/keyboard.dart';
+import 'package:automasters/view/parts_by_part_no.dart';
+import 'package:automasters/widgets/make_a_request_modal.dart';
 import 'package:flutter/material.dart';
 
 import '../models/panel.dart';
 import '../models/vehicle.dart';
 import '../service/apiService.dart';
 import '../utils/animation_transition.dart';
+import 'widgetery.dart';
 import '../view/vehicle_details.dart';
 import 'model_make_modal.dart';
-
-List<String> label = ["VIN", "Part No.", "Vehicle - (Make | Model)"];
-
-List<PanelModel> generateItems(int numberOfItems) =>
-    List<PanelModel>.generate(numberOfItems, (int index) {
-      return PanelModel(
-        id: index,
-        headerValue: label[index],
-        expandedValue: const Placeholder(),
-      );
-    });
-
-Future<dynamic> buildShowModalBottomSheet(BuildContext context) =>
-    showModalBottomSheet(
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(50.0),
-          topRight: Radius.circular(50.0),
-        ),
-      ),
-      barrierColor: const Color.fromRGBO(0, 0, 0, 0.001),
-      context: context,
-      builder: (_) => const ModelMakeModal(),
-    );
 
 class CollapsePanel extends StatefulWidget {
   final String vin;
@@ -43,22 +22,28 @@ class CollapsePanel extends StatefulWidget {
 }
 
 class _CollapsePanelState extends State<CollapsePanel> {
-  String searchTerm = "";
+  bool isSearching = false;
+  String vinSearchTerm = "", partNoSearchTerm = "";
   final List<PanelModel> _data = generateItems(3);
   TextEditingController txt = TextEditingController();
+  List<HunterModel>? partData;
   VehicleModel? vehicleData;
-  bool isSearching = false;
 
   @override
   void initState() {
-    setState(() {
-      if (searchTerm.isNotEmpty) {
-        debugPrint("begin: $searchTerm");
+    /*setState(() {
+      if (vinSearchTerm.isNotEmpty) {
         APIService()
-            .getVehicleByVin(searchTerm)
+            .getVehicleByVin(vinSearchTerm)
             .then((data) => setState(() => vehicleData = data));
       }
-    });
+
+      if (partNoSearchTerm.isNotEmpty) {
+        APIService()
+            .getHunterParts(partNoSearchTerm)
+            .then((data) => setState(() => partData = data));
+      }
+    });*/
     super.initState();
   }
 
@@ -89,19 +74,22 @@ class _CollapsePanelState extends State<CollapsePanel> {
           headerBuilder: (BuildContext context, bool isExpanded) => ListTile(
             title: Text(
               item.headerValue,
-              style: const TextStyle(fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                  fontWeight: FontWeight.bold, color: Colors.black45),
             ),
           ),
           body: ListTile(
             dense: true,
-            title: item.id < 2 ? textFormField(item.id, context) : textButton(),
+            title: item.id < 2
+                ? formField(item.id, context)
+                : buildMakeModelButton(),
           ),
         );
       }).toList(),
     );
   }
 
-  OutlinedButton textButton() {
+  OutlinedButton buildMakeModelButton() {
     return OutlinedButton(
       style: OutlinedButton.styleFrom(
         side: BorderSide(
@@ -109,45 +97,44 @@ class _CollapsePanelState extends State<CollapsePanel> {
           color: Theme.of(context).colorScheme.primary,
         ),
       ),
-      onPressed: () => buildShowModalBottomSheet(context),
+      onPressed: () => buildMakeModal(context),
       child: const Text("Make | Model | Year"),
     );
   }
 
-  Center buildProgressBar() {
-    return const Center(
-      heightFactor: 1,
-      widthFactor: 1,
-      child: SizedBox(
-        height: 15,
-        width: 15,
-        child: CircularProgressIndicator(
-          strokeWidth: 2,
-        ),
-      ),
-    );
+  TextFormField formField(int index, BuildContext context) {
+    return index == 0
+        ? vinSearchTextFormField(index, context)
+        : partNoSearchTextFormField(index, context);
   }
 
-  TextFormField textFormField(int index, BuildContext context) {
+  TextFormField vinSearchTextFormField(int index, BuildContext context) {
     if (widget.vin.isNotEmpty) {
-      setState(() => searchTerm = widget.vin);
+      setState(() => vinSearchTerm = widget.vin);
       txt.text = widget.vin;
     }
     return TextFormField(
-      key: Key(index.toString()),
+      key: const ValueKey("vin"),
       controller: txt,
-      onFieldSubmitted: (_) {
-        setState(() => isSearching = true);
-
-        APIService()
-            .getVehicleByVin(searchTerm)
-            .then((data) => setState(() => vehicleData = data));
-
-        setState(() => isSearching = false);
-      },
+      onFieldSubmitted: (_) {},
       onChanged: (value) {
         if (value.isNotEmpty || widget.vin.isNotEmpty) {
-          searchTerm = value;
+          vinSearchTerm = value;
+        }
+      },
+      decoration: inputDecoration(index, context),
+      keyboardType: TextInputType.text,
+      textInputAction: TextInputAction.search,
+    );
+  }
+
+  TextFormField partNoSearchTextFormField(int index, BuildContext context) {
+    return TextFormField(
+      key: const ValueKey("part_no"),
+      onFieldSubmitted: (_) {},
+      onChanged: (value) {
+        if (value.isNotEmpty) {
+          partNoSearchTerm = value;
         }
       },
       decoration: inputDecoration(index, context),
@@ -160,58 +147,93 @@ class _CollapsePanelState extends State<CollapsePanel> {
     return InputDecoration(
       filled: true,
       isDense: true,
-      prefixIcon: isSearching ? buildProgressBar() : null,
-      prefixText: !isSearching ? "${label[index]}: " : null,
-      prefixStyle: const TextStyle(fontWeight: FontWeight.w600, color: Colors.black26),
+      prefixIcon: isSearching
+          ? buildProgressBar(height: 12, width: 12, strokeWidth: 2)
+          : null,
+      prefixText: isSearching ? "" : "${label[index]}:",
+      prefixStyle:
+          const TextStyle(fontWeight: FontWeight.w600, color: Colors.black26),
       hintText: "Enter your ${label[index]}...",
       alignLabelWithHint: true,
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(5),
-      ),
+      /*border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(50),
+      ),*/
       fillColor: Theme.of(context).colorScheme.primary.withOpacity(0.04),
       contentPadding:
           const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
       suffixIcon: OutlinedButton(
-        onPressed: () {},
+        onPressed: () => index == 0 ? onVinSearchFun() : onPartNoSearch(),
         style: OutlinedButton.styleFrom(
-          side: const BorderSide(),
+          padding: EdgeInsets.zero,
+          side: const BorderSide(width: 1.0, color: Colors.transparent),
           backgroundColor: Theme.of(context).colorScheme.primary,
         ),
-        child: IconButton(
-          alignment: Alignment.center,
-          onPressed: () {
-            if (searchTerm.isNotEmpty) {
-              setState(() => isSearching = true);
-              KeyboardUtil.hide(context);
-
-              APIService()
-                  .getVehicleByVin(searchTerm)
-                  .then((VehicleModel vehicle) {
-                if (vehicle.id != 0) {
-                  // We then need to change page route
-                  // Lets create an animated router and the page
-                  // We want to navigate to
-                  animateTransition(context, VehicleDetails(vehicle: vehicle));
-
-                  setState(() => isSearching = false);
-                } else {
-                  setState(() {
-                    isSearching = false;
-                    searchTerm ="";
-                  });
-
-                  // buildShowModalBottomSheet(context);
-                }
-                // By default, show a loading spinner.
-                return const CircularProgressIndicator();
-              });
-            }
-          },
-          icon: const Icon(Icons.search, color: Colors.white, size: 25),
-          style: const ButtonStyle(elevation: MaterialStatePropertyAll(5.0)),
-        ),
+        child: const Icon(Icons.search, color: Colors.white, size: 25),
       ),
       suffixIconConstraints: const BoxConstraints.expand(width: 60, height: 40),
     );
   }
+
+  void onVinSearchFun() {
+    if (vinSearchTerm.isNotEmpty) {
+      setState(() => isSearching = true);
+      KeyboardUtil.hide(context);
+
+      APIService().getVehicleByVin(vinSearchTerm).then((VehicleModel vehicle) {
+        if (vehicle.id != 0) {
+          animateTransition(context, VehicleDetails(vehicle: vehicle));
+          setState(() => isSearching = false);
+        } else {
+          setState(() {
+            isSearching = false;
+            vinSearchTerm = "";
+          });
+          buildRequestModal(context);
+        }
+        // By default, show a loading spinner.
+        return buildProgressBar();
+      });
+    }
+  }
+
+  void onPartNoSearch() {
+    if (partNoSearchTerm.isNotEmpty) {
+      setState(() => isSearching = true);
+      KeyboardUtil.hide(context);
+
+      APIService()
+          .getHunterParts(patNo: partNoSearchTerm)
+          .then((List<HunterModel> partData) {
+        if (partData.isNotEmpty) {
+          animateTransition(context, PartsByPartNo(cPart: partData));
+          setState(() => isSearching = false);
+        } else {
+          setState(() {
+            isSearching = false;
+            partNoSearchTerm = "";
+          });
+          buildRequestModal(context);
+        }
+        // By default, show a loading spinner.
+        return buildProgressBar();
+      });
+    }
+  }
 }
+
+List<String> label = ["VIN", "Part No.", "Vehicle - (Make | Model)"];
+
+List<PanelModel> generateItems(int numberOfItems) =>
+    List<PanelModel>.generate(numberOfItems, (int index) {
+      return PanelModel(
+        id: index,
+        headerValue: label[index],
+        expandedValue: const Placeholder(),
+      );
+    });
+
+Future<dynamic> buildMakeModal(BuildContext context) =>
+    buildModal(context, const ModelMakeModal());
+
+Future<dynamic> buildRequestModal(BuildContext context) =>
+    buildModal(context, const MakeARequestModal(reqType: "Your Request"));
