@@ -38,7 +38,7 @@ class _VehicleDetailsState extends State<VehicleDetails>
 
   @override
   void initState() {
-    getCarParts = APIService().getPartsByVfam(widget.vehicle.vfam);
+    getCarParts = APIService().getPartsByVFAM(widget.vehicle.vfam);
 
     animationController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 700));

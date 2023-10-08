@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 void main() {
   runApp(const MyApp());
+
   // Disable screen orientation to PORTRAIT-UP ONLY
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   // Force System UI to use my defined colors
@@ -18,7 +19,6 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -67,7 +67,6 @@ class MyApp extends StatelessWidget {
       //darkTheme: DarkTheme.darkTheme,
       // themeMode: ThemeMode.system,
       home: const Home(),
-      // home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
 }

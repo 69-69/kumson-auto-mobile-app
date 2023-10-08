@@ -23,6 +23,8 @@ class CollapsePanel extends StatefulWidget {
 
 class _CollapsePanelState extends State<CollapsePanel> {
   bool isSearching = false;
+  final FocusNode partNoFocusNode = FocusNode();
+  final FocusNode vinFocusNode = FocusNode();
   String vinSearchTerm = "", partNoSearchTerm = "";
   final List<PanelModel> _data = generateItems(3);
   TextEditingController txt = TextEditingController();
@@ -54,14 +56,10 @@ class _CollapsePanelState extends State<CollapsePanel> {
 
   @override
   Widget build(BuildContext context) {
-    return _buildPanel(); /*SingleChildScrollView(
-      scrollDirection: Axis.vertical,
-      physics: const BouncingScrollPhysics(),
-      child: _buildPanel(),
-    )*/
+    return _buildPanel(context);
   }
 
-  Widget _buildPanel() {
+  Widget _buildPanel(BuildContext context) {
     return ExpansionPanelList.radio(
       // key: GlobalKey(),
       initialOpenPanelValue: txt.value.text.isNotEmpty ? 0 : null,
@@ -82,14 +80,14 @@ class _CollapsePanelState extends State<CollapsePanel> {
             dense: true,
             title: item.id < 2
                 ? formField(item.id, context)
-                : buildMakeModelButton(),
+                : buildMakeModelButton(context),
           ),
         );
       }).toList(),
     );
   }
 
-  OutlinedButton buildMakeModelButton() {
+  OutlinedButton buildMakeModelButton(BuildContext context) {
     return OutlinedButton(
       style: OutlinedButton.styleFrom(
         side: BorderSide(
@@ -115,6 +113,7 @@ class _CollapsePanelState extends State<CollapsePanel> {
     }
     return TextFormField(
       key: const ValueKey("vin"),
+      focusNode: vinFocusNode,
       controller: txt,
       onFieldSubmitted: (_) {},
       onChanged: (value) {
@@ -131,6 +130,7 @@ class _CollapsePanelState extends State<CollapsePanel> {
   TextFormField partNoSearchTextFormField(int index, BuildContext context) {
     return TextFormField(
       key: const ValueKey("part_no"),
+      focusNode: partNoFocusNode,
       onFieldSubmitted: (_) {},
       onChanged: (value) {
         if (value.isNotEmpty) {
@@ -162,7 +162,7 @@ class _CollapsePanelState extends State<CollapsePanel> {
       contentPadding:
           const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
       suffixIcon: OutlinedButton(
-        onPressed: () => index == 0 ? onVinSearchFun() : onPartNoSearch(),
+        onPressed: () => index == 0 ? onVinSearchFun(context) : onPartNoSearch(context),
         style: OutlinedButton.styleFrom(
           padding: EdgeInsets.zero,
           side: const BorderSide(width: 1.0, color: Colors.transparent),
@@ -174,7 +174,7 @@ class _CollapsePanelState extends State<CollapsePanel> {
     );
   }
 
-  void onVinSearchFun() {
+  void onVinSearchFun(BuildContext context) {
     if (vinSearchTerm.isNotEmpty) {
       setState(() => isSearching = true);
       KeyboardUtil.hide(context);
@@ -187,6 +187,7 @@ class _CollapsePanelState extends State<CollapsePanel> {
           setState(() {
             isSearching = false;
             vinSearchTerm = "";
+            vinFocusNode.unfocus();
           });
           buildRequestModal(context);
         }
@@ -196,13 +197,13 @@ class _CollapsePanelState extends State<CollapsePanel> {
     }
   }
 
-  void onPartNoSearch() {
+  void onPartNoSearch(BuildContext context) {
     if (partNoSearchTerm.isNotEmpty) {
       setState(() => isSearching = true);
       KeyboardUtil.hide(context);
 
       APIService()
-          .getHunterParts(patNo: partNoSearchTerm)
+          .getHunterPartsBy(patNo: partNoSearchTerm)
           .then((List<HunterModel> partData) {
         if (partData.isNotEmpty) {
           animateTransition(context, PartsByPartNo(cPart: partData));
@@ -211,6 +212,7 @@ class _CollapsePanelState extends State<CollapsePanel> {
           setState(() {
             isSearching = false;
             partNoSearchTerm = "";
+            partNoFocusNode.unfocus();
           });
           buildRequestModal(context);
         }

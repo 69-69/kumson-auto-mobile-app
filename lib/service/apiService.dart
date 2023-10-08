@@ -10,13 +10,14 @@ import '../models/vehicle.dart';
 import 'base_api.dart';
 
 class APIService extends BaseAPI {
+  // BKR5ES
   // 3CZRU6H35NM701659 - JTEBB71J8LB015918
   //await Future.delayed(const Duration(seconds: 1));
 
   /// Get Vehicle by VIN[getVehicleByVin]
   Future<VehicleModel> getVehicleByVin(String vin) async {
     var response = await http.get(
-      Uri.parse(url("${apiEndpoints['vehicles']}/$vin")),
+      Uri.parse(url("${apiEndpointsDev['vehicles']}/$vin")),
       headers: headers,
     );
 
@@ -33,10 +34,11 @@ class APIService extends BaseAPI {
     }
   }
 
-  /// Get Parts by VFAM[getPartsByVfam]
-  Future<List<PartModel>> getPartsByVfam(String vfam) async {
+  /// Get Parts by VFAM[getPartsBy]
+  Future<List<PartModel>> getPartsByVFAM(String vfam) async {
+
     var response = await http.get(
-      Uri.parse(url("${apiEndpoints['parts']}/$vfam${pagination(100, "id")}")),
+      Uri.parse(url("${apiEndpointsDev['parts']}/$vfam${pagination(100, "id")}")),
       headers: headers,
     );
 
@@ -53,13 +55,33 @@ class APIService extends BaseAPI {
     }
   }
 
-  /// Get Part-Hunter by hunter or personnel[getHunterParts]
-  Future<List<HunterModel>> getHunterParts(
+  /// Get Parts by HunterNo[getPartsByHunterNo]
+  Future<PartModel> getPartsByHunterNo(String hunterNo) async {
+
+    var response = await http.get(
+      Uri.parse(url("${apiEndpointsDev['parts']}/hunter/$hunterNo")),
+      headers: headers,
+    );
+
+    if (response.statusCode == 200) {
+      // If the server did return a 200 OK response,
+      // then parse the JSON.
+      return PartModel.fromJson(json.decode(response.body));
+    } else {
+      // If the server did not return a 200 OK response,
+      // then throw an exception.
+      return PartModel().copy();
+      // throw Exception('Failed to load album:');
+    }
+  }
+
+  /// Get Part-Hunter by hunter or personnel[getHunterPartsBy]
+  Future<List<HunterModel>> getHunterPartsBy(
       {String hunterNo = "", String patNo = ""}) async {
 
     String endpoint = (hunterNo.isNotEmpty && patNo.isEmpty)
-        ? "${apiEndpoints['hunter']}/$hunterNo"
-        : "${apiEndpoints['hunter']}/part_no/$patNo";
+        ? "${apiEndpointsDev['hunter']}/$hunterNo"
+        : "${apiEndpointsDev['hunter']}/part_no/$patNo";
 
     var response = await http.get(
       Uri.parse(url(endpoint)),
@@ -82,7 +104,7 @@ class APIService extends BaseAPI {
   /// Get Vehicle Make[getMake]
   Future<List<MakeModel>> getMake() async {
     var response = await http.get(
-      Uri.parse(url("${apiEndpoints['make']}${pagination(100, "make")}")),
+      Uri.parse(url("${apiEndpointsDev['make']}${pagination(100, "make")}")),
       headers: headers,
     );
 
@@ -104,7 +126,7 @@ class APIService extends BaseAPI {
     var response = await http.get(
       // ${pagination(100, "make")}
       Uri.parse(url(
-          "${apiEndpoints['model']}/make_ref/$makeRef${pagination(100, "id")}")),
+          "${apiEndpointsDev['model']}/make_ref/$makeRef${pagination(100, "id")}")),
       headers: headers,
     );
 
@@ -125,7 +147,7 @@ class APIService extends BaseAPI {
   Future<List<VendorModel>> getVendorParts(String brand, String partNo) async {
     var response = await http.get(
       Uri.parse(url(
-          "${apiEndpoints['vendor']}/lowest_price/$brand/$partNo${pagination(100, "currentPrice")}")),
+          "${apiEndpointsDev['vendor']}/lowest_price/$brand/$partNo${pagination(200, "currentPrice")}")),
       headers: headers,
     );
 

@@ -34,7 +34,7 @@ class _PartsCrossRefState extends State<PartsCrossRef>
 
   @override
   void initState() {
-    getPartsHunter = APIService().getHunterParts(hunterNo: widget.cPart.hunter);
+    getPartsHunter = APIService().getHunterPartsBy(hunterNo: widget.cPart.hunter);
 
     animationController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 700));

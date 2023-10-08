@@ -1,6 +1,15 @@
 class BaseAPI {
-// more routes
-  Map<String, String> apiEndpoints = {
+// DEV / TEST ROUTES
+  Map<String, String> apiEndpointsDev = {
+    "vehicles": "/runner/2023/k1/auto_cars",
+    "parts": "/runner/2023/k1/car_parts",
+    "hunter": "/runner/2023/k1/parts_hunter",
+    "make": "/runner/2023/k1/car_makes",
+    "model": "/runner/2023/k1/car_models",
+    "vendor": "/runner/2023/k1/vendors_parts"
+  };
+// PROD. ROUTES
+  Map<String, String> apiEndpointsProd = {
     "vehicles": "/api/v1/auto/vehicles",
     "parts": "/api/v1/auto/parts",
     "hunter": "/api/v1/auto/hunting",

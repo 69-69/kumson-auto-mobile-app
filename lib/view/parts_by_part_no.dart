@@ -1,18 +1,21 @@
 import 'package:automasters/models/animation_item.dart';
+import 'package:automasters/models/parts.dart';
+import 'package:automasters/models/vehicle.dart';
 import 'package:automasters/utils/size_config.dart';
+import 'package:automasters/view/part_details_checkout.dart';
 import 'package:automasters/widgets/fade_slide.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:string_capitalize/string_capitalize.dart';
 
 import '../models/hunter.dart';
 import '../models/vendor.dart';
 import '../service/apiService.dart';
+import '../utils/animation_transition.dart';
 import '../widgets/widgetery.dart';
 
 class PartsByPartNo extends StatefulWidget {
   final List<HunterModel> cPart;
-
-  // final VehicleModel vehicle;
 
   const PartsByPartNo({super.key, required this.cPart});
 
@@ -20,19 +23,15 @@ class PartsByPartNo extends StatefulWidget {
   State<PartsByPartNo> createState() => _PartsByPartNoState();
 }
 
-class _PartsByPartNoState extends State<PartsByPartNo>
-    with SingleTickerProviderStateMixin {
+class _PartsByPartNoState extends State<PartsByPartNo> with SingleTickerProviderStateMixin {
   // Animation setups
   late AnimationController animationController;
   late Animation animation;
   List<AnimationItem> animationItems = [];
-
-  // late Future<List<HunterModel>> getPartsHunter;
+  VehicleModel vehicle = VehicleModel();
 
   @override
   void initState() {
-    // getPartsHunter = APIService().getHunterParts(hunterNo: widget.cPart.hunter);
-
     animationController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 700));
     for (int i = 0; i < 10; i++) {
@@ -110,7 +109,10 @@ class _PartsByPartNoState extends State<PartsByPartNo>
       ),
       child: buildFadeSlide(
         animationItems,
-        child: buildRichText(vPart.brand, vPart.product),
+        child: buildRichText(
+          vPart.product,
+          "${vehicle.year} ${vehicle.make} ${vehicle.model}",
+        ),
       ),
     );
   }
@@ -147,40 +149,6 @@ class _PartsByPartNoState extends State<PartsByPartNo>
     );
   }
 
-  /// Get Parts from Hunter's
-  /*FutureBuilder<List<HunterModel>> buildHunterFutureBuilder() {
-    return FutureBuilder<List<HunterModel>>(
-      future: getPartsHunter,
-      builder: (BuildContext context, AsyncSnapshot snapshot) {
-        switch (snapshot.connectionState) {
-          case ConnectionState.waiting:
-            // By default, show a loading spinner.
-            return Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: buildProgressBar(strokeWidth: 3, width: 20, height: 20),
-            );
-          default:
-            if (snapshot.hasError) {
-              return const Text('Refresh App');
-            } else {
-              return snapshot.data.length > 0
-                  ? Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        customLine(widget.cPart.product.toUpperCase(), true, context),
-                        const Divider(indent: 40),
-                        Expanded(
-                          child: buildListView(snapshot.data),
-                        ),
-                      ],
-                    )
-                  : buildMakeARequestButton(context);
-            }
-        }
-      },
-    );
-  }*/
-
   /// List view display[buildListView]
   buildListView(result) {
     return ListView.builder(
@@ -193,7 +161,7 @@ class _PartsByPartNoState extends State<PartsByPartNo>
 
         return GestureDetector(
           onTap: () {
-            // animateTransition(context, PartDetailsCheckout(huntPart: huntPart, vehicle: widget.vehicle));
+            animateTransition(context, PartDetailsCheckout(huntPart: huntPart, vehicle: vehicle));
           },
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 2.0),
@@ -208,14 +176,19 @@ class _PartsByPartNoState extends State<PartsByPartNo>
   Card buildCard(BuildContext context, HunterModel huntPart) {
     return Card(
       elevation: 3.0,
-      child: buildVendorFutureBuilder(huntPart),
+      child: buildFutureBuilder(huntPart),
     );
   }
 
-  /// Get Prices From Vendors [buildVendorFutureBuilder]
-  FutureBuilder<List<VendorModel>> buildVendorFutureBuilder(HunterModel h) {
-    return FutureBuilder<List<VendorModel>>(
-      future: APIService().getVendorParts(h.brand, h.partNo),
+  /// Get Prices From Vendors [buildFutureBuilder]
+  FutureBuilder buildFutureBuilder(HunterModel h) {
+    return FutureBuilder(
+      future: Future.wait([
+        APIService().getVendorParts(h.brand, h.partNo),
+        APIService()
+            .getPartsByHunterNo(h.hunter)
+            .then((PartModel v) => APIService().getVehicleByVin(v.vin)),
+      ]),
       builder: (BuildContext context, AsyncSnapshot snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.waiting:
@@ -228,8 +201,8 @@ class _PartsByPartNoState extends State<PartsByPartNo>
             if (snapshot.hasError) {
               return const Text('Refresh App');
             } else {
-              return snapshot.data.length > 0
-                  ? buildPriceWrapper(context, snapshot.data)
+              return snapshot.data[0].length > 0
+                  ? buildPriceWrapper(context, snapshot.data[0], snapshot.data[1])
                   : const SizedBox.shrink();
             }
         }
@@ -237,26 +210,31 @@ class _PartsByPartNoState extends State<PartsByPartNo>
     );
   }
 
-  Column buildPriceWrapper(BuildContext context, List<VendorModel> result) {
+  Column buildPriceWrapper(BuildContext context, List<VendorModel> vendor, VehicleModel vehicleData) {
+    if(context.mounted){
+      // Future.delayed(const Duration(seconds: 1));
+      // debugPrint(vehicle.vin);
+      SchedulerBinding.instance.addPostFrameCallback((_) => vehicle = vehicleData);
+    }
     /// Filtering for Min-Price without OPM
     VendorModel minPriceWithoutOPM =
-        result.reduce((VendorModel curr, VendorModel next) {
+        vendor.reduce((VendorModel curr, VendorModel next) {
       return (curr.stockStatus == "instock" && next.stockStatus == "instock") &&
-              curr.currentPrice < next.currentPrice &&
-              curr.opm == "no"
+              (curr.opm == "no" && curr.opm == "no") &&
+              curr.currentPrice < next.currentPrice
           ? curr
           : next;
     });
 
     /// Filtering for Min-Price with OPM
-    VendorModel minPriceWithOPM =
-        result.reduce((VendorModel curr, VendorModel next) {
-      return (curr.stockStatus == "instock" && next.stockStatus == "instock") &&
-              curr.currentPrice < next.currentPrice &&
-              curr.opm == "yes"
-          ? curr
-          : next;
-    });
+    VendorModel minPriceWithOPM = vendor.first;
+    for (var e in vendor) {
+      if (e.stockStatus == "instock" &&
+          e.opm == "yes" &&
+          e.currentPrice < minPriceWithOPM.currentPrice) {
+        minPriceWithOPM = e;
+      }
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -270,7 +248,8 @@ class _PartsByPartNoState extends State<PartsByPartNo>
             ],
           ),
         },
-        if (minPriceWithOPM.opm == "yes") ...{
+        if (minPriceWithOPM.stockStatus == "instock" &&
+            minPriceWithOPM.opm == "yes") ...{
           const Divider(height: 1.0),
           buildBadge(context, minPriceWithOPM),
           Row(

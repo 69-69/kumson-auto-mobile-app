@@ -34,7 +34,8 @@ class _PartsByPriceState extends State<PartsByPrice>
 
   @override
   void initState() {
-    getPartsHunter = APIService().getHunterParts(hunterNo: widget.cPart.hunter);
+    getPartsHunter =
+        APIService().getHunterPartsBy(hunterNo: widget.cPart.hunter);
 
     animationController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 700));
@@ -138,14 +139,14 @@ class _PartsByPriceState extends State<PartsByPrice>
       animationItems,
       child: buildCurveContainer(
         const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
-        child: buildHunterFutureBuilder(),
+        child: buildHunterFutureBuilder(widget.cPart.hunter),
       ),
     );
   }
 
   /// Get Parts from Hunter's [buildHunterFutureBuilder]
-  FutureBuilder<List<HunterModel>> buildHunterFutureBuilder() {
-    return FutureBuilder<List<HunterModel>>(
+  FutureBuilder buildHunterFutureBuilder(String hunterNo) {
+    return FutureBuilder(
       future: getPartsHunter,
       builder: (BuildContext context, AsyncSnapshot snapshot) {
         switch (snapshot.connectionState) {
@@ -159,7 +160,7 @@ class _PartsByPriceState extends State<PartsByPrice>
             if (snapshot.hasError) {
               return const Text('Refresh App');
             } else {
-              return snapshot.data.length > 0
+              return snapshot.hasData && snapshot.data.length > 0
                   ? Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -178,7 +179,7 @@ class _PartsByPriceState extends State<PartsByPrice>
     );
   }
 
-  /// List view display[buildListView]
+  /// done-1 List view display[buildListView]
   buildListView(result) {
     return ListView.builder(
       shrinkWrap: true,
@@ -217,7 +218,7 @@ class _PartsByPriceState extends State<PartsByPrice>
     );
   }
 
-  /// Get Prices From Vendors [buildVendorFutureBuilder]
+  /// not-done-2 Get Prices From Vendors [buildVendorFutureBuilder]
   FutureBuilder<List<VendorModel>> buildVendorFutureBuilder(HunterModel h) {
     return FutureBuilder<List<VendorModel>>(
       future: APIService().getVendorParts(h.brand, h.partNo),
@@ -247,21 +248,21 @@ class _PartsByPriceState extends State<PartsByPrice>
     VendorModel minPriceWithoutOPM =
         result.reduce((VendorModel curr, VendorModel next) {
       return (curr.stockStatus == "instock" && next.stockStatus == "instock") &&
-              curr.currentPrice < next.currentPrice &&
-              curr.opm == "no"
+              (curr.opm == "no" && curr.opm == "no") &&
+              curr.currentPrice < next.currentPrice
           ? curr
           : next;
     });
 
     /// Filtering for Min-Price with OPM
-    VendorModel minPriceWithOPM =
-        result.reduce((VendorModel curr, VendorModel next) {
-      return (curr.stockStatus == "instock" && next.stockStatus == "instock") &&
-              curr.currentPrice < next.currentPrice &&
-              curr.opm == "yes"
-          ? curr
-          : next;
-    });
+    VendorModel minPriceWithOPM = result.first;
+    for (var e in result) {
+      if (e.stockStatus == "instock" &&
+          e.opm == "yes" &&
+          e.currentPrice < minPriceWithOPM.currentPrice) {
+        minPriceWithOPM = e;
+      }
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -275,9 +276,10 @@ class _PartsByPriceState extends State<PartsByPrice>
             ],
           ),
         },
-        if (minPriceWithOPM.opm == "yes") ...{
+        if (minPriceWithOPM.stockStatus == "instock" &&
+            minPriceWithOPM.opm == "yes") ...{
           const Divider(height: 1.0),
-          buildBadge(context, minPriceWithOPM),
+          buildBadge(context, minPriceWithOPM, isRadius: false),
           Row(
             children: [
               buildContainerImage(),
@@ -289,7 +291,8 @@ class _PartsByPriceState extends State<PartsByPrice>
     );
   }
 
-  Container buildBadge(BuildContext context, VendorModel vendor) {
+  Container buildBadge(BuildContext context, VendorModel vendor,
+      {bool isRadius = true}) {
     String opmCheck(String opm) => opm == "yes" ? "OPEN MARKET " : "";
 
     return Container(
@@ -297,7 +300,9 @@ class _PartsByPriceState extends State<PartsByPrice>
       padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 10),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.primary,
-        borderRadius: const BorderRadius.only(topLeft: Radius.circular(8.0)),
+        borderRadius: isRadius
+            ? const BorderRadius.only(topLeft: Radius.circular(8.0))
+            : null,
       ),
       child: Text(
         "${vendor.brand} ${opmCheck(vendor.opm)}${vendor.brandType}"
@@ -365,5 +370,4 @@ class _PartsByPriceState extends State<PartsByPrice>
       ),
     );
   }
-
 }
