@@ -21,12 +21,13 @@ Center showCircularProgress({
 
 /// Show Async ProgressDialog
 Future<void> showProgressDialog(
-    BuildContext context, Future<dynamic> getParts) async =>
+    BuildContext context, Future<dynamic> getParts,
+    {String label = 'Searching...'}) async =>
     await showDialog(
       context: context,
       builder: (context) => AsyncProgressDialog(
         getParts,
-        message: const Text('Loading...'),
+        message: Text(label),
       ),
     );
 

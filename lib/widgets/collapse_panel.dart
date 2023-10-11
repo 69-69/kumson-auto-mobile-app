@@ -9,7 +9,6 @@ import '../models/vehicle.dart';
 import '../service/apiService.dart';
 import '../utils/animation_transition.dart';
 import 'async_progress_dialog.dart';
-import 'widgetery.dart';
 import '../view/vehicle_details.dart';
 import 'model_make_modal.dart';
 
