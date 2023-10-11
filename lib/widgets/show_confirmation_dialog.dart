@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-Future<bool> showConfirmationDialog(
+Future<dynamic> showConfirmationDialog(
   BuildContext context,
   Widget message, {
   String title = 'Confirm',
@@ -26,7 +26,12 @@ Future<bool> showConfirmationDialog(
         ),
       ],
     ),
-    /*AlertDialog(
+  );
+  result ??= "cancel";
+  return result;
+}
+
+/*AlertDialog(
       content: message,
       shape: RoundedRectangleBorder(
         borderRadius: AppDefaults.borderRadius,
@@ -35,13 +40,8 @@ Future<bool> showConfirmationDialog(
         textButton(positiveResponse, context, true),
         textButton(negativeResponse, context, false),
       ],
-    ),*/
-  );
-  result ??= false;
-  return result;
-}
-
-/*SimpleButton textButton(
+    ),
+    SimpleButton textButton(
         String response, BuildContext context, bool responseStatus) =>
     SimpleButton(
       label: Text(response, style: const TextStyle(fontSize: 12)),

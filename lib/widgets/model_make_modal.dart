@@ -3,8 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:automasters/models/make.dart';
 import 'package:string_capitalize/string_capitalize.dart';
 import '../service/apiService.dart';
+import 'async_progress_dialog.dart';
 import 'widgetery.dart';
 import '../utils/size_config.dart';
+
+Future<dynamic> showMakeModal(BuildContext context) =>
+    buildModal(context, const ModelMakeModal());
 
 class ModelMakeModal extends StatefulWidget {
   const ModelMakeModal({super.key});
@@ -113,7 +117,7 @@ class _ModelMakeModalState extends State<ModelMakeModal> {
         switch (snapshot.connectionState) {
           case ConnectionState.waiting:
             // By default, show a loading spinner.
-            return buildProgressBar();
+            return showCircularProgress();
           default:
             if (snapshot.hasData) {
               List<MakeModel> result = snapshot.data!;
@@ -135,7 +139,7 @@ class _ModelMakeModalState extends State<ModelMakeModal> {
         switch (snapshot.connectionState) {
           case ConnectionState.waiting:
             // By default, show a loading spinner.
-            return buildProgressBar();
+            return showCircularProgress();
           default:
             if (snapshot.hasData) {
               List<Model> result = snapshot.data!;

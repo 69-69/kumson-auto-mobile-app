@@ -54,9 +54,7 @@ Center buildMakeARequestButton(BuildContext context) {
           color: Theme.of(context).colorScheme.primary,
         ),
       ),
-      onPressed: (){
-        buildModal(context, const MakeARequestModal(reqType: "Your Request"));
-      },
+      onPressed: ()=> buildModal(context, const MakeARequestModal(reqType: "Your Request")),
       child: const Text("Make a Request"),
     ),
   );
@@ -101,7 +99,7 @@ PreferredSize buildPreferredSize(String text) {
       offset: const Offset(0, 50),
       child: Padding(
         padding: const EdgeInsets.only(bottom: 10.0),
-        child: Text(text),
+        child: Text(text.toUpperCase()),
       ),
     ),
   );
@@ -177,23 +175,6 @@ SliverAppBar buildSliverAppBars(
             ),*/
   );
 }
-
-Center buildProgressBar({
-  double height = 40,
-  double width = 40,
-  double strokeWidth = 5,
-}) =>
-    Center(
-      heightFactor: 1,
-      widthFactor: 1,
-      child: SizedBox(
-        height: height,
-        width: width,
-        child: CircularProgressIndicator(
-          strokeWidth: strokeWidth,
-        ),
-      ),
-    );
 
 Text buildRichText(String item, String item2) {
   return Text.rich(

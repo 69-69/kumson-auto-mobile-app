@@ -96,7 +96,7 @@ class _PartsCrossRefState extends State<PartsCrossRef>
         title: buildPartName(),
         collapseMode: CollapseMode.pin,
       ),
-      preferredSize: buildPreferredSize("Available ${widget.cPart.part}".capitalizeEach()),
+      preferredSize: buildPreferredSize("Available ${widget.cPart.part}"),
     );
 
   Container buildPartName() {

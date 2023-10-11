@@ -1,6 +1,11 @@
+import 'package:automasters/widgets/widgetery.dart';
 import 'package:flutter/material.dart';
 import 'package:string_capitalize/string_capitalize.dart';
 import '../utils/size_config.dart';
+
+
+Future<dynamic> showRequestModal(BuildContext context, String label) =>
+    buildModal(context, MakeARequestModal(reqType: label));
 
 class MakeARequestModal extends StatefulWidget {
   final String reqType;

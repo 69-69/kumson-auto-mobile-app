@@ -8,6 +8,7 @@ import '../models/panel.dart';
 import '../models/vehicle.dart';
 import '../service/apiService.dart';
 import '../utils/animation_transition.dart';
+import 'async_progress_dialog.dart';
 import 'widgetery.dart';
 import '../view/vehicle_details.dart';
 import 'model_make_modal.dart';
@@ -33,19 +34,6 @@ class _CollapsePanelState extends State<CollapsePanel> {
 
   @override
   void initState() {
-    /*setState(() {
-      if (vinSearchTerm.isNotEmpty) {
-        APIService()
-            .getVehicleByVin(vinSearchTerm)
-            .then((data) => setState(() => vehicleData = data));
-      }
-
-      if (partNoSearchTerm.isNotEmpty) {
-        APIService()
-            .getHunterParts(partNoSearchTerm)
-            .then((data) => setState(() => partData = data));
-      }
-    });*/
     super.initState();
   }
 
@@ -95,7 +83,7 @@ class _CollapsePanelState extends State<CollapsePanel> {
           color: Theme.of(context).colorScheme.primary,
         ),
       ),
-      onPressed: () => buildMakeModal(context),
+      onPressed: () => showMakeModal(context),
       child: const Text("Make | Model | Year"),
     );
   }
@@ -148,7 +136,7 @@ class _CollapsePanelState extends State<CollapsePanel> {
       filled: true,
       isDense: true,
       prefixIcon: isSearching
-          ? buildProgressBar(height: 12, width: 12, strokeWidth: 2)
+          ? showCircularProgress(height: 12, width: 12, strokeWidth: 2)
           : null,
       prefixText: isSearching ? "" : "${label[index]}:",
       prefixStyle:
@@ -162,7 +150,8 @@ class _CollapsePanelState extends State<CollapsePanel> {
       contentPadding:
           const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
       suffixIcon: OutlinedButton(
-        onPressed: () => index == 0 ? onVinSearchFun(context) : onPartNoSearch(context),
+        onPressed: () =>
+            index == 0 ? onVinSearchFun(context) : onPartNoSearch(context),
         style: OutlinedButton.styleFrom(
           padding: EdgeInsets.zero,
           side: const BorderSide(width: 1.0, color: Colors.transparent),
@@ -174,12 +163,17 @@ class _CollapsePanelState extends State<CollapsePanel> {
     );
   }
 
-  void onVinSearchFun(BuildContext context) {
+  Future<void> onVinSearchFun(BuildContext context) async {
     if (vinSearchTerm.isNotEmpty) {
       setState(() => isSearching = true);
       KeyboardUtil.hide(context);
 
-      APIService().getVehicleByVin(vinSearchTerm).then((VehicleModel vehicle) {
+      final getRemoteData = APIService().getVehicleByVin(vinSearchTerm);
+
+      // Show progressBar dialog/modal
+      await showProgressDialog(context, getRemoteData);
+
+      getRemoteData.then((VehicleModel vehicle) {
         if (vehicle.id != 0) {
           animateTransition(context, VehicleDetails(vehicle: vehicle));
           setState(() => isSearching = false);
@@ -189,22 +183,25 @@ class _CollapsePanelState extends State<CollapsePanel> {
             vinSearchTerm = "";
             vinFocusNode.unfocus();
           });
-          buildRequestModal(context);
+          showRequestModal(context, "Your Request");
         }
         // By default, show a loading spinner.
-        return buildProgressBar();
+        return showCircularProgress();
       });
     }
   }
 
-  void onPartNoSearch(BuildContext context) {
+  Future<void> onPartNoSearch(BuildContext context) async {
     if (partNoSearchTerm.isNotEmpty) {
       setState(() => isSearching = true);
       KeyboardUtil.hide(context);
 
-      APIService()
-          .getHunterPartsBy(patNo: partNoSearchTerm)
-          .then((List<HunterModel> partData) {
+      final getRemoteData = APIService().getHunterPartsBy(patNo: partNoSearchTerm);
+
+      // Show progressBar dialog/modal
+      await showProgressDialog(context, getRemoteData);
+
+      getRemoteData.then((List<HunterModel> partData) {
         if (partData.isNotEmpty) {
           animateTransition(context, PartsByPartNo(cPart: partData));
           setState(() => isSearching = false);
@@ -214,10 +211,10 @@ class _CollapsePanelState extends State<CollapsePanel> {
             partNoSearchTerm = "";
             partNoFocusNode.unfocus();
           });
-          buildRequestModal(context);
+          showRequestModal(context, "Your Request");
         }
         // By default, show a loading spinner.
-        return buildProgressBar();
+        return showCircularProgress();
       });
     }
   }
@@ -233,9 +230,3 @@ List<PanelModel> generateItems(int numberOfItems) =>
         expandedValue: const Placeholder(),
       );
     });
-
-Future<dynamic> buildMakeModal(BuildContext context) =>
-    buildModal(context, const ModelMakeModal());
-
-Future<dynamic> buildRequestModal(BuildContext context) =>
-    buildModal(context, const MakeARequestModal(reqType: "Your Request"));

@@ -12,6 +12,7 @@ import '../models/hunter.dart';
 import '../models/vehicle.dart';
 import '../models/vendor.dart';
 import '../service/apiService.dart';
+import '../widgets/async_progress_dialog.dart';
 import '../widgets/widgetery.dart';
 
 class PartsByPrice extends StatefulWidget {
@@ -154,7 +155,7 @@ class _PartsByPriceState extends State<PartsByPrice>
             // By default, show a loading spinner.
             return Padding(
               padding: const EdgeInsets.all(8.0),
-              child: buildProgressBar(strokeWidth: 3, width: 20, height: 20),
+              child: showCircularProgress(strokeWidth: 3, width: 20, height: 20),
             );
           default:
             if (snapshot.hasError) {
@@ -228,7 +229,7 @@ class _PartsByPriceState extends State<PartsByPrice>
             // By default, show a loading spinner.
             return Padding(
               padding: const EdgeInsets.all(8.0),
-              child: buildProgressBar(strokeWidth: 3, width: 20, height: 20),
+              child: showCircularProgress(strokeWidth: 3, width: 20, height: 20),
             );
           default:
             if (snapshot.hasError) {

@@ -12,6 +12,7 @@ import 'package:string_capitalize/string_capitalize.dart';
 
 import '../models/vehicle.dart';
 import '../service/apiService.dart';
+import '../widgets/async_progress_dialog.dart';
 import '../widgets/show_confirmation_dialog.dart';
 import '../widgets/widgetery.dart';
 import '../utils/keyboard.dart';
@@ -95,8 +96,9 @@ class _VehicleDetailsState extends State<VehicleDetails>
           title: buildVehicleName(),
           collapseMode: CollapseMode.pin,
         ),
-        preferredSize: buildPreferredSize("${widget.vehicle.make} - ${widget.vehicle.model}"),
-       );
+        preferredSize: buildPreferredSize(
+            "${widget.vehicle.make} - ${widget.vehicle.model}"),
+      );
 
   buildVehicleName() {
     VehicleModel vehicle = widget.vehicle;
@@ -141,7 +143,7 @@ class _VehicleDetailsState extends State<VehicleDetails>
         switch (snapshot.connectionState) {
           case ConnectionState.waiting:
             // By default, show a loading spinner.
-            return buildProgressBar();
+            return showCircularProgress();
           default:
             if (snapshot.hasError) {
               return const Text('Refresh App');
@@ -335,12 +337,14 @@ class _VehicleDetailsState extends State<VehicleDetails>
             const Text("Shop by Price or Cross Reference?"),
           );
           if (context.mounted) {
-            animateTransition(
-                context, isPrice ?
-            PartsByPrice(cPart: item, vehicle: widget.vehicle)
-            : PartsCrossRef(cPart: item, vehicle: widget.vehicle));
+            if (isPrice != "cancel") {
+              animateTransition(
+                  context,
+                  isPrice
+                      ? PartsByPrice(cPart: item, vehicle: widget.vehicle)
+                      : PartsCrossRef(cPart: item, vehicle: widget.vehicle));
+            }
           }
-
         },
       ),
     );

@@ -12,6 +12,7 @@ import '../models/hunter.dart';
 import '../models/vendor.dart';
 import '../service/apiService.dart';
 import '../utils/animation_transition.dart';
+import '../widgets/async_progress_dialog.dart';
 import '../widgets/widgetery.dart';
 
 class PartsByPartNo extends StatefulWidget {
@@ -195,7 +196,7 @@ class _PartsByPartNoState extends State<PartsByPartNo> with SingleTickerProvider
             // By default, show a loading spinner.
             return Padding(
               padding: const EdgeInsets.all(8.0),
-              child: buildProgressBar(strokeWidth: 3, width: 20, height: 20),
+              child: showCircularProgress(strokeWidth: 3, width: 20, height: 20),
             );
           default:
             if (snapshot.hasError) {
@@ -203,7 +204,7 @@ class _PartsByPartNoState extends State<PartsByPartNo> with SingleTickerProvider
             } else {
               return snapshot.data[0].length > 0
                   ? buildPriceWrapper(context, snapshot.data[0], snapshot.data[1])
-                  : const SizedBox.shrink();
+                  : buildMakeARequestButton(context);
             }
         }
       },
@@ -251,7 +252,7 @@ class _PartsByPartNoState extends State<PartsByPartNo> with SingleTickerProvider
         if (minPriceWithOPM.stockStatus == "instock" &&
             minPriceWithOPM.opm == "yes") ...{
           const Divider(height: 1.0),
-          buildBadge(context, minPriceWithOPM),
+          buildBadge(context, minPriceWithOPM, isRadius: false),
           Row(
             children: [
               buildContainerImage(),
@@ -263,7 +264,7 @@ class _PartsByPartNoState extends State<PartsByPartNo> with SingleTickerProvider
     );
   }
 
-  Container buildBadge(BuildContext context, VendorModel vendor) {
+  Container buildBadge(BuildContext context, VendorModel vendor,{bool isRadius = true}) {
     String opmCheck(String opm) => opm == "yes" ? "OPEN MARKET " : "";
 
     return Container(
@@ -271,7 +272,9 @@ class _PartsByPartNoState extends State<PartsByPartNo> with SingleTickerProvider
       padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 10),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.primary,
-        borderRadius: const BorderRadius.only(topLeft: Radius.circular(8.0)),
+        borderRadius: isRadius
+            ? const BorderRadius.only(topLeft: Radius.circular(8.0))
+            : null,
       ),
       child: Text(
         "${vendor.brand} ${opmCheck(vendor.opm)}${vendor.brandType}"
