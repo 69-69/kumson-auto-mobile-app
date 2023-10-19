@@ -166,7 +166,7 @@ class _PartsByPriceState extends State<PartsByPrice>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         customLine(
-                            widget.cPart.part.toUpperCase(), true, context),
+                            widget.cPart.part.toUpperCase(), context),
                         const Divider(indent: 40),
                         Expanded(
                           child: buildListView(snapshot.data),

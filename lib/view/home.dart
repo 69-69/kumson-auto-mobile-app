@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/animation_item.dart';
 import '../widgets/horizontal_line.dart';
 import '../utils/size_config.dart';
+import '../widgets/show_confirmation_dialog.dart';
 import '../widgets/widgetery.dart';
 import '../widgets/auth_modal.dart';
 import '../widgets/collapse_panel.dart';
@@ -45,6 +46,12 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
         });
       });
     animationController.forward();
+
+    /// display welcome dialog on screen launch with 2-seconds delay
+    WidgetsBinding.instance.addPostFrameCallback((_) async{
+      await Future.delayed(const Duration(seconds: 2),() => displayDialog());
+    });
+
     super.initState();
   }
 
@@ -233,5 +240,19 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
       ),
       child: child,
     );
+  }
+
+  displayDialog() async {
+    final opt = await showConfirmationDialog(
+      context,
+      title: "Welcome",
+      isDismissible: false,
+      positiveResponse: "New",
+      negativeResponse: "Used",
+      const Text("Shop for New or Used Car Parts?"),
+    );
+    if (context.mounted) {
+      if (opt != "cancel") {}
+    }
   }
 }

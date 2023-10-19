@@ -3,12 +3,14 @@ class PartModel {
   final String vin;
   final String vfam;
   final String part;
-  final String partRef;
+  final String partCode;
   final String model;
-  final String modelRef;
+  final String modelCode;
   final String make;
-  final String makeRef;
+  final String makeCode;
   final String description;
+  final String engine;
+  final String engineType;
   final String hunter;
   final String note;
   final String personnel;
@@ -20,12 +22,14 @@ class PartModel {
     this.vin = "",
     this.vfam = "",
     this.part = "",
-    this.partRef = "",
+    this.partCode = "",
     this.model = "",
-    this.modelRef = "",
+    this.modelCode = "",
     this.make = "",
-    this.makeRef = "",
+    this.makeCode = "",
     this.description = "",
+    this.engine="",
+    this.engineType="",
     this.hunter = "",
     this.note = "",
     this.personnel = "",
@@ -38,12 +42,14 @@ class PartModel {
       vin: json['vin'],
       vfam: json['vfam'],
       part: json['part'],
-      partRef: json['partRef'],
+      partCode: json['partCode'],
       model: json['model'],
-      modelRef: json['modelRef'],
+      modelCode: json['modelCode'],
       make: json['make'],
-      makeRef: json['makeRef'],
+      makeCode: json['makeCode'],
       description: json['description'],
+      engine: json['engine'],
+      engineType: json['engineType'],
       hunter: json['hunter'],
       note: json['note'],
       personnel: json['personnel'],
@@ -57,12 +63,14 @@ class PartModel {
         "vin": item.vin,
         "vfam": item.vfam,
         "part": item.part,
-        "partRef": item.partRef,
+        "partCode": item.partCode,
         "model": item.model,
-        "modelRef": item.modelRef,
+        "modelCode": item.modelCode,
         "make": item.make,
-        "makeRef": item.makeRef,
+        "makeCode": item.makeCode,
         "description": item.description,
+        "engine": item.engine,
+        "engineType": item.engineType,
         "hunter": item.hunter,
         "note": item.note,
         "personnel": item.personnel,
@@ -76,8 +84,10 @@ class PartModel {
     String? part,
     String? model,
     String? make,
-    String? makeRef,
+    String? makeCode,
     String? description,
+    String? engine,
+    String? engineType,
     String? hunter,
     String? note,
     String? personnel,
@@ -89,9 +99,11 @@ class PartModel {
         vfam: vfam ?? "",
         model: model ?? "",
         make: make ?? "",
-        makeRef: makeRef ?? "",
+        makeCode: makeCode ?? "",
         part: part ?? "",
         description: description ?? "",
+        engine: engine ?? "",
+        engineType: engineType ?? "",
         hunter: hunter ?? "",
         note: note ?? "",
         personnel: personnel ?? "",

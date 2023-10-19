@@ -195,7 +195,8 @@ class _CollapsePanelState extends State<CollapsePanel> {
       setState(() => isSearching = true);
       KeyboardUtil.hide(context);
 
-      final getRemoteData = APIService().getHunterPartsBy(patNo: partNoSearchTerm);
+      final getRemoteData =
+          APIService().getHunterPartsBy(patNo: partNoSearchTerm);
 
       // Show progressBar dialog/modal
       await showProgressDialog(context, getRemoteData);

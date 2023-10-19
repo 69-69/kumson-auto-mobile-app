@@ -7,9 +7,11 @@ Future<dynamic> showConfirmationDialog(
   String title = 'Confirm',
   String positiveResponse = "Yes",
   String negativeResponse = "No",
+  bool isDismissible = true,
 }) async {
   var result = await showDialog(
     context: context,
+    barrierDismissible: isDismissible,
     builder: (context) => CupertinoAlertDialog(
       title: Text(title),
       content: message,

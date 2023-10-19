@@ -60,8 +60,8 @@ Center buildMakeARequestButton(BuildContext context) {
   );
 }
 
-Widget customLine(String text, bool isActive, BuildContext context,
-    {bool isMark = true, Color? color}) {
+Widget customLine(String text, BuildContext context,
+    {bool isUnderline = true, bool isActive = true, Color? color, double fontSize = 18.0}) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
@@ -71,11 +71,12 @@ Widget customLine(String text, bool isActive, BuildContext context,
           color: isActive
               ? (color ?? const Color(0xFF333333))
               : Colors.black.withOpacity(.3),
-          fontSize: isActive ? 18.0 : 16.0,
+          fontSize: isActive ? fontSize : (fontSize-2),
           fontWeight: FontWeight.bold,
+          overflow: TextOverflow.ellipsis,
         ),
       ),
-      isActive && isMark
+      isActive && isUnderline
           ? Container(
               margin: const EdgeInsets.only(top: 2.0),
               height: 4.0,
@@ -187,6 +188,7 @@ Text buildRichText(String item, String item2) {
             fontWeight: FontWeight.w600,
             fontSize: 15.0,
             color: Color(0xFFFFFFFF),
+            overflow: TextOverflow.ellipsis,
           ),
         ),
         TextSpan(
@@ -195,6 +197,7 @@ Text buildRichText(String item, String item2) {
             height: 1.7,
             fontSize: 13.0,
             color: Colors.white70,
+            overflow: TextOverflow.ellipsis,
           ),
         ),
       ],
@@ -212,7 +215,7 @@ Future<void> ensureVisibleOnTextArea({required GlobalKey textFieldKey}) async {
         curve: Curves.decelerate,
       ),
     );
-    // Optional if doesnt work with the first
+    // Optional if doesn't work with the first
     // await Future.delayed(const Duration(milliseconds: 500)).then(
     //   (value) => Scrollable.ensureVisible(
     //     keyContext,

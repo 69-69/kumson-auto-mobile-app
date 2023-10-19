@@ -9,7 +9,7 @@ class VendorModel {
   final int currentPrice;
   final String stockStatus;
   final String opm;
-  final String dateTime;
+  final String transactionDatetime;
   final String sources;
   final String note;
   final String personnel;
@@ -27,7 +27,7 @@ class VendorModel {
     this.currentPrice = 0,
     this.stockStatus = "",
     this.opm = "",
-    this.dateTime = "",
+    this.transactionDatetime = "",
     this.sources = "",
     this.note = "",
     this.personnel = "",
@@ -38,7 +38,7 @@ class VendorModel {
     return VendorModel(
       id: json['id'],
       opm: json['opm'],
-      dateTime: json['dateTime'],
+      transactionDatetime: json['transactionDatetime'],
       sources: json['sources'],
       note: json['note'],
       personnel: json['personnel'],
@@ -58,7 +58,7 @@ class VendorModel {
   static Map<String, dynamic> toMap(VendorModel item) => {
         "id": item.id,
         "opm": item.opm,
-        "dateTime": item.dateTime,
+        "transactionDatetime": item.transactionDatetime,
         "sources": item.sources,
         "note": item.note,
         "personnel": item.personnel,
@@ -76,7 +76,7 @@ class VendorModel {
   VendorModel copy({
     int? id,
     String? opm,
-    String? dateTime,
+    String? transactionDatetime,
     String? sources,
     String? note,
     String? personnel,
@@ -93,7 +93,7 @@ class VendorModel {
       VendorModel(
         id: id ?? 0,
         opm: opm ?? "",
-        dateTime: dateTime ?? "",
+        transactionDatetime: transactionDatetime ?? "",
         sources: sources ?? "",
         note: note ?? "",
         personnel: personnel ?? "",

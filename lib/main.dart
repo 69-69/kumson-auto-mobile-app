@@ -34,16 +34,16 @@ class MyApp extends StatelessWidget {
 
         inputDecorationTheme: InputDecorationTheme(
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(7),
             borderSide: const BorderSide(color: Colors.black26),
           ),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(7),
             borderSide: const BorderSide(color: Colors.black26),
           ),
           focusedBorder: OutlineInputBorder(
             borderSide: const BorderSide(color: Color(0xFFBA1A1A)),
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(7),
           ),
         ),
 
@@ -51,7 +51,7 @@ class MyApp extends StatelessWidget {
           style: OutlinedButton.styleFrom(
             side: const BorderSide(width: 1.0),
             shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(10)),
+              borderRadius: BorderRadius.all(Radius.circular(7)),
             ),
           ),
         ),

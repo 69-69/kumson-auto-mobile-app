@@ -131,7 +131,7 @@ class _PartDetailsCheckoutState extends State<PartDetailsCheckout>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        customLine("Product Details", true, context),
+        customLine("Product Details", context),
         const Divider(),
         ListTile(
           title: Text(widget.huntPart.product.capitalizeEach()),

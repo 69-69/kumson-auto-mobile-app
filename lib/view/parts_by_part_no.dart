@@ -139,7 +139,7 @@ class _PartsByPartNoState extends State<PartsByPartNo> with SingleTickerProvider
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            customLine(vPart[0].brand.toUpperCase(), true, context),
+            customLine(vPart[0].brand.toUpperCase(), context),
             const Divider(indent: 40),
             Expanded(
               child: buildListView(vPart),

@@ -100,7 +100,7 @@ class _PartListState extends State<PartList>
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            customLine("Choose Your\nCar Part", true, context),
+            customLine("Choose Your\nCar Part", context),
             const Divider(indent: 40),
             Expanded(
               child: buildListView(),

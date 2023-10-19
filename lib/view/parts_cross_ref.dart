@@ -189,7 +189,7 @@ class _PartsCrossRefState extends State<PartsCrossRef>
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        customLine(widget.cPart.part.toUpperCase(), true, context),
+        customLine(widget.cPart.part.toUpperCase(), context),
         /*TextButton(
           onPressed: () {
             animateTransition(

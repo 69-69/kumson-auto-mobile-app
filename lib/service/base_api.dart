@@ -1,12 +1,12 @@
 class BaseAPI {
 // DEV / TEST ROUTES
   Map<String, String> apiEndpointsDev = {
-    "vehicles": "/runner/2023/k1/auto_cars",
-    "parts": "/runner/2023/k1/car_parts",
-    "hunter": "/runner/2023/k1/parts_hunter",
-    "make": "/runner/2023/k1/car_makes",
-    "model": "/runner/2023/k1/car_models",
-    "vendor": "/runner/2023/k1/vendors_parts"
+    "vehicles": "/test/runner/2023/k1/auto_cars",
+    "parts": "/test/runner/2023/k1/car_parts",
+    "hunter": "/test/runner/2023/k1/parts_hunter",
+    "make": "/test/runner/2023/k1/car_makes",
+    "model": "/test/runner/2023/k1/car_models",
+    "vendor": "/test/runner/2023/k1/vendors_parts"
   };
 // PROD. ROUTES
   Map<String, String> apiEndpointsProd = {
@@ -20,7 +20,7 @@ class BaseAPI {
 
   Map<String, String> headers = {
     "Content-Type": "application/json; charset=UTF-8",
-    "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzb2NpYWxtYWlsMDI2QGdtYWlsLmNvbSIsImlhdCI6MTY5NjE5MTAzMSwiZXhwIjoxNzAwNDI0NjMxfQ.obqlOwBog4Irj5l_fUkE5AhJgMEYBb1crlPJe9JnWSI",
+    "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzb2NpYWxtYWlsMDI2QGdtYWlsLmNvbSIsImlhdCI6MTY5NzM5MjM3NiwiZXhwIjoxOTAwNjA1MTc2fQ.9ejPKZSrKIGvTve03oRA-H6hLFC43AJxqlrZSeKC9DU",
   };
 
   Map<String, String> postHeader = {

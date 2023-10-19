@@ -11,8 +11,9 @@ import 'base_api.dart';
 
 class APIService extends BaseAPI {
   // BKR5ES
+  // 19unc1b14hy000003 - 19unc1b04hy000002
   // 3CZRU6H35NM701659 - JTEBB71J8LB015918
-  //await Future.delayed(const Duration(seconds: 1));
+  // await Future.delayed(const Duration(seconds: 1));
 
   /// Get Vehicle by VIN[getVehicleByVin]
   Future<VehicleModel> getVehicleByVin(String vin) async {
@@ -163,4 +164,47 @@ class APIService extends BaseAPI {
       // throw Exception('Failed to load album:');
     }
   }
+
+  /// Get Car Part Years By Make & Model[getCarYears]
+  Future<List<dynamic>> getCarYears(String make, String model) async {
+    var response = await http.get(
+      Uri.parse(url(
+          "${apiEndpointsDev['parts']}/year_range/$make/$model")),
+      headers: headers,
+    );
+
+    if (response.statusCode == 200) {
+      // If the server did return a 200 OK response,
+      // then parse the JSON.
+      List jsonList = json.decode(response.body);
+      return jsonList;
+    } else {
+      // If the server did not return a 200 OK response,
+      // then throw an exception.
+      return [];
+      // throw Exception('Failed to load album:');
+    }
+  }
+
+  /// Get Parts by Make & Model[getPartsByVMakeModel]
+  Future<List<PartModel>> getPartsByVMakeModel(String make, String model) async {
+
+    var response = await http.get(
+      Uri.parse(url("${apiEndpointsDev['parts']}/$make/$model${pagination(100, "id")}")),
+      headers: headers,
+    );
+
+    if (response.statusCode == 200) {
+      // If the server did return a 200 OK response,
+      // then parse the JSON.
+      List jsonList = json.decode(response.body)['content'];
+      return jsonList.map((job) => PartModel.fromJson(job)).toList();
+    } else {
+      // If the server did not return a 200 OK response,
+      // then throw an exception.
+      return [];
+      // throw Exception('Failed to load album:');
+    }
+  }
+
 }
