@@ -205,6 +205,25 @@ Text buildRichText(String item, String item2) {
   );
 }
 
+SizedBox buildProductAgeButton({void Function()? onPress, Color? color}) {
+  return SizedBox(
+    width: 25,
+    height: 25,
+    child: IconButton.outlined(
+      iconSize: 10.0,
+      onPressed: onPress,
+      icon: Icon(Icons.question_mark_sharp,
+          color: color ?? Colors.white),
+      style: OutlinedButton.styleFrom(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(50),
+        ),
+        side: BorderSide(color: color ?? Colors.white),
+      ),
+    ),
+  );
+}
+
 Future<void> ensureVisibleOnTextArea({required GlobalKey textFieldKey}) async {
   final keyContext = textFieldKey.currentContext;
   if (keyContext != null) {

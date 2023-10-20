@@ -11,6 +11,13 @@ class AuthModal extends StatefulWidget {
 }
 
 class _AuthModalState extends State<AuthModal> {
+  bool _secureText = true;
+  FocusNode inputFocus = FocusNode();
+  bool textEditing = false;
+
+  // Show . hide password
+  void showHide() => setState(() => _secureText = !_secureText);
+
   @override
   void initState() {
     super.initState();
@@ -25,18 +32,23 @@ class _AuthModalState extends State<AuthModal> {
   Widget build(BuildContext context) {
     // You have to call it on your starting screen
     SizeConfig().init(context);
+    bool isAuth = widget.authType.toLowerCase() == "log in";
+    double sheetHeight = textEditing ? 0.30 : 0;
 
     return Container(
-      height: SizeConfig.screenHeight! * 0.85,
-      padding:
-          EdgeInsets.symmetric(horizontal: getProportionateScreenWidth(60)),
+      height: SizeConfig.screenHeight! * (isAuth ? (0.35 + sheetHeight) : (0.47 + sheetHeight)),
+      padding: EdgeInsets.only(
+        left: getProportionateScreenWidth(30),
+        right: getProportionateScreenWidth(30),
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
       child: SingleChildScrollView(
         primary: true,
         scrollDirection: Axis.vertical,
-        padding: EdgeInsets.symmetric(vertical: SizeConfig.screenHeight! / 4),
+        // padding: EdgeInsets.symmetric(vertical: SizeConfig.screenHeight! / 4),
         physics: const BouncingScrollPhysics(),
         child: Form(
-          child: buildAuthForm(context),
+          child: isAuth ? buildAuthForm(context) : buildRegForm(context),
         ),
       ),
     );
@@ -44,70 +56,200 @@ class _AuthModalState extends State<AuthModal> {
 
   Column buildAuthForm(BuildContext context) {
     return Column(
-          children: [
-            Text(
-              widget.authType,
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: getProportionateScreenWidth(20),
-                color: Theme.of(context).colorScheme.primary,
-              ),
-            ),
-            const Divider(thickness: 1),
-            SizedBox(height: getProportionateScreenHeight(20)),
-            TextFormField(
-              keyboardType: TextInputType.emailAddress,
-              // onFieldSubmitted: bloc.onChangeEmail,
-              // onChanged: bloc.onChangeEmail,
-              decoration: InputDecoration(
-                filled: true,
-                hintText: "Enter Email",
-                // errorText: snapshot.hasError ? snapshot.error.toString() : "",
-                fillColor:
-                    Theme.of(context).colorScheme.primary.withOpacity(0.04),
-                contentPadding: const EdgeInsets.symmetric(
-                    vertical: 2.0, horizontal: 10.0),
-
-                alignLabelWithHint: true,
-                /*border: OutlineInputBorder(
+      children: [
+        buildText(context),
+        const Divider(thickness: 1),
+        SizedBox(height: getProportionateScreenHeight(20)),
+        TextFormField(
+          keyboardType: TextInputType.emailAddress,
+          // onFieldSubmitted: bloc.onChangeEmail,
+          // onChanged: bloc.onChangeEmail,
+          onTap: () => setState(() => textEditing = true),
+          decoration: InputDecoration(
+            filled: true,
+            hintText: "Enter Email",
+            // errorText: snapshot.hasError ? snapshot.error.toString() : "",
+            fillColor: Theme.of(context).colorScheme.primary.withOpacity(0.04),
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
+            alignLabelWithHint: true,
+            /*border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(5),
                 ),*/
+          ),
+        ),
+        SizedBox(height: getProportionateScreenHeight(7)),
+        TextFormField(
+          obscureText: _secureText,
+          maxLength: 10,
+          keyboardType: TextInputType.emailAddress,
+          // onFieldSubmitted: bloc.onChangeEmail,
+          // onChanged: bloc.onChangeEmail,
+          onTap: () => setState(() => textEditing = true),
+          decoration: InputDecoration(
+            filled: true,
+            hintText: "Enter Password",
+            // errorText: snapshot.hasError ? snapshot.error.toString() : "",
+            fillColor: Theme.of(context).colorScheme.primary.withOpacity(0.04),
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
+
+            alignLabelWithHint: true,
+            suffixIcon: IconButton(
+              onPressed: showHide,
+              icon: Icon(
+                _secureText ? Icons.visibility_off : Icons.visibility,
+                color: _secureText ? Colors.grey : const Color(0xFF757575)
               ),
             ),
-            SizedBox(height: getProportionateScreenHeight(7)),
-            TextFormField(
-              keyboardType: TextInputType.emailAddress,
-              // onFieldSubmitted: bloc.onChangeEmail,
-              // onChanged: bloc.onChangeEmail,
-              decoration: InputDecoration(
-                filled: true,
-                hintText: "Enter Password",
-                // errorText: snapshot.hasError ? snapshot.error.toString() : "",
-                fillColor:
-                    Theme.of(context).colorScheme.primary.withOpacity(0.04),
-                contentPadding: const EdgeInsets.symmetric(
-                    vertical: 2.0, horizontal: 10.0),
-
-                alignLabelWithHint: true,
-                /*border: OutlineInputBorder(
+            /*border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(5),
                 ),*/
+          ),
+        ),
+        SizedBox(height: getProportionateScreenHeight(7)),
+        SizedBox(
+          width: SizeConfig.screenWidth,
+          child: OutlinedButton(
+            onPressed: () {},
+            style: OutlinedButton.styleFrom(
+              side: BorderSide(
+                  width: 1.0, color: Theme.of(context).colorScheme.primary),
+            ),
+            child: Text(widget.authType),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Text buildText(BuildContext context) {
+    return Text(
+        widget.authType,
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: getProportionateScreenWidth(20),
+          color: Theme.of(context).colorScheme.primary,
+        ),
+      );
+  }
+
+  Column buildRegForm(BuildContext context) {
+    return Column(
+      children: [
+        buildText(context),
+        const Divider(thickness: 1),
+        SizedBox(height: getProportionateScreenHeight(20)),
+        TextFormField(
+          keyboardType: TextInputType.emailAddress,
+          // onFieldSubmitted: bloc.onChangeEmail,
+          // onChanged: bloc.onChangeEmail,
+          onTap: () => setState(() => textEditing = true),
+          decoration: InputDecoration(
+            filled: true,
+            hintText: "Enter Email",
+            // errorText: snapshot.hasError ? snapshot.error.toString() : "",
+            fillColor: Theme.of(context).colorScheme.primary.withOpacity(0.04),
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
+
+            alignLabelWithHint: true,
+            /*border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(5),
+                    ),*/
+          ),
+        ),
+        SizedBox(height: getProportionateScreenHeight(7)),
+        TextFormField(
+          keyboardType: TextInputType.phone,
+          // onFieldSubmitted: bloc.onChangeEmail,
+          // onChanged: bloc.onChangeEmail,
+          onTap: () => setState(() => textEditing = true),
+          decoration: InputDecoration(
+            filled: true,
+            hintText: "Enter Phone",
+            // errorText: snapshot.hasError ? snapshot.error.toString() : "",
+            fillColor: Theme.of(context).colorScheme.primary.withOpacity(0.04),
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
+
+            alignLabelWithHint: true,
+            /*border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(5),
+                ),*/
+          ),
+        ),
+        SizedBox(height: getProportionateScreenHeight(7)),
+        TextFormField(
+          obscureText: _secureText,
+          keyboardType: TextInputType.text,
+          maxLength: 10,
+          // onFieldSubmitted: bloc.onChangeEmail,
+          // onChanged: bloc.onChangeEmail,
+          onTap: () => setState(() => textEditing = true),
+          decoration: InputDecoration(
+            filled: true,
+            hintText: "Enter Password",
+            // errorText: snapshot.hasError ? snapshot.error.toString() : "",
+            fillColor: Theme.of(context).colorScheme.primary.withOpacity(0.04),
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
+
+            alignLabelWithHint: true,
+            suffixIcon: IconButton(
+              onPressed: showHide,
+              icon: Icon(
+                _secureText ? Icons.visibility_off : Icons.visibility,
+                color: _secureText ? Colors.grey : const Color(0xFF757575)
               ),
             ),
-            SizedBox(height: getProportionateScreenHeight(7)),
-            SizedBox(
-              width: SizeConfig.screenWidth,
-              child: OutlinedButton(
-                onPressed: () {},
-                style: OutlinedButton.styleFrom(
-                  side: BorderSide(
-                      width: 1.0,
-                      color: Theme.of(context).colorScheme.primary),
-                ),
-                child: Text(widget.authType),
+            /*border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(5),
+                ),*/
+          ),
+        ),
+        SizedBox(height: getProportionateScreenHeight(7)),
+        TextFormField(
+          obscureText: _secureText,
+          keyboardType: TextInputType.text,
+          maxLength: 10,
+          // onFieldSubmitted: bloc.onChangeEmail,
+          // onChanged: bloc.onChangeEmail,
+          onTap: () => setState(() => textEditing = true),
+          decoration: InputDecoration(
+            filled: true,
+            hintText: "Confirm Password",
+            // errorText: snapshot.hasError ? snapshot.error.toString() : "",
+            fillColor: Theme.of(context).colorScheme.primary.withOpacity(0.04),
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
+
+            alignLabelWithHint: true,
+            suffixIcon: IconButton(
+              onPressed: showHide,
+              icon: Icon(
+                _secureText ? Icons.visibility_off : Icons.visibility,
+                color: _secureText ? Colors.grey : const Color(0xFF757575)
               ),
             ),
-          ],
-        );
+            /*border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(5),
+                ),*/
+          ),
+        ),
+        SizedBox(height: getProportionateScreenHeight(7)),
+        SizedBox(
+          width: SizeConfig.screenWidth,
+          child: OutlinedButton(
+            onPressed: () {},
+            style: OutlinedButton.styleFrom(
+              side: BorderSide(
+                  width: 1.0, color: Theme.of(context).colorScheme.primary),
+            ),
+            child: Text(widget.authType),
+          ),
+        ),
+      ],
+    );
   }
 }

@@ -6,13 +6,16 @@ import 'package:automasters/utils/animation_transition.dart';
 import 'package:automasters/view/vehicle_details.dart';
 import 'package:automasters/widgets/fade_slide.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:string_capitalize/string_capitalize.dart';
 
 import '../models/hunter.dart';
 import '../models/vehicle.dart';
 import '../models/vendor.dart';
 import '../service/apiService.dart';
+import '../service/chnage_notifier_service.dart';
 import '../widgets/async_progress_dialog.dart';
+import '../widgets/show_confirmation_dialog.dart';
 import '../widgets/widgetery.dart';
 
 class PartsByPrice extends StatefulWidget {
@@ -155,7 +158,8 @@ class _PartsByPriceState extends State<PartsByPrice>
             // By default, show a loading spinner.
             return Padding(
               padding: const EdgeInsets.all(8.0),
-              child: showCircularProgress(strokeWidth: 3, width: 20, height: 20),
+              child:
+                  showCircularProgress(strokeWidth: 3, width: 20, height: 20),
             );
           default:
             if (snapshot.hasError) {
@@ -165,8 +169,16 @@ class _PartsByPriceState extends State<PartsByPrice>
                   ? Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        customLine(
-                            widget.cPart.part.toUpperCase(), context),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            customLine(
+                                widget.cPart.part.toUpperCase(), context),
+                            buildProductAgeButton(
+                                onPress: () => displayDialog(context),
+                                color: Theme.of(context).colorScheme.primary),
+                          ],
+                        ),
                         const Divider(indent: 40),
                         Expanded(
                           child: buildListView(snapshot.data),
@@ -219,7 +231,7 @@ class _PartsByPriceState extends State<PartsByPrice>
     );
   }
 
-  /// not-done-2 Get Prices From Vendors [buildVendorFutureBuilder]
+  /// Get Prices From Vendors [buildVendorFutureBuilder]
   FutureBuilder<List<VendorModel>> buildVendorFutureBuilder(HunterModel h) {
     return FutureBuilder<List<VendorModel>>(
       future: APIService().getVendorParts(h.brand, h.partNo),
@@ -229,7 +241,8 @@ class _PartsByPriceState extends State<PartsByPrice>
             // By default, show a loading spinner.
             return Padding(
               padding: const EdgeInsets.all(8.0),
-              child: showCircularProgress(strokeWidth: 3, width: 20, height: 20),
+              child:
+                  showCircularProgress(strokeWidth: 3, width: 20, height: 20),
             );
           default:
             if (snapshot.hasError) {
@@ -245,6 +258,10 @@ class _PartsByPriceState extends State<PartsByPrice>
   }
 
   Column buildPriceWrapper(BuildContext context, List<VendorModel> result) {
+    final chgNotifier =
+        Provider.of<ChangeNotifierService>(context, listen: false);
+    String productAge = chgNotifier.getProductAge;
+
     /// Filtering for Min-Price without OPM
     VendorModel minPriceWithoutOPM =
         result.reduce((VendorModel curr, VendorModel next) {
@@ -268,7 +285,8 @@ class _PartsByPriceState extends State<PartsByPrice>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (minPriceWithoutOPM.opm == "no") ...{
+        if (minPriceWithoutOPM.opm == "no" &&
+            minPriceWithoutOPM.productAge.contains(productAge)) ...{
           buildBadge(context, minPriceWithoutOPM),
           Row(
             children: [
@@ -278,7 +296,8 @@ class _PartsByPriceState extends State<PartsByPrice>
           ),
         },
         if (minPriceWithOPM.stockStatus == "instock" &&
-            minPriceWithOPM.opm == "yes") ...{
+            minPriceWithOPM.opm == "yes" &&
+            minPriceWithOPM.productAge.contains(productAge)) ...{
           const Divider(height: 1.0),
           buildBadge(context, minPriceWithOPM, isRadius: false),
           Row(
@@ -292,30 +311,55 @@ class _PartsByPriceState extends State<PartsByPrice>
     );
   }
 
-  Container buildBadge(BuildContext context, VendorModel vendor,
+  Row buildBadge(BuildContext context, VendorModel vendor,
       {bool isRadius = true}) {
     String opmCheck(String opm) => opm == "yes" ? "OPEN MARKET " : "";
 
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        buildBadgeBg(
+          child: buildBadgeText(
+              "${vendor.brand} ${opmCheck(vendor.opm)}${vendor.brandType}",
+              context),
+          isRadius: isRadius,
+        ),
+        buildBadgeBg(
+          child: buildBadgeText(vendor.productAge, context),
+          isRadius: false,
+          radiusRight: true,
+        ),
+      ],
+    );
+  }
+
+  Text buildBadgeText(String label, BuildContext context) {
+    return Text(
+      label.toUpperCase(),
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: TextStyle(
+        fontSize: getProportionateScreenWidth(10),
+        fontWeight: FontWeight.bold,
+        color: Theme.of(context).colorScheme.onPrimary,
+      ),
+    );
+  }
+
+  Container buildBadgeBg(
+      {required Text child, bool isRadius = true, bool radiusRight = false}) {
+    Radius r = const Radius.circular(8.0);
+
     return Container(
       margin: EdgeInsets.zero,
-      padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 10),
+      padding: const EdgeInsets.all(2),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.primary,
         borderRadius: isRadius
-            ? const BorderRadius.only(topLeft: Radius.circular(8.0))
-            : null,
+            ? BorderRadius.only(topLeft: r)
+            : BorderRadius.only(topRight: radiusRight ? r : Radius.zero),
       ),
-      child: Text(
-        "${vendor.brand} ${opmCheck(vendor.opm)}${vendor.brandType}"
-            .toUpperCase(),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: TextStyle(
-          fontSize: getProportionateScreenWidth(14),
-          fontWeight: FontWeight.bold,
-          color: Theme.of(context).colorScheme.onPrimary,
-        ),
-      ),
+      child: child,
     );
   }
 
@@ -370,5 +414,32 @@ class _PartsByPriceState extends State<PartsByPrice>
         ],
       ),
     );
+  }
+
+  displayDialog(BuildContext context) async {
+    final opt = await showConfirmationDialog(
+      context,
+      title: "Searching",
+      isDismissible: false,
+      positiveResponse: "New",
+      negativeResponse: "Used",
+      const Text("for New or Used Car Parts?"),
+    );
+    if (context.mounted && opt != "cancel") {
+      String s = opt ? "new" : "used";
+      Provider.of<ChangeNotifierService>(context, listen: false).setProductAge(s);
+
+      // Refresh Screen after Dialog Changes
+      Future.delayed(
+        const Duration(seconds: 1),
+        () => animateTransition(context,
+            PartsByPrice(cPart: widget.cPart, vehicle: widget.vehicle)),
+      );
+      /*Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => PartsByPrice(cPart: widget.cPart, vehicle: widget.vehicle)),
+            (Route<dynamic> route) => false,
+      );*/
+    }
   }
 }

@@ -1,6 +1,8 @@
+import 'package:automasters/service/chnage_notifier_service.dart';
 import 'package:automasters/view/home.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'color_schemes.g.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -21,89 +23,58 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: lightColorScheme,
-        textTheme: GoogleFonts.poppinsTextTheme(),
+    return MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (context) => ChangeNotifierService()),
+        ],
+        builder: (context, child) => MaterialApp(
+              debugShowCheckedModeBanner: false,
+              theme: buildThemeData(),
 
-        appBarTheme: AppBarTheme(
-          backgroundColor: lightColorScheme.primary,
-        ),
+              darkTheme: buildThemeData(cs: darkColorScheme),
 
-        inputDecorationTheme: InputDecorationTheme(
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(7),
-            borderSide: const BorderSide(color: Colors.black26),
-          ),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(7),
-            borderSide: const BorderSide(color: Colors.black26),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderSide: const BorderSide(color: Color(0xFFBA1A1A)),
-            borderRadius: BorderRadius.circular(7),
-          ),
-        ),
+              // theme: ThemeData.light(useMaterial3: true,),
+              //darkTheme: DarkTheme.darkTheme,
+              // themeMode: ThemeMode.system,
+              home: const Home(),
+            ));
+  }
 
-        outlinedButtonTheme: OutlinedButtonThemeData(
-          style: OutlinedButton.styleFrom(
-            side: const BorderSide(width: 1.0),
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(7)),
-            ),
-          ),
-        ),
-        // primarySwatch: Colors.red,
+  ThemeData buildThemeData({ColorScheme? cs}) {
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: cs ?? lightColorScheme,
+      textTheme: GoogleFonts.poppinsTextTheme(),
+
+      appBarTheme: AppBarTheme(
+        backgroundColor: lightColorScheme.primary,
       ),
 
-      darkTheme: ThemeData(
-        useMaterial3: true,
-        colorScheme: darkColorScheme,
+      inputDecorationTheme: InputDecorationTheme(
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(7),
+          borderSide: const BorderSide(color: Colors.black26),
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(7),
+          borderSide: const BorderSide(color: Colors.black26),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderSide: const BorderSide(color: Color(0xFFBA1A1A)),
+          borderRadius: BorderRadius.circular(7),
+        ),
+        // focusColor:  Color(0xFFBA1A1A)
       ),
 
-      // theme: ThemeData.light(useMaterial3: true,),
-      //darkTheme: DarkTheme.darkTheme,
-      // themeMode: ThemeMode.system,
-      home: const Home(),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          side: const BorderSide(width: 1.0),
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(7)),
+          ),
+        ),
+      ),
+      // primarySwatch: Colors.red,
     );
   }
 }
-/*
-      theme: ThemeData(
-        textTheme: GoogleFonts.poppinsTextTheme(),
-        // This is the theme of your application.
-
-        useMaterial3: true,
-
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFFA10808),
-          primary: const Color(0xFFA10808),
-          //onPrimary: const Color(0xFFA10808),
-        ),
-
-        appBarTheme: const AppBarTheme(backgroundColor:  Color(0xFFA10808)),
-
-        cardTheme: const CardTheme(color: Color(0xFFF0EEF6)),
-
-        inputDecorationTheme: InputDecorationTheme(
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: Colors.black26),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderSide: const BorderSide(color: Colors.redAccent),
-            borderRadius: BorderRadius.circular(10),
-          ),
-        ),
-
-        outlinedButtonTheme: OutlinedButtonThemeData(
-          style: OutlinedButton.styleFrom(
-            side: const BorderSide(width: 1.0),
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(10)),
-            ),
-          ),
-        ),
-      ),*/

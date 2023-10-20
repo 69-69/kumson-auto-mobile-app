@@ -8,6 +8,7 @@ class VendorModel {
   final String vendorCode;
   final int currentPrice;
   final String stockStatus;
+  final String productAge;
   final String opm;
   final String transactionDatetime;
   final String sources;
@@ -26,6 +27,7 @@ class VendorModel {
     this.vendorCode = "",
     this.currentPrice = 0,
     this.stockStatus = "",
+    this.productAge = "",
     this.opm = "",
     this.transactionDatetime = "",
     this.sources = "",
@@ -50,6 +52,7 @@ class VendorModel {
       vendorCode: json['vendorCode'],
       currentPrice: json['currentPrice'],
       stockStatus: json['stockStatus'],
+      productAge: json['productAge'],
       // images: json['vehicleImages'],
     );
   }
@@ -70,6 +73,7 @@ class VendorModel {
         "vendorCode": item.vendorCode,
         "currentPrice": item.currentPrice,
         "stockStatus": item.stockStatus,
+        "productAge": item.productAge,
       };
 
   /// Update Parts Object/opm property[copy]
@@ -88,6 +92,7 @@ class VendorModel {
     String? vendorCode,
     int? currentPrice,
     String? stockStatus,
+    String? productAge,
     // Map<String, dynamic>? images,
   }) =>
       VendorModel(
@@ -105,5 +110,6 @@ class VendorModel {
         vendorCode: vendorCode ?? "",
         currentPrice: currentPrice ?? 0,
         stockStatus: stockStatus ?? "",
+        productAge: productAge ?? "",
       );
 }

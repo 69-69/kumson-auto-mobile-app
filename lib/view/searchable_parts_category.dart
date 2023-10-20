@@ -12,6 +12,7 @@ import '../widgets/widgetery.dart';
 import '../utils/keyboard.dart';
 
 class SearchablePartsCategory extends StatelessWidget {
+  final FocusNode focusNode;
   final VehicleModel vehicle;
   final List<PartModel> carParts;
 
@@ -19,9 +20,8 @@ class SearchablePartsCategory extends StatelessWidget {
     super.key,
     required this.vehicle,
     required this.carParts,
+    required this.focusNode,
   });
-
-  final FocusNode focusNode = FocusNode();
 
   @override
   Widget build(BuildContext context) {

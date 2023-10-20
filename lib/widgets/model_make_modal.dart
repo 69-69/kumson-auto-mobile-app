@@ -350,8 +350,10 @@ class _ModelMakeModalState extends State<ModelMakeModal> {
     );
   }
 
-  removeDuplicate(List<PartModel> result, bool isPart){
-    return result.getDistinctBy((PartModel x) => isPart ? x.part : x.engineType).toList();
+  removeDuplicate(List<PartModel> result, bool isPart) {
+    return result
+        .getDistinctBy((PartModel x) => isPart ? x.part : x.engineType)
+        .toList();
   }
 
   /// List view display[listEngineTypeCard]
@@ -399,20 +401,25 @@ class _ModelMakeModalState extends State<ModelMakeModal> {
           );
 
   OutlinedButton buildOutlinedButton(String label,
-          {required Function() onPress, bool isSelected = false}) =>
-      OutlinedButton(
-        style: OutlinedButton.styleFrom(
-          backgroundColor: isSelected ? const Color(0xFFF8DDDD) : null,
-          side: BorderSide(width: 1.0, color: Colors.red.shade100),
+      {required Function() onPress, bool isSelected = false}) {
+    Color cl = Theme.of(context).colorScheme.primaryContainer;
+
+    return OutlinedButton(
+      style: OutlinedButton.styleFrom(
+        elevation: 2.0,
+        backgroundColor:
+            isSelected ? cl : Theme.of(context).colorScheme.background,
+        side: BorderSide(width: 1.0, color: cl),
+      ),
+      onPressed: onPress,
+      child: Text(
+        label,
+        style: const TextStyle(
+          fontWeight: FontWeight.w500,
+          color: Colors.black,
+          overflow: TextOverflow.ellipsis,
         ),
-        onPressed: onPress,
-        child: Text(
-          label,
-          style: const TextStyle(
-            fontWeight: FontWeight.w500,
-            color: Colors.black,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-      );
+      ),
+    );
+  }
 }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/animation_item.dart';
+import '../service/chnage_notifier_service.dart';
 import '../widgets/horizontal_line.dart';
 import '../utils/size_config.dart';
 import '../widgets/show_confirmation_dialog.dart';
@@ -47,12 +49,26 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
       });
     animationController.forward();
 
-    /// display welcome dialog on screen launch with 2-seconds delay
-    WidgetsBinding.instance.addPostFrameCallback((_) async{
-      await Future.delayed(const Duration(seconds: 2),() => displayDialog());
-    });
+    onLaunchShowDialog();
 
     super.initState();
+  }
+
+  /// display welcome dialog on screen launch with 2-seconds delay
+  void onLaunchShowDialog() {
+    if (context.mounted) {
+
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        await Future.delayed(const Duration(seconds: 2), () {
+          final chgNotifier = Provider.of<ChangeNotifierService>(context, listen: false);
+
+          if(chgNotifier.getProductAge.isEmpty){
+            debugPrint(chgNotifier.getProductAge);
+            return displayDialog();
+          }
+        });
+      });
+    }
   }
 
   @override
@@ -152,12 +168,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
         buildColoredBorder(
           true,
           context,
-          child: Text(
-            "Search Car Parts by:",
-            textAlign: TextAlign.center,
-            style: customTheme.textTheme.bodyLarge!
-                .copyWith(fontWeight: FontWeight.bold, color: Colors.white),
-          ),
+          child: buildTopBg(customTheme),
         ),
         CollapsePanel(vin: widget.vin),
         buildColoredBorder(
@@ -168,6 +179,21 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
         ),
       ],
     );
+  }
+
+  Row buildTopBg(ThemeData customTheme) {
+    return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Text(
+              "Search Car Parts by:",
+              textAlign: TextAlign.center,
+              style: customTheme.textTheme.bodyLarge!
+                  .copyWith(fontWeight: FontWeight.bold, color: Colors.white),
+            ),
+            buildProductAgeButton(onPress: ()=>displayDialog())
+          ],
+        );
   }
 
   Future<dynamic> buildAuthModal(BuildContext context, String authType) =>
@@ -194,29 +220,21 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            OutlinedButton(
-              style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: Colors.white),
-              ),
-              onPressed: () => buildAuthModal(context, 'Log In'),
-              child: const Text(
-                'Log In',
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-            OutlinedButton(
-              style: OutlinedButton.styleFrom(
-                side: const BorderSide(width: 1.0, color: Colors.white),
-              ),
-              onPressed: () => buildAuthModal(context, 'Sign Up'),
-              child: const Text(
-                'Sign Up',
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
+            buildOutlinedButton(context, 'Log In'),
+            buildOutlinedButton(context, 'Sign Up'),
           ],
         ),
       ],
+    );
+  }
+
+  OutlinedButton buildOutlinedButton(BuildContext context, String label) {
+    return OutlinedButton(
+      style: OutlinedButton.styleFrom(
+        side: const BorderSide(color: Colors.white),
+      ),
+      onPressed: () => buildAuthModal(context, label),
+      child: Text(label, style: const TextStyle(color: Colors.white)),
     );
   }
 
@@ -249,10 +267,13 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
       isDismissible: false,
       positiveResponse: "New",
       negativeResponse: "Used",
-      const Text("Shop for New or Used Car Parts?"),
+      const Text("Search for New or Used Car Parts?"),
     );
-    if (context.mounted) {
-      if (opt != "cancel") {}
-    }
+    if (context.mounted && opt != "cancel") {
+
+      final chgNotifier = Provider.of<ChangeNotifierService>(context, listen: false);
+        String s = opt ? "new" : "used";
+        chgNotifier.setProductAge(s);
+      }
   }
 }
