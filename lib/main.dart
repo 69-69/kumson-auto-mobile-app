@@ -1,5 +1,5 @@
-import 'package:automasters/service/chnage_notifier_service.dart';
-import 'package:automasters/view/home.dart';
+import 'package:automasters/service/change_notifier_service.dart';
+import 'package:automasters/view/onboarding_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -36,7 +36,7 @@ class MyApp extends StatelessWidget {
               // theme: ThemeData.light(useMaterial3: true,),
               //darkTheme: DarkTheme.darkTheme,
               // themeMode: ThemeMode.system,
-              home: const Home(),
+              home: const OnBoardingScreen(),
             ));
   }
 

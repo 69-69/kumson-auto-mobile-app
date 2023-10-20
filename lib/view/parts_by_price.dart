@@ -6,14 +6,13 @@ import 'package:automasters/utils/animation_transition.dart';
 import 'package:automasters/view/vehicle_details.dart';
 import 'package:automasters/widgets/fade_slide.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:string_capitalize/string_capitalize.dart';
 
 import '../models/hunter.dart';
 import '../models/vehicle.dart';
 import '../models/vendor.dart';
-import '../service/apiService.dart';
-import '../service/chnage_notifier_service.dart';
+import '../service/api_service.dart';
+import '../service/change_notifier_service.dart';
 import '../widgets/async_progress_dialog.dart';
 import '../widgets/show_confirmation_dialog.dart';
 import '../widgets/widgetery.dart';
@@ -35,6 +34,7 @@ class _PartsByPriceState extends State<PartsByPrice>
   late Animation animation;
   List<AnimationItem> animationItems = [];
   late Future<List<HunterModel>> getPartsHunter;
+  String productAge = "";
 
   @override
   void initState() {
@@ -75,6 +75,8 @@ class _PartsByPriceState extends State<PartsByPrice>
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
+
+    ChangeNotifierService.getProductAge().then((v) => productAge = v);
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -258,9 +260,6 @@ class _PartsByPriceState extends State<PartsByPrice>
   }
 
   Column buildPriceWrapper(BuildContext context, List<VendorModel> result) {
-    final chgNotifier =
-        Provider.of<ChangeNotifierService>(context, listen: false);
-    String productAge = chgNotifier.getProductAge;
 
     /// Filtering for Min-Price without OPM
     VendorModel minPriceWithoutOPM =
@@ -286,7 +285,7 @@ class _PartsByPriceState extends State<PartsByPrice>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (minPriceWithoutOPM.opm == "no" &&
-            minPriceWithoutOPM.productAge.contains(productAge)) ...{
+            minPriceWithoutOPM.productAge == productAge) ...{
           buildBadge(context, minPriceWithoutOPM),
           Row(
             children: [
@@ -297,7 +296,7 @@ class _PartsByPriceState extends State<PartsByPrice>
         },
         if (minPriceWithOPM.stockStatus == "instock" &&
             minPriceWithOPM.opm == "yes" &&
-            minPriceWithOPM.productAge.contains(productAge)) ...{
+            minPriceWithOPM.productAge == productAge) ...{
           const Divider(height: 1.0),
           buildBadge(context, minPriceWithOPM, isRadius: false),
           Row(
@@ -349,12 +348,13 @@ class _PartsByPriceState extends State<PartsByPrice>
   Container buildBadgeBg(
       {required Text child, bool isRadius = true, bool radiusRight = false}) {
     Radius r = const Radius.circular(8.0);
+    ColorScheme theme = Theme.of(context).colorScheme;
 
     return Container(
       margin: EdgeInsets.zero,
       padding: const EdgeInsets.all(2),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primary,
+        color: radiusRight ? theme.primary : theme.onSurfaceVariant,
         borderRadius: isRadius
             ? BorderRadius.only(topLeft: r)
             : BorderRadius.only(topRight: radiusRight ? r : Radius.zero),
@@ -423,11 +423,10 @@ class _PartsByPriceState extends State<PartsByPrice>
       isDismissible: false,
       positiveResponse: "New",
       negativeResponse: "Used",
-      const Text("for New or Used Car Parts?"),
+      const Text("...for New or Used Car Parts?"),
     );
     if (context.mounted && opt != "cancel") {
-      String s = opt ? "new" : "used";
-      Provider.of<ChangeNotifierService>(context, listen: false).setProductAge(s);
+      await ChangeNotifierService.setProductAge(opt);
 
       // Refresh Screen after Dialog Changes
       Future.delayed(
@@ -435,7 +434,9 @@ class _PartsByPriceState extends State<PartsByPrice>
         () => animateTransition(context,
             PartsByPrice(cPart: widget.cPart, vehicle: widget.vehicle)),
       );
-      /*Navigator.pushAndRemoveUntil(
+
+      /* refresh page
+      Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (context) => PartsByPrice(cPart: widget.cPart, vehicle: widget.vehicle)),
             (Route<dynamic> route) => false,

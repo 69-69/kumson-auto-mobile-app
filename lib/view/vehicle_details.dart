@@ -7,7 +7,7 @@ import 'package:automasters/widgets/fade_slide.dart';
 import 'package:flutter/material.dart';
 
 import '../models/vehicle.dart';
-import '../service/apiService.dart';
+import '../service/api_service.dart';
 import '../widgets/async_progress_dialog.dart';
 import '../widgets/widgetery.dart';
 

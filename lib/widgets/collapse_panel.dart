@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 
 import '../models/panel.dart';
 import '../models/vehicle.dart';
-import '../service/apiService.dart';
+import '../service/api_service.dart';
 import '../utils/animation_transition.dart';
 import 'async_progress_dialog.dart';
 import '../view/vehicle_details.dart';
@@ -140,7 +140,7 @@ class _CollapsePanelState extends State<CollapsePanel> {
       prefixText: isSearching ? "" : "${label[index]}:",
       prefixStyle:
           const TextStyle(fontWeight: FontWeight.w600, color: Colors.black26),
-      hintText: "Enter your ${label[index]}...",
+      hintText: " Enter your ${label[index]}...",
       alignLabelWithHint: true,
       /*border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(50),

@@ -10,9 +10,11 @@ import 'package:string_capitalize/string_capitalize.dart';
 
 import '../models/hunter.dart';
 import '../models/vendor.dart';
-import '../service/apiService.dart';
+import '../service/api_service.dart';
+import '../service/change_notifier_service.dart';
 import '../utils/animation_transition.dart';
 import '../widgets/async_progress_dialog.dart';
+import '../widgets/show_confirmation_dialog.dart';
 import '../widgets/widgetery.dart';
 
 class PartsByPartNo extends StatefulWidget {
@@ -24,12 +26,14 @@ class PartsByPartNo extends StatefulWidget {
   State<PartsByPartNo> createState() => _PartsByPartNoState();
 }
 
-class _PartsByPartNoState extends State<PartsByPartNo> with SingleTickerProviderStateMixin {
+class _PartsByPartNoState extends State<PartsByPartNo>
+    with SingleTickerProviderStateMixin {
   // Animation setups
   late AnimationController animationController;
   late Animation animation;
   List<AnimationItem> animationItems = [];
   VehicleModel vehicle = VehicleModel();
+  String productAge = "";
 
   @override
   void initState() {
@@ -67,6 +71,8 @@ class _PartsByPartNoState extends State<PartsByPartNo> with SingleTickerProvider
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
+
+    ChangeNotifierService.getProductAge().then((v) => productAge = v);
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -139,7 +145,15 @@ class _PartsByPartNoState extends State<PartsByPartNo> with SingleTickerProvider
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            customLine(vPart[0].brand.toUpperCase(), context),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                customLine(vPart[0].brand.toUpperCase(), context),
+                buildProductAgeButton(
+                    onPress: () => displayDialog(context),
+                    color: Theme.of(context).colorScheme.primary),
+              ],
+            ),
             const Divider(indent: 40),
             Expanded(
               child: buildListView(vPart),
@@ -162,7 +176,8 @@ class _PartsByPartNoState extends State<PartsByPartNo> with SingleTickerProvider
 
         return GestureDetector(
           onTap: () {
-            animateTransition(context, PartDetailsCheckout(huntPart: huntPart, vehicle: vehicle));
+            animateTransition(context,
+                PartDetailsCheckout(huntPart: huntPart, vehicle: vehicle));
           },
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 2.0),
@@ -196,14 +211,16 @@ class _PartsByPartNoState extends State<PartsByPartNo> with SingleTickerProvider
             // By default, show a loading spinner.
             return Padding(
               padding: const EdgeInsets.all(8.0),
-              child: showCircularProgress(strokeWidth: 3, width: 20, height: 20),
+              child:
+                  showCircularProgress(strokeWidth: 3, width: 20, height: 20),
             );
           default:
             if (snapshot.hasError) {
               return const Text('Refresh App');
             } else {
               return snapshot.data[0].length > 0
-                  ? buildPriceWrapper(context, snapshot.data[0], snapshot.data[1])
+                  ? buildPriceWrapper(
+                      context, snapshot.data[0], snapshot.data[1])
                   : buildMakeARequestButton(context);
             }
         }
@@ -211,12 +228,14 @@ class _PartsByPartNoState extends State<PartsByPartNo> with SingleTickerProvider
     );
   }
 
-  Column buildPriceWrapper(BuildContext context, List<VendorModel> vendor, VehicleModel vehicleData) {
-    if(context.mounted){
+  Column buildPriceWrapper(BuildContext context, List<VendorModel> vendor,
+      VehicleModel vehicleData) {
+    if (context.mounted) {
       // Future.delayed(const Duration(seconds: 1));
-      // debugPrint(vehicle.vin);
-      SchedulerBinding.instance.addPostFrameCallback((_) => vehicle = vehicleData);
+      SchedulerBinding.instance
+          .addPostFrameCallback((_) => vehicle = vehicleData);
     }
+
     /// Filtering for Min-Price without OPM
     VendorModel minPriceWithoutOPM =
         vendor.reduce((VendorModel curr, VendorModel next) {
@@ -240,7 +259,8 @@ class _PartsByPartNoState extends State<PartsByPartNo> with SingleTickerProvider
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (minPriceWithoutOPM.opm == "no") ...{
+        if (minPriceWithoutOPM.opm == "no" &&
+        minPriceWithoutOPM.productAge == productAge) ...{
           buildBadge(context, minPriceWithoutOPM),
           Row(
             children: [
@@ -250,7 +270,8 @@ class _PartsByPartNoState extends State<PartsByPartNo> with SingleTickerProvider
           ),
         },
         if (minPriceWithOPM.stockStatus == "instock" &&
-            minPriceWithOPM.opm == "yes") ...{
+            minPriceWithOPM.opm == "yes" &&
+            minPriceWithoutOPM.productAge == productAge) ...{
           const Divider(height: 1.0),
           buildBadge(context, minPriceWithOPM, isRadius: false),
           Row(
@@ -264,29 +285,56 @@ class _PartsByPartNoState extends State<PartsByPartNo> with SingleTickerProvider
     );
   }
 
-  Container buildBadge(BuildContext context, VendorModel vendor,{bool isRadius = true}) {
+  Row buildBadge(BuildContext context, VendorModel vendor,
+      {bool isRadius = true}) {
     String opmCheck(String opm) => opm == "yes" ? "OPEN MARKET " : "";
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        buildBadgeBg(
+          child: buildBadgeText(
+              "${vendor.brand} ${opmCheck(vendor.opm)}${vendor.brandType}",
+              context),
+          isRadius: isRadius,
+        ),
+        buildBadgeBg(
+          child: buildBadgeText(vendor.productAge, context),
+          isRadius: false,
+          radiusRight: true,
+        ),
+      ],
+    );
+  }
+
+  Text buildBadgeText(String label, BuildContext context) {
+    return Text(
+      label.toUpperCase(),
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: TextStyle(
+        fontSize: getProportionateScreenWidth(10),
+        fontWeight: FontWeight.bold,
+        color: Theme.of(context).colorScheme.onPrimary,
+      ),
+    );
+  }
+
+  Container buildBadgeBg(
+      {required Text child, bool isRadius = true, bool radiusRight = false}) {
+    Radius r = const Radius.circular(8.0);
+    ColorScheme theme = Theme.of(context).colorScheme;
 
     return Container(
       margin: EdgeInsets.zero,
-      padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 10),
+      padding: const EdgeInsets.all(2),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primary,
+        color: radiusRight ? theme.primary : theme.onSurfaceVariant,
         borderRadius: isRadius
-            ? const BorderRadius.only(topLeft: Radius.circular(8.0))
-            : null,
+            ? BorderRadius.only(topLeft: r)
+            : BorderRadius.only(topRight: radiusRight ? r : Radius.zero),
       ),
-      child: Text(
-        "${vendor.brand} ${opmCheck(vendor.opm)}${vendor.brandType}"
-            .toUpperCase(),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: TextStyle(
-          fontSize: getProportionateScreenWidth(14),
-          fontWeight: FontWeight.bold,
-          color: Theme.of(context).colorScheme.onPrimary,
-        ),
-      ),
+      child: child,
     );
   }
 
@@ -341,5 +389,32 @@ class _PartsByPartNoState extends State<PartsByPartNo> with SingleTickerProvider
         ],
       ),
     );
+  }
+
+  displayDialog(BuildContext context) async {
+    final opt = await showConfirmationDialog(
+      context,
+      title: "Searching",
+      isDismissible: false,
+      positiveResponse: "New",
+      negativeResponse: "Used",
+      const Text("...for New or Used Car Parts?"),
+    );
+    if (context.mounted && opt != "cancel") {
+      await ChangeNotifierService.setProductAge(opt);
+
+      // Refresh Screen after Dialog Changes
+      Future.delayed(
+        const Duration(seconds: 1),
+        () => animateTransition(context, PartsByPartNo(cPart: widget.cPart)),
+      );
+
+      /* refresh page
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => PartsByPrice(cPart: widget.cPart, vehicle: widget.vehicle)),
+            (Route<dynamic> route) => false,
+      );*/
+    }
   }
 }

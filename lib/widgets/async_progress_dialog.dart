@@ -19,7 +19,7 @@ Center showCircularProgress({
       ),
     );
 
-/// Show Async ProgressDialog
+/// Show Async ProgressDialog loading Data
 Future<void> showProgressDialog(
     BuildContext context, Future<dynamic> getParts,
     {String label = 'Searching...'}) async =>
@@ -62,6 +62,15 @@ class AsyncProgressDialog extends StatefulWidget {
   /// Calculate time left to complete in circularProgressBar [loadProgress].
   final double? loadProgress;
 
+  /// The relative position of the stroke on a [CircularProgressIndicator]
+  final double strokeAlign;
+
+  /// The width of the line used to draw the circle on a [CircularProgressIndicator]
+  final double strokeWidth;
+
+  /// Styles to use for line endings on a [CircularProgressIndicator]
+  final StrokeCap? strokeCap;
+
   const AsyncProgressDialog(
     this.future, {
     Key? key,
@@ -73,6 +82,9 @@ class AsyncProgressDialog extends StatefulWidget {
     this.isDialog = true,
     this.size,
     this.loadProgress,
+    this.strokeAlign = 0.0,
+    this.strokeCap,
+    this.strokeWidth = 3.0,
   }) : super(key: key);
 
   @override
@@ -102,7 +114,9 @@ class _AsyncProgressDialogState extends State<AsyncProgressDialog> {
   /// CircularProgressIndicator
   Widget _indicator() => CircularProgressIndicator(
         value: widget.loadProgress,
-        strokeWidth: 3.0,
+        strokeWidth: widget.strokeWidth,
+        strokeAlign: widget.strokeAlign,
+        strokeCap: widget.strokeCap,
         backgroundColor: const Color(0xFFFFECDF),
         valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFF67952)),
       );

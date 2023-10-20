@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import '../models/animation_item.dart';
-import '../service/chnage_notifier_service.dart';
+import '../service/change_notifier_service.dart';
 import '../widgets/horizontal_line.dart';
 import '../utils/size_config.dart';
 import '../widgets/show_confirmation_dialog.dart';
@@ -60,12 +59,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
 
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         await Future.delayed(const Duration(seconds: 2), () {
-          final chgNotifier = Provider.of<ChangeNotifierService>(context, listen: false);
-
-          if(chgNotifier.getProductAge.isEmpty){
-            debugPrint(chgNotifier.getProductAge);
-            return displayDialog();
-          }
+          ChangeNotifierService.getProductAge().then((v) => v.isEmpty ? displayDialog() : false);
         });
       });
     }
@@ -109,7 +103,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
         preferredSize: const Size.fromHeight(5),
         child: Container(
           width: double.infinity,
-          color: Colors.black12,
+          color: Colors.black26,
           padding: const EdgeInsets.all(1),
           child: Text(
             "Best Way to Buy Car Parts in Ghana",
@@ -248,7 +242,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
       margin: EdgeInsets.zero,
       padding: padding ?? const EdgeInsets.all(7.0),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primary,
+        color: Theme.of(context).colorScheme.primary.withOpacity(0.6),
         borderRadius: BorderRadius.only(
           topRight: isTop ? rd : rdZero,
           topLeft: isTop ? rd : rdZero,
@@ -271,9 +265,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     );
     if (context.mounted && opt != "cancel") {
 
-      final chgNotifier = Provider.of<ChangeNotifierService>(context, listen: false);
-        String s = opt ? "new" : "used";
-        chgNotifier.setProductAge(s);
+        await ChangeNotifierService.setProductAge(opt);
       }
   }
 }

@@ -16,6 +16,12 @@ class APIService extends BaseAPI {
   // await Future.delayed(const Duration(seconds: 1));
 
   /// Get Vehicle by VIN[getVehicleByVin]
+  Future<bool> isAPIOnline() async {
+    var response = await http.get(Uri.parse(url("/api/v1/auth")));
+    return response.statusCode == 200 ? true : false;
+  }
+
+  /// Get Vehicle by VIN[getVehicleByVin]
   Future<VehicleModel> getVehicleByVin(String vin) async {
     var response = await http.get(
       Uri.parse(url("${apiEndpointsDev['vehicles']}/$vin")),
@@ -37,9 +43,9 @@ class APIService extends BaseAPI {
 
   /// Get Parts by VFAM[getPartsBy]
   Future<List<PartModel>> getPartsByVFAM(String vfam) async {
-
     var response = await http.get(
-      Uri.parse(url("${apiEndpointsDev['parts']}/$vfam${pagination(100, "id")}")),
+      Uri.parse(
+          url("${apiEndpointsDev['parts']}/$vfam${pagination(100, "id")}")),
       headers: headers,
     );
 
@@ -58,7 +64,6 @@ class APIService extends BaseAPI {
 
   /// Get Parts by HunterNo[getPartsByHunterNo]
   Future<PartModel> getPartsByHunterNo(String hunterNo) async {
-
     var response = await http.get(
       Uri.parse(url("${apiEndpointsDev['parts']}/hunter/$hunterNo")),
       headers: headers,
@@ -79,7 +84,6 @@ class APIService extends BaseAPI {
   /// Get Part-Hunter by hunter or personnel[getHunterPartsBy]
   Future<List<HunterModel>> getHunterPartsBy(
       {String hunterNo = "", String patNo = ""}) async {
-
     String endpoint = (hunterNo.isNotEmpty && patNo.isEmpty)
         ? "${apiEndpointsDev['hunter']}/$hunterNo"
         : "${apiEndpointsDev['hunter']}/part_no/$patNo";
@@ -168,8 +172,7 @@ class APIService extends BaseAPI {
   /// Get Car Part Years By Make & Model[getCarYears]
   Future<List<dynamic>> getCarYears(String make, String model) async {
     var response = await http.get(
-      Uri.parse(url(
-          "${apiEndpointsDev['parts']}/year_range/$make/$model")),
+      Uri.parse(url("${apiEndpointsDev['parts']}/year_range/$make/$model")),
       headers: headers,
     );
 
@@ -187,10 +190,11 @@ class APIService extends BaseAPI {
   }
 
   /// Get Parts by Make & Model[getPartsByVMakeModel]
-  Future<List<PartModel>> getPartsByVMakeModel(String make, String model) async {
-
+  Future<List<PartModel>> getPartsByVMakeModel(
+      String make, String model) async {
     var response = await http.get(
-      Uri.parse(url("${apiEndpointsDev['parts']}/$make/$model${pagination(100, "id")}")),
+      Uri.parse(url(
+          "${apiEndpointsDev['parts']}/$make/$model${pagination(100, "id")}")),
       headers: headers,
     );
 
@@ -206,5 +210,4 @@ class APIService extends BaseAPI {
       // throw Exception('Failed to load album:');
     }
   }
-
 }
