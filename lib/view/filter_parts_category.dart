@@ -7,16 +7,17 @@ import 'package:automasters/view/parts_cross_ref.dart';
 import 'package:flutter/material.dart';
 import 'package:string_capitalize/string_capitalize.dart';
 import '../models/vehicle.dart';
+import '../widgets/column_builder.dart';
 import '../widgets/show_confirmation_dialog.dart';
 import '../widgets/widgetery.dart';
 import '../utils/keyboard.dart';
 
-class SearchablePartsCategory extends StatelessWidget {
+class FilterPartsCategory extends StatelessWidget {
   final FocusNode focusNode;
   final VehicleModel vehicle;
   final List<PartModel> carParts;
 
-  SearchablePartsCategory({
+  const FilterPartsCategory({
     super.key,
     required this.vehicle,
     required this.carParts,
@@ -168,16 +169,16 @@ class SearchablePartsCategory extends StatelessWidget {
   /// List view display[buildListView]
   buildListView(
       result, bool searching, ValueNotifier<List<PartModel>> filtered) {
-    return ListView.builder(
-      key: UniqueKey(),
-      shrinkWrap: true,
-      padding: EdgeInsets.zero,
-      itemCount: searching ? filtered.value.length : result.length,
-      itemBuilder: (context, index) {
-        PartModel item = searching ? filtered.value[index] : result[index];
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
+      child: ColumnBuilder(
+        itemCount: searching ? filtered.value.length : result.length,
+        itemBuilder: (context, index) {
+          PartModel item = searching ? filtered.value[index] : result[index];
 
-        return buildCard(item, context);
-      },
+          return buildCard(item, context);
+        },
+      ),
     );
   }
 

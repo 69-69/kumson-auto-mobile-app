@@ -2,7 +2,7 @@ import 'package:automasters/models/animation_item.dart';
 import 'package:automasters/models/parts.dart';
 import 'package:automasters/utils/size_config.dart';
 import 'package:automasters/view/home.dart';
-import 'package:automasters/view/searchable_parts_category.dart';
+import 'package:automasters/view/filter_parts_category.dart';
 import 'package:automasters/widgets/fade_slide.dart';
 import 'package:flutter/material.dart';
 
@@ -132,7 +132,7 @@ class _VehicleDetailsState extends State<VehicleDetails>
         const EdgeInsets.fromLTRB(24.0, 32.0, 24.0, 0.0),
         child: widget.parts == null
             ? buildFutureBuilder()
-            : SearchablePartsCategory(focusNode: focusNode,
+            : FilterPartsCategory(focusNode: focusNode,
                 vehicle: widget.vehicle, carParts: widget.parts!),
       ),
     );
@@ -152,7 +152,7 @@ class _VehicleDetailsState extends State<VehicleDetails>
             } else {
               List<PartModel> result = snapshot.data;
               return snapshot.data.length > 0
-                  ? SearchablePartsCategory(focusNode: focusNode,
+                  ? FilterPartsCategory(focusNode: focusNode,
                       vehicle: widget.vehicle, carParts: result)
                   : buildMakeARequestButton(context);
             }

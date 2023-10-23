@@ -38,5 +38,5 @@ class BaseAPI {
   String url(String s) => "http://ec2-18-212-75-251.compute-1.amazonaws.com$s";
 
   // http://localhost:8080/path?page=0&size=100&sort=product,desc
-  String pagination(int size, String sort) => "?page=0&size=$size&sort=$sort,asc";
+  String pagination({int page = 0, int size = 200, String sort = "id", String order = "asc"}) => "?page=$page&size=$size&sort=$sort,$order";
 }

@@ -41,6 +41,7 @@ dependencies:
   string_capitalize: ^0.0.10
   provider: ^6.0.5
   shared_preferences: ^2.2.2
+  collection: ^1.17.2
 
 dev_dependencies:
   flutter_test:

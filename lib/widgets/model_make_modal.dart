@@ -8,6 +8,7 @@ import '../models/vehicle.dart';
 import '../service/api_service.dart';
 import '../utils/animation_transition.dart';
 import '../view/vehicle_details.dart';
+import 'alphabetical_scroll_view.dart';
 import 'async_progress_dialog.dart';
 import 'widgetery.dart';
 import '../utils/size_config.dart';
@@ -30,6 +31,7 @@ class _ModelMakeModalState extends State<ModelMakeModal> {
   int isMakeSelectedIndex = 0,
       isModelSelectedIndex = 0,
       isYearSelectedIndex = 0;
+  final FocusNode focusNode = FocusNode();
 
   @override
   void initState() {
@@ -48,46 +50,26 @@ class _ModelMakeModalState extends State<ModelMakeModal> {
     // You have to call it on your starting screen
     SizeConfig().init(context);
 
-    return SingleChildScrollView(
-      primary: true,
-      physics: const BouncingScrollPhysics(),
-      child: Container(
-        height: SizeConfig.screenHeight! * 0.85,
-        padding: const EdgeInsets.only(top: 7.0, bottom: 20.0),
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                buildPagerHead(context),
-                /*IconButton(
-                  tooltip: isMakeSelected ? "Go Back" : "Close",
-                  onPressed: () {
-                    isMakeSelected
-                        ? setState(() => isMakeSelected = false)
-                        : Navigator.pop(context);
-                  },
-                  icon: Icon(
-                    isMakeSelected && isModelSelected ? Icons.arrow_back : Icons.clear,
-                    //color: Colors.black26,
-                  ),
-                ),*/
-              ],
-            ),
-            const Divider(thickness: 1),
-            Expanded(
-              child: (!isMakeSelected && !isModelSelected && !isYearSelected)
-                  ? futureBuilderCarMake()
-                  : (isMakeSelected && getMakeRef.isNotEmpty)
-                      ? futureBuilderCarModel()
-                      : (isModelSelected &&
-                              (getMakeName.isNotEmpty &&
-                                  getModelName.isNotEmpty)
-                          ? futureBuilderCarYears()
-                          : futureBuilderEngineType()),
-            ),
-          ],
-        ),
+    return Container(
+      height: SizeConfig.screenHeight! * 0.85,
+      padding: const EdgeInsets.only(top: 7.0, bottom: 20.0),
+      child: Column(
+        children: [
+          buildPagerHead(context),
+          const Divider(thickness: 1),
+          Expanded(
+            child: /*SingleChildScrollView(*/
+                (!isMakeSelected && !isModelSelected && !isYearSelected)
+                    ? futureBuilderCarMake()
+                    : (isMakeSelected && getMakeRef.isNotEmpty)
+                        ? futureBuilderCarModel()
+                        : (isModelSelected &&
+                                (getMakeName.isNotEmpty &&
+                                    getModelName.isNotEmpty)
+                            ? futureBuilderCarYears()
+                            : futureBuilderEngineType()),
+          ),
+        ],
       ),
     );
   }
@@ -188,7 +170,8 @@ class _ModelMakeModalState extends State<ModelMakeModal> {
             if (snapshot.hasData) {
               List<MakeModel> result = snapshot.data!;
               return snapshot.data!.isNotEmpty
-                  ? gridCarMakeCard(result)
+                  ? listCarMakeCard(result)
+                  // FilterCarMake(carMakes: result, focusNode: focusNode)
                   : buildRefreshApp(context);
             } else {
               return const Text('Refresh App');
@@ -210,7 +193,7 @@ class _ModelMakeModalState extends State<ModelMakeModal> {
             if (snapshot.hasData) {
               List<Model> result = snapshot.data!;
               return snapshot.data!.isNotEmpty
-                  ? gridCarModelCard(result)
+                  ? listCarModelCard(result)
                   : buildRefreshApp(context);
             } else {
               return const Text('Refresh App');
@@ -232,7 +215,7 @@ class _ModelMakeModalState extends State<ModelMakeModal> {
             if (snapshot.hasData) {
               List<dynamic> result = snapshot.data!;
               return snapshot.data!.isNotEmpty
-                  ? gridCarYearsCard(result)
+                  ? listCarYearsCard(result)
                   : buildRefreshApp(context);
             } else {
               return const Text('Refresh App');
@@ -278,14 +261,78 @@ class _ModelMakeModalState extends State<ModelMakeModal> {
         ),
       );
 
-  /// Grid view display[gridCarMakeCard]
-  GridView gridCarMakeCard(List<MakeModel> result) {
-    return GridView.builder(
-      shrinkWrap: true,
+  AlphabeticalScrollView buildAlphabeticalScrollView(
+      {bool isSelected = false,
+      required List<AlphaModel> list,
+      required Widget Function(BuildContext, int, String) itemBuilder}) {
+    ColorScheme tColor = Theme.of(context).colorScheme;
+
+    Container buildOverlayWidget(String value) => Container(
+          height: 35,
+          width: 35,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Theme.of(context).colorScheme.primary.withOpacity(0.6),
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            value.toUpperCase(),
+            style: const TextStyle(color: Colors.white),
+          ),
+        );
+
+    TextStyle buildSelectedTextStyle(ColorScheme tColor) => TextStyle(
+          fontWeight: FontWeight.bold,
+          color: tColor.primary,
+        );
+
+    TextStyle buildUnSelectedTextStyle(ColorScheme tColor) => TextStyle(
+          fontWeight: FontWeight.normal,
+          color: tColor.shadow,
+        );
+
+    return AlphabeticalScrollView(
+      list: list,
+      // isAlphabetsFiltered: false,
+      itemExtent: 50,
+      alignment: LetterAlignment.right,
+      unselectedTextStyle: buildUnSelectedTextStyle(tColor),
+      selectedTextStyle: buildSelectedTextStyle(tColor),
+      overlayWidget: (value) => buildOverlayWidget(value),
+      listPadding: const EdgeInsets.only(left: 10, right: 40),
+      itemBuilder: itemBuilder,
+    );
+  }
+
+  /// Grid view display[listCarMakeCard]
+  AlphabeticalScrollView listCarMakeCard(List<MakeModel> result) {
+    return buildAlphabeticalScrollView(
+        list: result.map((MakeModel e) => AlphaModel(e.make)).toList(),
+        itemBuilder: (_, index, value) {
+          MakeModel carMake = result[index];
+
+          return ListTile(
+            title: Text(
+              value.capitalizeEach(),
+              style: const TextStyle(overflow: TextOverflow.ellipsis),
+            ),
+            trailing: const Icon(Icons.arrow_forward, size: 12),
+            tileColor: isMakeSelectedIndex == carMake.id
+                ? Theme.of(context).colorScheme.primaryContainer
+                : null,
+            onTap: () {
+              setState(() {
+                isMakeSelectedIndex = carMake.id;
+                isMakeSelected = !isMakeSelected;
+                getMakeName = carMake.make;
+                getMakeRef = carMake.makeRef;
+              });
+            },
+          );
+        });
+
+    /*return ColumnBuilder(
       itemCount: result.length,
-      padding: buildEdgeInsets(),
-      // physics: NeverScrollableScrollPhysics(),
-      gridDelegate: buildSliverGridDelegateWithFixedCrossAxisCount(),
       itemBuilder: (context, index) {
         MakeModel carMake = result[index];
 
@@ -299,17 +346,38 @@ class _ModelMakeModalState extends State<ModelMakeModal> {
           });
         });
       },
-    );
+    );*/
   }
 
-  /// Grid view display[gridCarModelCard]
-  GridView gridCarModelCard(List<Model> result) {
-    return GridView.builder(
-      shrinkWrap: true,
+  /// Grid view display[listCarModelCard]
+  AlphabeticalScrollView listCarModelCard(List<Model> result) {
+    return buildAlphabeticalScrollView(
+        list: result.map((Model e) => AlphaModel(e.model)).toList(),
+        itemBuilder: (_, index, value) {
+          Model carModel = result[index];
+
+          return ListTile(
+            title: Text(
+              value.capitalizeEach(),
+              style: const TextStyle(overflow: TextOverflow.ellipsis),
+            ),
+            trailing: const Icon(Icons.arrow_forward, size: 12),
+            tileColor: isModelSelectedIndex == carModel.id
+                ? Theme.of(context).colorScheme.primaryContainer
+                : null,
+            onTap: () {
+              setState(() {
+                isModelSelectedIndex = carModel.id;
+                isMakeSelected = false;
+                isModelSelected = true;
+                getModelName = carModel.model;
+              });
+            },
+          );
+        });
+
+    /*return ColumnBuilder(
       itemCount: result.length,
-      padding: buildEdgeInsets(),
-      // physics: NeverScrollableScrollPhysics(),
-      gridDelegate: buildSliverGridDelegateWithFixedCrossAxisCount(),
       itemBuilder: (context, index) {
         Model carModel = result[index];
 
@@ -323,17 +391,36 @@ class _ModelMakeModalState extends State<ModelMakeModal> {
           });
         });
       },
-    );
+    );*/
   }
 
-  /// Grid view display[gridCarYearsCard]
-  GridView gridCarYearsCard(List<dynamic> result) {
-    return GridView.builder(
-      shrinkWrap: true,
+  /// Grid view display[listCarYearsCard]
+  AlphabeticalScrollView listCarYearsCard(List<dynamic> result) {
+    return buildAlphabeticalScrollView(
+        list: result.map((e) => AlphaModel(e.toString())).toList(),
+        itemBuilder: (_, index, value) {
+          return ListTile(
+            title: Text(
+              value,
+              style: const TextStyle(overflow: TextOverflow.ellipsis),
+            ),
+            trailing: const Icon(Icons.arrow_forward, size: 12),
+            tileColor: isYearSelectedIndex == index
+                ? Theme.of(context).colorScheme.primaryContainer
+                : null,
+            onTap: () {
+              setState(() {
+                isYearSelectedIndex = index;
+                isMakeSelected = false;
+                isModelSelected = false;
+                isYearSelected = !isYearSelected;
+              });
+            },
+          );
+        });
+
+    /*return ColumnBuilder(
       itemCount: result.length,
-      padding: buildEdgeInsets(),
-      // physics: NeverScrollableScrollPhysics(),
-      gridDelegate: buildSliverGridDelegateWithFixedCrossAxisCount(),
       itemBuilder: (context, index) {
         int carYear = result[index];
 
@@ -347,24 +434,47 @@ class _ModelMakeModalState extends State<ModelMakeModal> {
           });
         });
       },
-    );
+    );*/
   }
 
-  removeDuplicate(List<PartModel> result, bool isPart) {
-    return result
-        .getDistinctBy((PartModel x) => isPart ? x.part : x.engineType)
-        .toList();
-  }
+  removeDuplicate(List<PartModel> result, bool isPart) => result
+      .getDistinctBy((PartModel x) => isPart ? x.part : x.engineType)
+      .toList();
 
   /// List view display[listEngineTypeCard]
-  ListView listEngineTypeCard(List<PartModel> result) {
-    List<PartModel> distinctEngineList = removeDuplicate(result, false);
+  AlphabeticalScrollView listEngineTypeCard(List<PartModel> result) {
+    List<PartModel> distinctEngineTypes = removeDuplicate(result, false);
+    return buildAlphabeticalScrollView(
+        list: distinctEngineTypes
+            .map((PartModel e) => AlphaModel(e.engineType))
+            .toList(),
+        itemBuilder: (_, index, value) {
+          PartModel part = distinctEngineTypes[index];
 
-    return ListView.builder(
-      shrinkWrap: true,
+          return part.engineType != "0"
+              ? ListTile(
+                  title: Text(
+                    value.capitalizeEach(),
+                    style: const TextStyle(overflow: TextOverflow.ellipsis),
+                  ),
+                  trailing: const Icon(Icons.arrow_forward, size: 12),
+                  onTap: () {
+                    APIService().getVehicleByVin(part.vin).then(
+                          (VehicleModel v) => animateTransition(
+                            context,
+                            VehicleDetails(
+                              vehicle: v,
+                              parts: removeDuplicate(result, true),
+                            ),
+                          ),
+                        );
+                  },
+                )
+              : const SizedBox.shrink();
+        });
+
+    /*return ColumnBuilder(
       itemCount: distinctEngineList.length,
-      padding: buildEdgeInsets(),
-      // physics: NeverScrollableScrollPhysics(),
       itemBuilder: (context, index) {
         PartModel part = distinctEngineList[index];
 
@@ -385,6 +495,33 @@ class _ModelMakeModalState extends State<ModelMakeModal> {
               )
             : const SizedBox.shrink();
       },
+    );*/
+  }
+
+/*
+  buildOutlinedButton(String label,
+      {required Function() onPress, bool isSelected = false}) {
+    Color cl = Theme.of(context).colorScheme.primaryContainer;
+
+    return SizedBox(
+      width: SizeConfig.screenWidth! * 0.85,
+      child: OutlinedButton(
+        style: OutlinedButton.styleFrom(
+          elevation: 2.0,
+          backgroundColor:
+              isSelected ? cl : Theme.of(context).colorScheme.background,
+          side: BorderSide(width: 1.0, color: cl),
+        ),
+        onPressed: onPress,
+        child: Text(
+          label,
+          style: const TextStyle(
+            fontWeight: FontWeight.w500,
+            color: Colors.black,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ),
     );
   }
 
@@ -393,33 +530,10 @@ class _ModelMakeModalState extends State<ModelMakeModal> {
 
   SliverGridDelegateWithFixedCrossAxisCount
       buildSliverGridDelegateWithFixedCrossAxisCount() =>
-          const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisSpacing: 10,
-            mainAxisSpacing: 10,
-            childAspectRatio: 6,
-            crossAxisCount: 2,
-          );
-
-  OutlinedButton buildOutlinedButton(String label,
-      {required Function() onPress, bool isSelected = false}) {
-    Color cl = Theme.of(context).colorScheme.primaryContainer;
-
-    return OutlinedButton(
-      style: OutlinedButton.styleFrom(
-        elevation: 2.0,
-        backgroundColor:
-            isSelected ? cl : Theme.of(context).colorScheme.background,
-        side: BorderSide(width: 1.0, color: cl),
-      ),
-      onPressed: onPress,
-      child: Text(
-        label,
-        style: const TextStyle(
-          fontWeight: FontWeight.w500,
-          color: Colors.black,
-          overflow: TextOverflow.ellipsis,
-        ),
-      ),
-    );
-  }
+    const SliverGridDelegateWithFixedCrossAxisCount(
+      crossAxisSpacing: 10,
+      mainAxisSpacing: 10,
+      childAspectRatio: 6,
+      crossAxisCount: 2,
+  );*/
 }

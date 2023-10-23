@@ -71,6 +71,9 @@ class AsyncProgressDialog extends StatefulWidget {
   /// Styles to use for line endings on a [CircularProgressIndicator]
   final StrokeCap? strokeCap;
 
+  /// background color on a [CircularProgressIndicator]
+  final Color? bgColor;
+
   const AsyncProgressDialog(
     this.future, {
     Key? key,
@@ -85,6 +88,7 @@ class AsyncProgressDialog extends StatefulWidget {
     this.strokeAlign = 0.0,
     this.strokeCap,
     this.strokeWidth = 3.0,
+    this.bgColor = Colors.white,
   }) : super(key: key);
 
   @override
@@ -117,8 +121,8 @@ class _AsyncProgressDialogState extends State<AsyncProgressDialog> {
         strokeWidth: widget.strokeWidth,
         strokeAlign: widget.strokeAlign,
         strokeCap: widget.strokeCap,
-        backgroundColor: const Color(0xFFFFECDF),
-        valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFF67952)),
+        backgroundColor: widget.bgColor,
+        valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.primary),
       );
 
   Widget _buildDialog(BuildContext context) {

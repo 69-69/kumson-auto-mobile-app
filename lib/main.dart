@@ -1,3 +1,4 @@
+
 import 'package:automasters/service/change_notifier_service.dart';
 import 'package:automasters/view/onboarding_screen.dart';
 import 'package:flutter/material.dart';
@@ -6,7 +7,21 @@ import 'package:provider/provider.dart';
 import 'color_schemes.g.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+/*class MyHttpOverrides extends HttpOverrides {
+  // Note: to Override HTTPS security ->  ByPass https security for development only(disable when in prod.)
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
+  }
+}*/
+
 void main() {
+
+  // Note: to Override HTTPS security -> for dev only
+  // HttpOverrides.global = MyHttpOverrides();
+
   runApp(const MyApp());
 
   // Disable screen orientation to PORTRAIT-UP ONLY

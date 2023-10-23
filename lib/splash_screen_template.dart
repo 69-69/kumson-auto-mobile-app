@@ -66,11 +66,12 @@ class _SplashScreenTemplateState extends State<SplashScreenTemplate>
                         ),
                       ),
                     ),
-                    const AsyncProgressDialog(
+                    AsyncProgressDialog(
                       null,
                       isDialog: false,
-                      size: 80,
+                      size: 100,
                       strokeWidth: 6.0,
+                      bgColor: Theme.of(context).colorScheme.inversePrimary,
                       strokeCap: StrokeCap.butt,
                     ),
                     Padding(

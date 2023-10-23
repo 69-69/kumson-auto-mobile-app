@@ -45,7 +45,7 @@ class APIService extends BaseAPI {
   Future<List<PartModel>> getPartsByVFAM(String vfam) async {
     var response = await http.get(
       Uri.parse(
-          url("${apiEndpointsDev['parts']}/$vfam${pagination(100, "id")}")),
+          url("${apiEndpointsDev['parts']}/$vfam${pagination(sort: "part")}")),
       headers: headers,
     );
 
@@ -109,7 +109,7 @@ class APIService extends BaseAPI {
   /// Get Vehicle Make[getMake]
   Future<List<MakeModel>> getMake() async {
     var response = await http.get(
-      Uri.parse(url("${apiEndpointsDev['make']}${pagination(100, "make")}")),
+      Uri.parse(url("${apiEndpointsDev['make']}${pagination(sort: "make")}")),
       headers: headers,
     );
 
@@ -131,7 +131,7 @@ class APIService extends BaseAPI {
     var response = await http.get(
       // ${pagination(100, "make")}
       Uri.parse(url(
-          "${apiEndpointsDev['model']}/make_ref/$makeRef${pagination(100, "id")}")),
+          "${apiEndpointsDev['model']}/make_ref/$makeRef${pagination(sort: "model")}")),
       headers: headers,
     );
 
@@ -152,7 +152,7 @@ class APIService extends BaseAPI {
   Future<List<VendorModel>> getVendorParts(String brand, String partNo) async {
     var response = await http.get(
       Uri.parse(url(
-          "${apiEndpointsDev['vendor']}/lowest_price/$brand/$partNo${pagination(200, "currentPrice")}")),
+          "${apiEndpointsDev['vendor']}/lowest_price/$brand/$partNo${pagination(sort: "currentPrice")}")),
       headers: headers,
     );
 
@@ -194,7 +194,7 @@ class APIService extends BaseAPI {
       String make, String model) async {
     var response = await http.get(
       Uri.parse(url(
-          "${apiEndpointsDev['parts']}/$make/$model${pagination(100, "id")}")),
+          "${apiEndpointsDev['parts']}/$make/$model${pagination(sort: "part")}")),
       headers: headers,
     );
 
