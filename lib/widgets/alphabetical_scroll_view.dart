@@ -247,7 +247,7 @@ class _AlphabeticalScrollView extends State<AlphabeticalScrollView> {
           },
           separatorBuilder: (context, index) => Divider(
             height: 1,
-            color: index == 0 ? null : const Color(0xFFC2C2BD),
+            color: index == 0 ? null : Theme.of(context).colorScheme.primaryContainer,
             /*endIndent: getProportionateScreenWidth(45.0),
             indent: getProportionateScreenWidth(10.0),*/
           ),

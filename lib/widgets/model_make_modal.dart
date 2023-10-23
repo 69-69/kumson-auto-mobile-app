@@ -299,7 +299,7 @@ class _ModelMakeModalState extends State<ModelMakeModal> {
       unselectedTextStyle: buildUnSelectedTextStyle(tColor),
       selectedTextStyle: buildSelectedTextStyle(tColor),
       overlayWidget: (value) => buildOverlayWidget(value),
-      listPadding: const EdgeInsets.only(left: 10, right: 40),
+      listPadding: const EdgeInsets.only(left: 5, right: 40),
       itemBuilder: itemBuilder,
     );
   }
@@ -311,15 +311,24 @@ class _ModelMakeModalState extends State<ModelMakeModal> {
         itemBuilder: (_, index, value) {
           MakeModel carMake = result[index];
 
+          FontWeight isSelectedFont = isMakeSelectedIndex == carMake.id
+              ? FontWeight.bold
+              : FontWeight.normal;
+          Color? isSelectedColor = isMakeSelectedIndex == carMake.id
+              ? Theme.of(context).colorScheme.primary
+              : null;
+
           return ListTile(
             title: Text(
               value.capitalizeEach(),
-              style: const TextStyle(overflow: TextOverflow.ellipsis),
+              style: TextStyle(
+                overflow: TextOverflow.ellipsis,
+                color: isSelectedColor,
+                fontWeight: isSelectedFont,
+              ),
             ),
-            trailing: const Icon(Icons.arrow_forward, size: 12),
-            tileColor: isMakeSelectedIndex == carMake.id
-                ? Theme.of(context).colorScheme.primaryContainer
-                : null,
+            trailing:
+                Icon(Icons.arrow_forward, size: 12, color: isSelectedColor),
             onTap: () {
               setState(() {
                 isMakeSelectedIndex = carMake.id;
@@ -356,15 +365,27 @@ class _ModelMakeModalState extends State<ModelMakeModal> {
         itemBuilder: (_, index, value) {
           Model carModel = result[index];
 
+          FontWeight isSelectedFont = isModelSelectedIndex == carModel.id
+              ? FontWeight.bold
+              : FontWeight.normal;
+          Color? isSelectedColor = isModelSelectedIndex == carModel.id
+              ? Theme.of(context).colorScheme.primary
+              : null;
+
           return ListTile(
             title: Text(
               value.capitalizeEach(),
-              style: const TextStyle(overflow: TextOverflow.ellipsis),
+              style: TextStyle(
+                overflow: TextOverflow.ellipsis,
+                color: isSelectedColor,
+                fontWeight: isSelectedFont,
+              ),
             ),
-            trailing: const Icon(Icons.arrow_forward, size: 12),
-            tileColor: isModelSelectedIndex == carModel.id
-                ? Theme.of(context).colorScheme.primaryContainer
-                : null,
+            trailing: Icon(
+              Icons.arrow_forward,
+              size: 12,
+              color: isSelectedColor,
+            ),
             onTap: () {
               setState(() {
                 isModelSelectedIndex = carModel.id;
@@ -399,15 +420,27 @@ class _ModelMakeModalState extends State<ModelMakeModal> {
     return buildAlphabeticalScrollView(
         list: result.map((e) => AlphaModel(e.toString())).toList(),
         itemBuilder: (_, index, value) {
+          FontWeight isSelectedFont = isYearSelectedIndex == index
+              ? FontWeight.bold
+              : FontWeight.normal;
+          Color? isSelectedColor = isYearSelectedIndex == index
+              ? Theme.of(context).colorScheme.primary
+              : null;
+
           return ListTile(
             title: Text(
               value,
-              style: const TextStyle(overflow: TextOverflow.ellipsis),
+              style: TextStyle(
+                overflow: TextOverflow.ellipsis,
+                color: isSelectedColor,
+                fontWeight: isSelectedFont,
+              ),
             ),
-            trailing: const Icon(Icons.arrow_forward, size: 12),
-            tileColor: isYearSelectedIndex == index
-                ? Theme.of(context).colorScheme.primaryContainer
-                : null,
+            trailing: Icon(
+              Icons.arrow_forward,
+              size: 12,
+              color: isSelectedColor,
+            ),
             onTap: () {
               setState(() {
                 isYearSelectedIndex = index;
