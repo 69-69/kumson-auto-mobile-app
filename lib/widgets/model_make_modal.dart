@@ -52,7 +52,7 @@ class _ModelMakeModalState extends State<ModelMakeModal> {
 
     return Container(
       height: SizeConfig.screenHeight! * 0.85,
-      padding: const EdgeInsets.only(top: 7.0, bottom: 20.0),
+      padding: const EdgeInsets.only(top: 7.0),
       child: Column(
         children: [
           buildPagerHead(context),
@@ -78,7 +78,7 @@ class _ModelMakeModalState extends State<ModelMakeModal> {
     Icon iconRight =
         const Icon(Icons.chevron_right, color: Colors.black26, size: 13);
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 30.0),
+      padding: const EdgeInsets.symmetric(horizontal: 15.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
@@ -304,6 +304,41 @@ class _ModelMakeModalState extends State<ModelMakeModal> {
     );
   }
 
+  buildListTile(String value, bool isClicked, {void Function()? onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        margin: const EdgeInsets.only(left: 8),
+        decoration: BoxDecoration(
+          boxShadow: isClicked
+              ? null
+              : [
+                  const BoxShadow(
+                    blurRadius: 15,
+                    offset: Offset(4, 7),
+                    color: Color(0xFFD3CFCF),
+                  )
+                ],
+          color: isClicked
+              ? Theme.of(context).colorScheme.primaryContainer
+              : Colors.white70,
+          borderRadius: const BorderRadius.all(Radius.circular(7.0)),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              value,
+              style: const TextStyle(overflow: TextOverflow.ellipsis),
+            ),
+            Icon(Icons.adaptive.arrow_forward, size: 12),
+          ],
+        ),
+      ),
+    );
+  }
+
   /// Grid view display[listCarMakeCard]
   AlphabeticalScrollView listCarMakeCard(List<MakeModel> result) {
     return buildAlphabeticalScrollView(
@@ -311,24 +346,9 @@ class _ModelMakeModalState extends State<ModelMakeModal> {
         itemBuilder: (_, index, value) {
           MakeModel carMake = result[index];
 
-          FontWeight isSelectedFont = isMakeSelectedIndex == carMake.id
-              ? FontWeight.bold
-              : FontWeight.normal;
-          Color? isSelectedColor = isMakeSelectedIndex == carMake.id
-              ? Theme.of(context).colorScheme.primary
-              : null;
-
-          return ListTile(
-            title: Text(
-              value.capitalizeEach(),
-              style: TextStyle(
-                overflow: TextOverflow.ellipsis,
-                color: isSelectedColor,
-                fontWeight: isSelectedFont,
-              ),
-            ),
-            trailing:
-                Icon(Icons.arrow_forward, size: 12, color: isSelectedColor),
+          return buildListTile(
+            value.capitalizeEach(),
+            isMakeSelectedIndex == carMake.id,
             onTap: () {
               setState(() {
                 isMakeSelectedIndex = carMake.id;
@@ -365,27 +385,9 @@ class _ModelMakeModalState extends State<ModelMakeModal> {
         itemBuilder: (_, index, value) {
           Model carModel = result[index];
 
-          FontWeight isSelectedFont = isModelSelectedIndex == carModel.id
-              ? FontWeight.bold
-              : FontWeight.normal;
-          Color? isSelectedColor = isModelSelectedIndex == carModel.id
-              ? Theme.of(context).colorScheme.primary
-              : null;
-
-          return ListTile(
-            title: Text(
-              value.capitalizeEach(),
-              style: TextStyle(
-                overflow: TextOverflow.ellipsis,
-                color: isSelectedColor,
-                fontWeight: isSelectedFont,
-              ),
-            ),
-            trailing: Icon(
-              Icons.arrow_forward,
-              size: 12,
-              color: isSelectedColor,
-            ),
+          return buildListTile(
+            value.capitalizeEach(),
+            isModelSelectedIndex == carModel.id,
             onTap: () {
               setState(() {
                 isModelSelectedIndex = carModel.id;
@@ -420,27 +422,9 @@ class _ModelMakeModalState extends State<ModelMakeModal> {
     return buildAlphabeticalScrollView(
         list: result.map((e) => AlphaModel(e.toString())).toList(),
         itemBuilder: (_, index, value) {
-          FontWeight isSelectedFont = isYearSelectedIndex == index
-              ? FontWeight.bold
-              : FontWeight.normal;
-          Color? isSelectedColor = isYearSelectedIndex == index
-              ? Theme.of(context).colorScheme.primary
-              : null;
-
-          return ListTile(
-            title: Text(
-              value,
-              style: TextStyle(
-                overflow: TextOverflow.ellipsis,
-                color: isSelectedColor,
-                fontWeight: isSelectedFont,
-              ),
-            ),
-            trailing: Icon(
-              Icons.arrow_forward,
-              size: 12,
-              color: isSelectedColor,
-            ),
+          return buildListTile(
+            value,
+            isYearSelectedIndex == index,
             onTap: () {
               setState(() {
                 isYearSelectedIndex = index;
@@ -485,12 +469,9 @@ class _ModelMakeModalState extends State<ModelMakeModal> {
           PartModel part = distinctEngineTypes[index];
 
           return part.engineType != "0"
-              ? ListTile(
-                  title: Text(
-                    value.capitalizeEach(),
-                    style: const TextStyle(overflow: TextOverflow.ellipsis),
-                  ),
-                  trailing: const Icon(Icons.arrow_forward, size: 12),
+              ? buildListTile(
+                  value,
+                  false,
                   onTap: () {
                     APIService().getVehicleByVin(part.vin).then(
                           (VehicleModel v) => animateTransition(

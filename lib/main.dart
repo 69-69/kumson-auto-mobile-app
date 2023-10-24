@@ -1,4 +1,3 @@
-
 import 'package:automasters/service/change_notifier_service.dart';
 import 'package:automasters/view/onboarding_screen.dart';
 import 'package:flutter/material.dart';
@@ -18,7 +17,6 @@ import 'package:google_fonts/google_fonts.dart';
 }*/
 
 void main() {
-
   // Note: to Override HTTPS security -> for dev only
   // HttpOverrides.global = MyHttpOverrides();
 
@@ -44,9 +42,9 @@ class MyApp extends StatelessWidget {
         ],
         builder: (context, child) => MaterialApp(
               debugShowCheckedModeBanner: false,
-              theme: buildThemeData(),
+              theme: buildThemeData(context),
 
-              darkTheme: buildThemeData(cs: darkColorScheme),
+              darkTheme: buildThemeData(context, cs: darkColorScheme),
 
               // theme: ThemeData.light(useMaterial3: true,),
               //darkTheme: DarkTheme.darkTheme,
@@ -55,7 +53,7 @@ class MyApp extends StatelessWidget {
             ));
   }
 
-  ThemeData buildThemeData({ColorScheme? cs}) {
+  ThemeData buildThemeData(BuildContext context, {ColorScheme? cs}) {
     return ThemeData(
       useMaterial3: true,
       colorScheme: cs ?? lightColorScheme,
@@ -63,6 +61,16 @@ class MyApp extends StatelessWidget {
 
       appBarTheme: AppBarTheme(
         backgroundColor: lightColorScheme.primary,
+      ),
+
+      bottomSheetTheme: const BottomSheetThemeData(
+        backgroundColor: Colors.transparent,
+        modalElevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(30),
+          ),
+        ),
       ),
 
       inputDecorationTheme: InputDecorationTheme(

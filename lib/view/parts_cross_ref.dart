@@ -351,7 +351,7 @@ class _PartsCrossRefState extends State<PartsCrossRef>
                     ),
                   ],
                 ),
-                const Icon(Icons.arrow_forward, size: 16),
+               Icon(Icons.adaptive.arrow_forward, size: 16),
               ],
             ),
             onTap: () => animateTransition(context,

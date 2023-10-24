@@ -1,6 +1,8 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
+import '../utils/size_config.dart';
+
 enum LetterAlignment { left, right }
 
 const List<String> alphabets = [
@@ -231,6 +233,8 @@ class _AlphabeticalScrollView extends State<AlphabeticalScrollView> {
 
   @override
   Widget build(BuildContext context) {
+    SizeConfig().init(context);
+
     return Stack(
       children: [
         ListView.separated(
@@ -246,10 +250,10 @@ class _AlphabeticalScrollView extends State<AlphabeticalScrollView> {
             );
           },
           separatorBuilder: (context, index) => Divider(
-            height: 1,
-            color: index == 0 ? null : Theme.of(context).colorScheme.primaryContainer,
-            /*endIndent: getProportionateScreenWidth(45.0),
-            indent: getProportionateScreenWidth(10.0),*/
+            height: 6,
+            color: Theme.of(context).colorScheme.primaryContainer,
+            indent: getProportionateScreenWidth(10.0),
+            endIndent: getProportionateScreenWidth(5.0),
           ),
         ),
 

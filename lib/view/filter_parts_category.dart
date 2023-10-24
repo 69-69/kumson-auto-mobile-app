@@ -198,7 +198,8 @@ class FilterPartsCategory extends StatelessWidget {
                 style: const TextStyle(
                     fontWeight: FontWeight.bold, color: Colors.black87),
               ),
-              const Icon(Icons.arrow_forward, size: 14),
+
+              Icon(Icons.adaptive.arrow_forward, size: 14),
             ],
           ),
         ),

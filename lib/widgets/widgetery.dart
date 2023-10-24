@@ -11,20 +11,20 @@ import '../utils/animation_transition.dart';
 
 const ghCediSign = "GH";
 
-Future<dynamic> buildModal(BuildContext context, Widget child) =>
+Future<dynamic> buildModal(BuildContext context, Widget child, {Color? bgColor}) =>
     showModalBottomSheet(
         showDragHandle: true,
         isDismissible: true,
         isScrollControlled: true,
-        shape: roundedRectangleBorder(),
+        // shape: roundedRectangleBorder(),
+        backgroundColor: bgColor ?? Theme.of(context).colorScheme.onInverseSurface,
         barrierColor: const Color.fromRGBO(0, 0, 0, 0.5),
         context: context,
         builder: (_) => child);
 
-BorderRadius borderRadius() => const BorderRadius.only(
-      topLeft: Radius.circular(30.0),
-      topRight: Radius.circular(30.0),
-    );
+BorderRadius borderRadius() => const BorderRadius.vertical(
+  top: Radius.circular(30),
+);
 
 RoundedRectangleBorder roundedRectangleBorder() {
   return RoundedRectangleBorder(

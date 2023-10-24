@@ -2,15 +2,21 @@ import 'package:automasters/models/hunter.dart';
 import 'package:automasters/utils/keyboard.dart';
 import 'package:automasters/view/parts_by_part_no.dart';
 import 'package:automasters/widgets/make_a_request_modal.dart';
+import 'package:automasters/widgets/widgetery.dart';
 import 'package:flutter/material.dart';
 
 import '../models/panel.dart';
 import '../models/vehicle.dart';
 import '../service/api_service.dart';
 import '../utils/animation_transition.dart';
+import '../view/searc_history.dart';
 import 'async_progress_dialog.dart';
 import '../view/vehicle_details.dart';
 import 'model_make_modal.dart';
+
+
+Future<dynamic> showHistory(BuildContext context) =>
+    buildModal(context, const Text("History"));
 
 class CollapsePanel extends StatefulWidget {
   final String vin;
@@ -23,13 +29,14 @@ class CollapsePanel extends StatefulWidget {
 
 class _CollapsePanelState extends State<CollapsePanel> {
   bool isSearching = false;
-  final FocusNode partNoFocusNode = FocusNode();
   final FocusNode vinFocusNode = FocusNode();
+  final FocusNode partNoFocusNode = FocusNode();
   String vinSearchTerm = "", partNoSearchTerm = "";
   final List<PanelModel> _data = generateItems(3);
   TextEditingController txt = TextEditingController();
   List<HunterModel>? partData;
   VehicleModel? vehicleData;
+
 
   @override
   void initState() {
@@ -53,16 +60,16 @@ class _CollapsePanelState extends State<CollapsePanel> {
       expandedHeaderPadding: EdgeInsets.zero,
       children: _data.map<ExpansionPanelRadio>((PanelModel item) {
         return ExpansionPanelRadio(
+          value: item.id,
           canTapOnHeader: true,
           backgroundColor: const Color(0xFFF0EEF6).withOpacity(0.9),
-          value: item.id,
           headerBuilder: (BuildContext context, bool isExpanded) => ListTile(
-            title: Text(
-              item.headerValue,
-              style: const TextStyle(
-                  fontWeight: FontWeight.bold, color: Colors.black45),
+              title: Text(
+                item.headerValue,
+                style: const TextStyle(
+                    fontWeight: FontWeight.bold, color: Colors.black45),
+              ),
             ),
-          ),
           body: ListTile(
             dense: true,
             title: item.id < 2
@@ -102,6 +109,7 @@ class _CollapsePanelState extends State<CollapsePanel> {
       key: const ValueKey("vin"),
       focusNode: vinFocusNode,
       controller: txt,
+      onTap: () => buildModal(context, const SearchHistory(),  bgColor: Colors.transparent,),
       onFieldSubmitted: (_) {},
       onChanged: (value) {
         if (value.isNotEmpty || widget.vin.isNotEmpty) {
@@ -218,6 +226,7 @@ class _CollapsePanelState extends State<CollapsePanel> {
       });
     }
   }
+
 }
 
 List<String> label = ["VIN", "Part No.", "Vehicle - (Make | Model)"];
@@ -227,6 +236,6 @@ List<PanelModel> generateItems(int numberOfItems) =>
       return PanelModel(
         id: index,
         headerValue: label[index],
-        expandedValue: const Placeholder(),
+        expandedValue: const SizedBox.shrink(),
       );
     });
