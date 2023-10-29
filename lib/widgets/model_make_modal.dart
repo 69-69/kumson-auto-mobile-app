@@ -50,15 +50,14 @@ class _ModelMakeModalState extends State<ModelMakeModal> {
     // You have to call it on your starting screen
     SizeConfig().init(context);
 
-    return Container(
+    return SizedBox(
       height: SizeConfig.screenHeight! * 0.85,
-      padding: const EdgeInsets.only(top: 7.0),
       child: Column(
         children: [
           buildPagerHead(context),
           const Divider(thickness: 1),
           Expanded(
-            child: /*SingleChildScrollView(*/
+            child:
                 (!isMakeSelected && !isModelSelected && !isYearSelected)
                     ? futureBuilderCarMake()
                     : (isMakeSelected && getMakeRef.isNotEmpty)
@@ -288,7 +287,7 @@ class _ModelMakeModalState extends State<ModelMakeModal> {
 
     TextStyle buildUnSelectedTextStyle(ColorScheme tColor) => TextStyle(
           fontWeight: FontWeight.normal,
-          color: tColor.shadow,
+          color: tColor.onSurface,
         );
 
     return AlphabeticalScrollView(
@@ -299,41 +298,32 @@ class _ModelMakeModalState extends State<ModelMakeModal> {
       unselectedTextStyle: buildUnSelectedTextStyle(tColor),
       selectedTextStyle: buildSelectedTextStyle(tColor),
       overlayWidget: (value) => buildOverlayWidget(value),
-      listPadding: const EdgeInsets.only(left: 5, right: 40),
+      listPadding: const EdgeInsets.fromLTRB(10.0, 2.0, 40.0, 30.0),
       itemBuilder: itemBuilder,
     );
   }
 
-  buildListTile(String value, bool isClicked, {void Function()? onTap}) {
+  buildListCard(String value, bool isClicked, {void Function()? onTap}) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(8),
-        margin: const EdgeInsets.only(left: 8),
-        decoration: BoxDecoration(
-          boxShadow: isClicked
-              ? null
-              : [
-                  const BoxShadow(
-                    blurRadius: 15,
-                    offset: Offset(4, 7),
-                    color: Color(0xFFD3CFCF),
-                  )
-                ],
-          color: isClicked
-              ? Theme.of(context).colorScheme.primaryContainer
-              : Colors.white70,
-          borderRadius: const BorderRadius.all(Radius.circular(7.0)),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              value,
-              style: const TextStyle(overflow: TextOverflow.ellipsis),
-            ),
-            Icon(Icons.adaptive.arrow_forward, size: 12),
-          ],
+      child: buildCard(
+        color: isClicked
+            ? Theme.of(context).colorScheme.primaryContainer
+            : Theme.of(context).colorScheme.background,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                value,
+                style: const TextStyle(
+                  fontWeight: FontWeight.normal, /*color: Colors.black87*/
+                ),
+              ),
+              Icon(Icons.adaptive.arrow_forward, size: 14),
+            ],
+          ),
         ),
       ),
     );
@@ -346,7 +336,7 @@ class _ModelMakeModalState extends State<ModelMakeModal> {
         itemBuilder: (_, index, value) {
           MakeModel carMake = result[index];
 
-          return buildListTile(
+          return buildListCard(
             value.capitalizeEach(),
             isMakeSelectedIndex == carMake.id,
             onTap: () {
@@ -385,7 +375,7 @@ class _ModelMakeModalState extends State<ModelMakeModal> {
         itemBuilder: (_, index, value) {
           Model carModel = result[index];
 
-          return buildListTile(
+          return buildListCard(
             value.capitalizeEach(),
             isModelSelectedIndex == carModel.id,
             onTap: () {
@@ -422,7 +412,7 @@ class _ModelMakeModalState extends State<ModelMakeModal> {
     return buildAlphabeticalScrollView(
         list: result.map((e) => AlphaModel(e.toString())).toList(),
         itemBuilder: (_, index, value) {
-          return buildListTile(
+          return buildListCard(
             value,
             isYearSelectedIndex == index,
             onTap: () {
@@ -469,7 +459,7 @@ class _ModelMakeModalState extends State<ModelMakeModal> {
           PartModel part = distinctEngineTypes[index];
 
           return part.engineType != "0"
-              ? buildListTile(
+              ? buildListCard(
                   value,
                   false,
                   onTap: () {

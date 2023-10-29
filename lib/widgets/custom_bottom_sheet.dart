@@ -5,6 +5,8 @@ class CustomBottomSheet extends StatelessWidget {
   final Widget child;
   final Function()? onPress;
   final EdgeInsets? padding;
+  final Color? bgColor;
+  final Widget? headerWidget;
 
   const CustomBottomSheet({
     required this.child,
@@ -12,6 +14,8 @@ class CustomBottomSheet extends StatelessWidget {
     this.padding,
     this.initialChildSize,
     this.maxChildSize,
+    this.bgColor,
+    this.headerWidget,
     Key? key,
   }) : super(key: key);
 
@@ -35,7 +39,7 @@ class CustomBottomSheet extends StatelessWidget {
         padding: padding ?? const EdgeInsets.all(20),
         decoration: BoxDecoration(
           // color: const Color.fromRGBO(0, 0, 0, 0.001),
-          color: customTheme.scaffoldBackgroundColor,
+          color: bgColor ?? customTheme.scaffoldBackgroundColor,
           borderRadius: const BorderRadius.vertical(
             top: Radius.circular(30),
           ),
@@ -43,7 +47,9 @@ class CustomBottomSheet extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.remove, color: customTheme.colorScheme.background),
+            const SizedBox(width: 30, child: Divider(thickness: 4.0)),
+            headerWidget ?? const SizedBox.shrink(),
+            const Divider(thickness: 1),
             Expanded(
               child: SingleChildScrollView(
                 controller: controller,
@@ -57,15 +63,16 @@ class CustomBottomSheet extends StatelessWidget {
 
     Widget buildSheet() {
       final initialCSize = initialChildSize ?? 0.33;
-      final maxCSize = maxChildSize ?? 0.8;
+      final maxCSize = maxChildSize ?? 0.9;
 
       return makeDismissible(
-        child: DraggableScrollableSheet(
-          initialChildSize: initialCSize,
-          minChildSize: 0.2,
-          maxChildSize: maxCSize,
-          builder: (_, controller) => buildContainer(controller),
-        ),
+        child:
+            DraggableScrollableSheet(
+              initialChildSize: initialCSize,
+              minChildSize: 0.2,
+              maxChildSize: maxCSize,
+              builder: (_, controller) => buildContainer(controller),
+            ),
       );
     }
 

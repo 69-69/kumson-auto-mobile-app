@@ -8,23 +8,25 @@ import 'make_a_request_modal.dart';
 import 'scale_animation.dart';
 import '../utils/animation_transition.dart';
 
-
 const ghCediSign = "GH";
 
-Future<dynamic> buildModal(BuildContext context, Widget child, {Color? bgColor}) =>
+Future<dynamic> buildModal(BuildContext context, Widget child,
+        {Color? bgColor, Color? barColor}) =>
     showModalBottomSheet(
+      barrierLabel: "Steve",
+        enableDrag: true,
         showDragHandle: true,
         isDismissible: true,
         isScrollControlled: true,
         // shape: roundedRectangleBorder(),
-        backgroundColor: bgColor ?? Theme.of(context).colorScheme.onInverseSurface,
-        barrierColor: const Color.fromRGBO(0, 0, 0, 0.5),
+        backgroundColor: bgColor ?? Theme.of(context).colorScheme.background,
+        barrierColor: barColor ?? const Color.fromRGBO(0, 0, 0, 0.5),
         context: context,
         builder: (_) => child);
 
 BorderRadius borderRadius() => const BorderRadius.vertical(
-  top: Radius.circular(30),
-);
+      top: Radius.circular(30),
+    );
 
 RoundedRectangleBorder roundedRectangleBorder() {
   return RoundedRectangleBorder(
@@ -32,12 +34,24 @@ RoundedRectangleBorder roundedRectangleBorder() {
   );
 }
 
-Container buildCurveContainer(EdgeInsets padding, {required Widget child}) {
+buildCard({Color? color, ShapeBorder? shape, required Widget child}) {
+  return Card(
+    elevation: 2.0,
+    // color: const Color(0xFFF0EEF6), //Colors.grey.shade300,
+    color: color,
+    margin: const EdgeInsets.only(top: 10.0),
+    shape: shape,
+    child: child,
+  );
+}
+
+Container buildCurveContainer(BuildContext context, EdgeInsets padding,
+    {required Widget child}) {
   return Container(
     height: SizeConfig.screenHeight!,
     width: SizeConfig.screenWidth!,
     decoration: BoxDecoration(
-      color: Colors.white,
+      color: Theme.of(context).colorScheme.background,
       borderRadius: borderRadius(),
     ),
     padding: padding,
@@ -54,14 +68,33 @@ Center buildMakeARequestButton(BuildContext context) {
           color: Theme.of(context).colorScheme.primary,
         ),
       ),
-      onPressed: ()=> buildModal(context, const MakeARequestModal(reqType: "Your Request")),
+      onPressed: () =>
+          buildModal(context, const MakeARequestModal(reqType: "Your Request")),
       child: const Text("Make a Request"),
     ),
   );
 }
 
+OutlinedButton buildOutlinedBtn(BuildContext context,
+    {Color? color, String label = '', required void Function()? onPress}) {
+  Color tColor = color ?? Theme.of(context).colorScheme.surfaceTint;
+
+  return OutlinedButton(
+    style: OutlinedButton.styleFrom(
+      side: BorderSide(color: tColor),
+    ),
+    onPressed: onPress,
+    child: Text(label, style: TextStyle(color: tColor)),
+  );
+}
+
 Widget customLine(String text, BuildContext context,
-    {bool isUnderline = true, bool isActive = true, Color? color, double fontSize = 18.0}) {
+    {bool isUnderline = true,
+    bool isActive = true,
+    Color? color,
+    double fontSize = 18.0}) {
+  ColorScheme tColor = Theme.of(context).colorScheme;
+
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
@@ -69,9 +102,9 @@ Widget customLine(String text, BuildContext context,
         text,
         style: TextStyle(
           color: isActive
-              ? (color ?? const Color(0xFF333333))
-              : Colors.black.withOpacity(.3),
-          fontSize: isActive ? fontSize : (fontSize-2),
+              ? (color ?? tColor.onBackground) /*const Color(0xFF333333)*/
+              : tColor.onSurface.withOpacity(.5),
+          fontSize: isActive ? fontSize : (fontSize - 2),
           fontWeight: FontWeight.bold,
           overflow: TextOverflow.ellipsis,
         ),
@@ -205,20 +238,76 @@ Text buildRichText(String item, String item2) {
   );
 }
 
-SizedBox buildProductAgeButton({void Function()? onPress, Color? color}) {
-  return SizedBox(
-    width: 25,
-    height: 25,
-    child: IconButton.outlined(
-      iconSize: 10.0,
-      onPressed: onPress,
-      icon: Icon(Icons.question_mark_sharp,
-          color: color ?? Colors.white),
-      style: OutlinedButton.styleFrom(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(50),
+buildProductInfo(String label, String label2) {
+  return Padding(
+    padding: const EdgeInsets.only(left: 10.0),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: [
+        Text(
+          label,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            fontSize: getProportionateScreenWidth(14),
+            fontWeight: FontWeight.bold,
+          ),
         ),
-        side: BorderSide(color: color ?? Colors.white),
+        SizedBox(width: getProportionateScreenHeight(20)),
+        Text(
+          label2,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            /*color: Colors.black87,
+              fontWeight: FontWeight.w500,*/
+            fontSize: getProportionateScreenWidth(13),
+          ),
+          maxLines: 1,
+        ),
+      ],
+    ),
+  );
+}
+
+buildOptionalButton(BuildContext context,
+    {void Function()? onPress, Color? bgColor, Color? color, IconData? icon}) {
+  ColorScheme theme = Theme.of(context).colorScheme;
+
+  return SizedBox(
+    width: 30.0,
+    height: 30.0,
+    child: ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: bgColor ?? theme.onInverseSurface,
+        padding: EdgeInsets.zero,
+        shape: CircleBorder(
+          side: BorderSide(color: color ?? theme.surfaceTint),
+        ),
+      ),
+      onPressed: onPress,
+      child: Icon(icon ?? Icons.question_mark_sharp, color: color ?? theme.surfaceTint, size: 20,),
+    ),
+  );
+}
+
+SizedBox buildContainerImage({required Widget child}) {
+  return SizedBox(
+    width: getProportionateScreenWidth(88),
+    child: AspectRatio(
+      aspectRatio: 0.88,
+      child: Container(
+        padding: EdgeInsets.all(getProportionateScreenWidth(5)),
+        /*decoration: const BoxDecoration(
+            // color: Colors.grey.shade200,
+            boxShadow: [
+              BoxShadow(
+                blurRadius: 15,
+                offset: Offset(4, 7),
+                color: Colors.white54,
+              )
+            ],
+          ),*/
+        child: child,
       ),
     ),
   );

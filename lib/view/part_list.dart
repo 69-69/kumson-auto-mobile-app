@@ -6,6 +6,7 @@ import 'package:string_capitalize/string_capitalize.dart';
 
 import '../models/parts.dart';
 import '../models/vehicle.dart';
+import '../widgets/column_builder.dart';
 import '../widgets/widgetery.dart';
 import '../utils/size_config.dart';
 
@@ -95,6 +96,7 @@ class _PartListState extends State<PartList>
     return buildFadeSlide(
       animationItems,
       child: buildCurveContainer(
+        context,
         const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -115,31 +117,30 @@ class _PartListState extends State<PartList>
   buildListView() {
     List<PartModel> result = widget.carParts;
 
-    return ListView.builder(
-      shrinkWrap: true,
+    return SingleChildScrollView(
       padding: EdgeInsets.zero,
-      itemCount: result.length,
       physics: const NeverScrollableScrollPhysics(),
-      itemBuilder: (context, index) {
-        PartModel huntPart = result[index];
-        bool isLastIndex = index == result.length - 1;
+      child: ColumnBuilder(
+        itemCount: result.length,
+        itemBuilder: (context, index) {
+          PartModel huntPart = result[index];
+          bool isLastIndex = index == result.length - 1;
 
-        return GestureDetector(
-          onTap: () {},
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 2.0),
-            child: buildCard(huntPart, isLastIndex),
-          ),
-        );
-      },
+          return GestureDetector(
+            onTap: () {},
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 2.0),
+              child: buildListCard(huntPart, isLastIndex),
+            ),
+          );
+        },
+      ),
     );
   }
 
-  /// Card [buildCard]
-  Card buildCard(PartModel cPart, bool isLastIndex) {
-    return Card(
-      elevation: 3.0,
-      // color: const Color(0xFFF0EEF6), //Colors.grey.shade300,
+  /// Card [buildListCard]
+  Card buildListCard(PartModel cPart, bool isLastIndex) {
+    return buildCard(
       shape: isLastIndex
           ? const ContinuousRectangleBorder(
               borderRadius: BorderRadius.only(
@@ -153,61 +154,9 @@ class _PartListState extends State<PartList>
         children: [
           Row(
             children: [
-              buildContainerImage(),
-              buildProductInfo(cPart),
+              buildContainerImage(child: Image.asset("assets/part-p.png")),
+              buildProductInfo(cPart.part.capitalizeEach(), cPart.model.capitalize(),),
             ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  SizedBox buildContainerImage() {
-    return SizedBox(
-      width: getProportionateScreenWidth(88),
-      child: AspectRatio(
-        aspectRatio: 0.88,
-        child: Container(
-          padding: EdgeInsets.all(getProportionateScreenWidth(5)),
-          decoration: const BoxDecoration(
-            boxShadow: [
-              BoxShadow(
-                blurRadius: 15,
-                offset: Offset(4, 7),
-                color: Colors.white54,
-              )
-            ],
-          ),
-          child: Image.asset("assets/part-p.png"),
-        ),
-      ),
-    );
-  }
-
-  buildProductInfo(PartModel product) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 10.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            product.part.capitalizeEach(),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: getProportionateScreenWidth(14),
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          SizedBox(height: getProportionateScreenHeight(2)),
-          Text(
-            product.model.capitalize(),
-            style: TextStyle(
-              color: Colors.black87,
-              fontWeight: FontWeight.w500,
-              fontSize: getProportionateScreenWidth(13),
-            ),
-            maxLines: 1,
           ),
         ],
       ),

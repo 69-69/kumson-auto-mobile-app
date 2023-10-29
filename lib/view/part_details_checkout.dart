@@ -118,6 +118,7 @@ class _PartDetailsCheckoutState extends State<PartDetailsCheckout>
     return buildFadeSlide(
       animationItems,
       child: buildCurveContainer(
+        context,
         const EdgeInsets.symmetric(
           horizontal: 24.0,
           vertical: 32.0,
@@ -152,33 +153,30 @@ class _PartDetailsCheckoutState extends State<PartDetailsCheckout>
   }
 
   Row buildCheckoutButton(BuildContext context) {
+    ColorScheme tColor = Theme.of(context).colorScheme;
+
     return Row(
       children: [
         Container(
           width: 40.0,
           height: 40.0,
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.primary,
+            color: tColor.background,
             border: Border.all(
-              color: Colors.grey.shade400,
+              color: tColor.surfaceTint,
             ),
             borderRadius: BorderRadius.circular(
               12.0,
             ),
           ),
-          child: const Icon(Icons.heart_broken, color: Colors.white),
+          child: Icon(Icons.heart_broken, color: tColor.primary),
         ),
         const SizedBox(width: 20.0),
         Expanded(
-          child: OutlinedButton(
-            style: OutlinedButton.styleFrom(
-              side: BorderSide(
-                width: 1.0,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-            ),
-            onPressed: () {},
-            child: const Text("Checkout"),
+          child: buildOutlinedBtn(
+            context,
+            label: "Checkout",
+            onPress: () {},
           ),
         )
       ],

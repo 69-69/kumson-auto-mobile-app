@@ -1,38 +1,12 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
-import '../utils/size_config.dart';
+// import '../utils/size_config.dart';
 
 enum LetterAlignment { left, right }
 
-const List<String> alphabets = [
-  'a',
-  'b',
-  'c',
-  'd',
-  'e',
-  'f',
-  'g',
-  'h',
-  'i',
-  'j',
-  'k',
-  'l',
-  'm',
-  'n',
-  'o',
-  'p',
-  'q',
-  'r',
-  's',
-  't',
-  'u',
-  'v',
-  'w',
-  'x',
-  'y',
-  'z',
-];
+/// Generate Alphabets: A - Z
+final List<String> alphabets = List.generate(26, (index) => String.fromCharCode(index+65).toLowerCase());
 
 class AlphabeticalScrollView extends StatefulWidget {
   const AlphabeticalScrollView({
@@ -233,11 +207,11 @@ class _AlphabeticalScrollView extends State<AlphabeticalScrollView> {
 
   @override
   Widget build(BuildContext context) {
-    SizeConfig().init(context);
+    // SizeConfig().init(context);
 
     return Stack(
       children: [
-        ListView.separated(
+        ListView.builder(
           padding: widget.listPadding,
           controller: listController,
           scrollDirection: Axis.vertical,
@@ -249,12 +223,12 @@ class _AlphabeticalScrollView extends State<AlphabeticalScrollView> {
               child: widget.itemBuilder(_, x, _list[x].key),
             );
           },
-          separatorBuilder: (context, index) => Divider(
-            height: 6,
-            color: Theme.of(context).colorScheme.primaryContainer,
+          /*separatorBuilder: (context, index) => Divider(
+            height: 1,
+            color: Colors.transparent, // Theme.of(context).colorScheme.primaryContainer,
             indent: getProportionateScreenWidth(10.0),
             endIndent: getProportionateScreenWidth(5.0),
-          ),
+          ),*/
         ),
 
         Align(
@@ -332,3 +306,32 @@ class AlphaModel {
 
   AlphaModel(this.key, {this.secondaryKey});
 }
+
+/*const List<String> alphabets = [
+  'a',
+  'b',
+  'c',
+  'd',
+  'e',
+  'f',
+  'g',
+  'h',
+  'i',
+  'j',
+  'k',
+  'l',
+  'm',
+  'n',
+  'o',
+  'p',
+  'q',
+  'r',
+  's',
+  't',
+  'u',
+  'v',
+  'w',
+  'x',
+  'y',
+  'z',
+];*/

@@ -55,7 +55,7 @@ class FilterPartsCategory extends StatelessWidget {
 
       return Container(
         height: getProportionateScreenHeight(40.0),
-        margin: const EdgeInsets.only(top: 10, bottom: 10),
+        margin: const EdgeInsets.only(top: 10, bottom: 30),
         // padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom,),
         child: TextField(
           focusNode: focusNode,
@@ -176,52 +176,51 @@ class FilterPartsCategory extends StatelessWidget {
         itemBuilder: (context, index) {
           PartModel item = searching ? filtered.value[index] : result[index];
 
-          return buildCard(item, context);
+          return buildListCard(item, context);
         },
       ),
     );
   }
 
-  buildCard(PartModel item, BuildContext context) {
-    return item.part != "0" ? Card(
-      elevation: 3.0,
-      // color: const Color(0xFFF0EEF6), //Colors.grey.shade300,
-      margin: const EdgeInsets.only(top: 10.0),
-      child: InkWell(
-        child: Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                item.part.capitalizeEach(),
-                style: const TextStyle(
-                    fontWeight: FontWeight.bold, color: Colors.black87),
+  buildListCard(PartModel item, BuildContext context) {
+    return item.part != "0"
+        ? GestureDetector(
+            child: buildCard(
+              child: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      item.part.capitalizeEach(),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.normal, /*color: Colors.black87*/
+                      ),
+                    ),
+                    Icon(Icons.adaptive.arrow_forward, size: 14),
+                  ],
+                ),
               ),
-
-              Icon(Icons.adaptive.arrow_forward, size: 14),
-            ],
-          ),
-        ),
-        onTap: () async {
-          final isPrice = await showConfirmationDialog(
-            context,
-            positiveResponse: "Price",
-            negativeResponse: "Cross Ref",
-            const Text("Shop by Price or Cross Reference?"),
-          );
-          if (context.mounted) {
-            if (isPrice != "cancel") {
-              animateTransition(
-                  context,
-                  isPrice
-                      ? PartsByPrice(cPart: item, vehicle: vehicle)
-                      : PartsCrossRef(cPart: item, vehicle: vehicle));
-            }
-          }
-        },
-      ),
-    ) : const SizedBox.shrink();
+            ),
+            onTap: () async {
+              final isPrice = await showConfirmationDialog(
+                context,
+                positiveResponse: "Price",
+                negativeResponse: "Cross Ref",
+                const Text("Shop by Price or Cross Reference?"),
+              );
+              if (context.mounted) {
+                if (isPrice != "cancel") {
+                  animateTransition(
+                      context,
+                      isPrice
+                          ? PartsByPrice(cPart: item, vehicle: vehicle)
+                          : PartsCrossRef(cPart: item, vehicle: vehicle));
+                }
+              }
+            },
+          )
+        : const SizedBox.shrink();
   }
 }
 

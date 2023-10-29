@@ -8,20 +8,17 @@ import 'package:flutter/material.dart';
 import '../models/panel.dart';
 import '../models/vehicle.dart';
 import '../service/api_service.dart';
+import '../service/local_storage_service.dart';
 import '../utils/animation_transition.dart';
-import '../view/searc_history.dart';
 import 'async_progress_dialog.dart';
 import '../view/vehicle_details.dart';
 import 'model_make_modal.dart';
-
 
 Future<dynamic> showHistory(BuildContext context) =>
     buildModal(context, const Text("History"));
 
 class CollapsePanel extends StatefulWidget {
-  final String vin;
-
-  const CollapsePanel({super.key, this.vin = ""});
+  const CollapsePanel({super.key});
 
   @override
   State<CollapsePanel> createState() => _CollapsePanelState();
@@ -33,10 +30,11 @@ class _CollapsePanelState extends State<CollapsePanel> {
   final FocusNode partNoFocusNode = FocusNode();
   String vinSearchTerm = "", partNoSearchTerm = "";
   final List<PanelModel> _data = generateItems(3);
-  TextEditingController txt = TextEditingController();
+
+  // TextEditingController txt = TextEditingController();
   List<HunterModel>? partData;
   VehicleModel? vehicleData;
-
+  String selectedValue = '';
 
   @override
   void initState() {
@@ -56,20 +54,21 @@ class _CollapsePanelState extends State<CollapsePanel> {
   Widget _buildPanel(BuildContext context) {
     return ExpansionPanelList.radio(
       // key: GlobalKey(),
-      initialOpenPanelValue: txt.value.text.isNotEmpty ? 0 : null,
+      // initialOpenPanelValue: txt.value.text.isNotEmpty ? 0 : null,
       expandedHeaderPadding: EdgeInsets.zero,
       children: _data.map<ExpansionPanelRadio>((PanelModel item) {
         return ExpansionPanelRadio(
           value: item.id,
           canTapOnHeader: true,
-          backgroundColor: const Color(0xFFF0EEF6).withOpacity(0.9),
+          backgroundColor:
+              Theme.of(context).colorScheme.surface.withOpacity(0.9),
           headerBuilder: (BuildContext context, bool isExpanded) => ListTile(
-              title: Text(
-                item.headerValue,
-                style: const TextStyle(
-                    fontWeight: FontWeight.bold, color: Colors.black45),
-              ),
+            title: Text(
+              item.headerValue,
+              style: const TextStyle(
+                  fontWeight: FontWeight.normal /*, color: Colors.black45*/),
             ),
+          ),
           body: ListTile(
             dense: true,
             title: item.id < 2
@@ -82,15 +81,10 @@ class _CollapsePanelState extends State<CollapsePanel> {
   }
 
   OutlinedButton buildMakeModelButton(BuildContext context) {
-    return OutlinedButton(
-      style: OutlinedButton.styleFrom(
-        side: BorderSide(
-          width: 1.0,
-          color: Theme.of(context).colorScheme.primary,
-        ),
-      ),
-      onPressed: () => showMakeModal(context),
-      child: const Text("Make | Model | Year"),
+    return buildOutlinedBtn(
+      context,
+      label: "Make | Model | Year",
+      onPress: () => showMakeModal(context),
     );
   }
 
@@ -101,18 +95,15 @@ class _CollapsePanelState extends State<CollapsePanel> {
   }
 
   TextFormField vinSearchTextFormField(int index, BuildContext context) {
-    if (widget.vin.isNotEmpty) {
+    /*if (widget.vin.isNotEmpty) {
       setState(() => vinSearchTerm = widget.vin);
       txt.text = widget.vin;
-    }
+    }*/
     return TextFormField(
       key: const ValueKey("vin"),
       focusNode: vinFocusNode,
-      controller: txt,
-      onTap: () => buildModal(context, const SearchHistory(),  bgColor: Colors.transparent,),
-      onFieldSubmitted: (_) {},
       onChanged: (value) {
-        if (value.isNotEmpty || widget.vin.isNotEmpty) {
+        if (value.isNotEmpty) {
           vinSearchTerm = value;
         }
       },
@@ -126,7 +117,6 @@ class _CollapsePanelState extends State<CollapsePanel> {
     return TextFormField(
       key: const ValueKey("part_no"),
       focusNode: partNoFocusNode,
-      onFieldSubmitted: (_) {},
       onChanged: (value) {
         if (value.isNotEmpty) {
           partNoSearchTerm = value;
@@ -146,8 +136,7 @@ class _CollapsePanelState extends State<CollapsePanel> {
           ? showCircularProgress(height: 12, width: 12, strokeWidth: 2)
           : null,
       prefixText: isSearching ? "" : "${label[index]}:",
-      prefixStyle:
-          const TextStyle(fontWeight: FontWeight.w600, color: Colors.black26),
+      prefixStyle: const TextStyle(fontWeight: FontWeight.w600),
       hintText: " Enter your ${label[index]}...",
       alignLabelWithHint: true,
       /*border: OutlineInputBorder(
@@ -157,8 +146,12 @@ class _CollapsePanelState extends State<CollapsePanel> {
       contentPadding:
           const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
       suffixIcon: OutlinedButton(
-        onPressed: () =>
-            index == 0 ? onVinSearchFun(context) : onPartNoSearch(context),
+        onPressed: () {
+          setState(() => isSearching = true);
+          KeyboardUtil.hide(context);
+
+          index == 0 ? onVinSearchFun() : onPartNoSearch();
+        },
         style: OutlinedButton.styleFrom(
           padding: EdgeInsets.zero,
           side: const BorderSide(width: 1.0, color: Colors.transparent),
@@ -170,20 +163,26 @@ class _CollapsePanelState extends State<CollapsePanel> {
     );
   }
 
-  Future<void> onVinSearchFun(BuildContext context) async {
+  Future<void> onVinSearchFun() async {
     if (vinSearchTerm.isNotEmpty) {
-      setState(() => isSearching = true);
-      KeyboardUtil.hide(context);
-
       final getRemoteData = APIService().getVehicleByVin(vinSearchTerm);
 
       // Show progressBar dialog/modal
       await showProgressDialog(context, getRemoteData);
 
-      getRemoteData.then((VehicleModel vehicle) {
+      getRemoteData.then((VehicleModel vehicle) async {
         if (vehicle.id != 0) {
-          animateTransition(context, VehicleDetails(vehicle: vehicle));
+          //Save the searchText to SharedPref so that next time you can use them as recent searches.
+          await LocalStorageService.saveToRecentSearches(
+            vinSearchTerm,
+            key: "vinSearchHistory",
+          );
+
           setState(() => isSearching = false);
+
+          if (context.mounted) {
+            animateTransition(context, VehicleDetails(vehicle: vehicle));
+          }
         } else {
           setState(() {
             isSearching = false;
@@ -192,27 +191,31 @@ class _CollapsePanelState extends State<CollapsePanel> {
           });
           showRequestModal(context, "Your Request");
         }
-        // By default, show a loading spinner.
-        return showCircularProgress();
       });
     }
   }
 
-  Future<void> onPartNoSearch(BuildContext context) async {
+  Future<void> onPartNoSearch() async {
     if (partNoSearchTerm.isNotEmpty) {
-      setState(() => isSearching = true);
-      KeyboardUtil.hide(context);
-
       final getRemoteData =
           APIService().getHunterPartsBy(patNo: partNoSearchTerm);
 
       // Show progressBar dialog/modal
       await showProgressDialog(context, getRemoteData);
 
-      getRemoteData.then((List<HunterModel> partData) {
+      getRemoteData.then((List<HunterModel> partData) async {
         if (partData.isNotEmpty) {
-          animateTransition(context, PartsByPartNo(cPart: partData));
+          //Save the searchText to SharedPref so that next time you can use them as recent searches.
+          await LocalStorageService.saveToRecentSearches(
+            partNoSearchTerm,
+            key: "partNoSearchHistory",
+          );
+
           setState(() => isSearching = false);
+
+          if (context.mounted) {
+            animateTransition(context, PartsByPartNo(cPart: partData));
+          }
         } else {
           setState(() {
             isSearching = false;
@@ -226,7 +229,6 @@ class _CollapsePanelState extends State<CollapsePanel> {
       });
     }
   }
-
 }
 
 List<String> label = ["VIN", "Part No.", "Vehicle - (Make | Model)"];

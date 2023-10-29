@@ -102,14 +102,10 @@ class MakeARequestModal extends StatefulWidget {
         SizedBox(height: getProportionateScreenHeight(7)),
         SizedBox(
           width: SizeConfig.screenWidth,
-          child: OutlinedButton(
-            onPressed: () {},
-            style: OutlinedButton.styleFrom(
-              side: BorderSide(
-                  width: 1.0,
-                  color: Theme.of(context).colorScheme.primary),
-            ),
-            child: const Text("Submit"),
+          child: buildOutlinedBtn(
+            context,
+            onPress: () {},
+            label: "Submit",
           ),
         ),
       ],

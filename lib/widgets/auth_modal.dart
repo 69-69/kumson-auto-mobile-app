@@ -1,3 +1,4 @@
+import 'package:automasters/widgets/widgetery.dart';
 import 'package:flutter/material.dart';
 import '../utils/size_config.dart';
 
@@ -108,16 +109,10 @@ class _AuthModalState extends State<AuthModal> {
           ),
         ),
         SizedBox(height: getProportionateScreenHeight(7)),
-        SizedBox(
-          width: SizeConfig.screenWidth,
-          child: OutlinedButton(
-            onPressed: () {},
-            style: OutlinedButton.styleFrom(
-              side: BorderSide(
-                  width: 1.0, color: Theme.of(context).colorScheme.primary),
-            ),
-            child: Text(widget.authType),
-          ),
+        buildOutlinedButton(
+          context,
+          widget.authType,
+          onPress: () {},
         ),
       ],
     );
@@ -133,6 +128,16 @@ class _AuthModalState extends State<AuthModal> {
         ),
       );
   }
+
+  buildOutlinedButton(BuildContext context, String label,
+      {required void Function()? onPress}) => SizedBox(
+      width: SizeConfig.screenWidth,
+      child: buildOutlinedBtn(
+        context,
+        label: label,
+        onPress: onPress,
+      ),
+    );
 
   Column buildRegForm(BuildContext context) {
     return Column(
@@ -238,16 +243,10 @@ class _AuthModalState extends State<AuthModal> {
           ),
         ),
         SizedBox(height: getProportionateScreenHeight(7)),
-        SizedBox(
-          width: SizeConfig.screenWidth,
-          child: OutlinedButton(
-            onPressed: () {},
-            style: OutlinedButton.styleFrom(
-              side: BorderSide(
-                  width: 1.0, color: Theme.of(context).colorScheme.primary),
-            ),
-            child: Text(widget.authType),
-          ),
+        buildOutlinedButton(
+          context,
+          widget.authType,
+          onPress: () {},
         ),
       ],
     );

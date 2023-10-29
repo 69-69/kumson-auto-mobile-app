@@ -35,6 +35,7 @@ const lightColorScheme = ColorScheme(
 );
 
 const darkColorScheme = ColorScheme(
+  /// Most background color: Color(0xFF201A19)
   brightness: Brightness.dark,
   // primary: Color(0xFFFFB4AB),
   primary: Color(0xFFBA1A1A),

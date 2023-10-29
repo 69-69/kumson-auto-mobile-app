@@ -11,6 +11,7 @@ import 'package:string_capitalize/string_capitalize.dart';
 import '../models/hunter.dart';
 import '../models/vehicle.dart';
 import '../service/api_service.dart';
+import '../widgets/column_builder.dart';
 import '../widgets/widgetery.dart';
 
 class PartsCrossRef extends StatefulWidget {
@@ -34,7 +35,8 @@ class _PartsCrossRefState extends State<PartsCrossRef>
 
   @override
   void initState() {
-    getPartsHunter = APIService().getHunterPartsBy(hunterNo: widget.cPart.hunter);
+    getPartsHunter =
+        APIService().getHunterPartsBy(hunterNo: widget.cPart.hunter);
 
     animationController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 700));
@@ -87,17 +89,18 @@ class _PartsCrossRefState extends State<PartsCrossRef>
   }
 
   SliverAppBar buildSliverAppBar(BuildContext context) => buildSliverAppBars(
-      context,
-      getProportionateScreenHeight(250),
-      buildBackButton(context, route: VehicleDetails(vehicle: widget.vehicle)),
-      FlexibleSpaceBar(
-        background: buildAppBarImage(),
-        centerTitle: true,
-        title: buildPartName(),
-        collapseMode: CollapseMode.pin,
-      ),
-      preferredSize: buildPreferredSize("Available ${widget.cPart.part}"),
-    );
+        context,
+        getProportionateScreenHeight(250),
+        buildBackButton(context,
+            route: VehicleDetails(vehicle: widget.vehicle)),
+        FlexibleSpaceBar(
+          background: buildAppBarImage(),
+          centerTitle: true,
+          title: buildPartName(),
+          collapseMode: CollapseMode.pin,
+        ),
+        preferredSize: buildPreferredSize("Available ${widget.cPart.part}"),
+      );
 
   Container buildPartName() {
     PartModel vPart = widget.cPart;
@@ -147,6 +150,7 @@ class _PartsCrossRefState extends State<PartsCrossRef>
     return buildFadeSlide(
       animationItems,
       child: buildCurveContainer(
+        context,
         const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
         child: buildFutureBuilder(),
       ),
@@ -208,31 +212,33 @@ class _PartsCrossRefState extends State<PartsCrossRef>
 
   /// List view display[buildListView]
   buildListView(result) {
-    return ListView.builder(
-      shrinkWrap: true,
+    return SingleChildScrollView(
       padding: EdgeInsets.zero,
-      itemCount: result.length,
-      itemBuilder: (context, index) {
-        HunterModel huntPart = result[index];
-        bool isLastIndex = index == result.length - 1;
+      child: ColumnBuilder(
+        itemCount: result.length,
+        itemBuilder: (context, index) {
+          HunterModel huntPart = result[index];
+          bool isLastIndex = index == result.length - 1;
 
-        return GestureDetector(
-          onTap: () => animateTransition(context,
-              PartDetailsCheckout(huntPart: huntPart, vehicle: widget.vehicle)),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 2.0),
-            child: buildCard(context, huntPart, isLastIndex),
-          ),
-        );
-      },
+          return GestureDetector(
+            onTap: () => animateTransition(
+                context,
+                PartDetailsCheckout(
+                    huntPart: huntPart, vehicle: widget.vehicle)),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 2.0),
+              child: buildListCard(context, huntPart, isLastIndex),
+            ),
+          );
+        },
+      ),
     );
   }
 
-  /// Card [buildCard]
-  Card buildCard(BuildContext context, HunterModel huntPart, bool isLastIndex) {
-    return Card(
-      elevation: 3.0,
-      // color: const Color(0xFFF0EEF6), //Colors.grey.shade300,
+  /// Card [buildListCard]
+  Card buildListCard(
+      BuildContext context, HunterModel huntPart, bool isLastIndex) {
+    return buildCard(
       shape: isLastIndex
           ? const ContinuousRectangleBorder(
               borderRadius: BorderRadius.only(
@@ -244,61 +250,9 @@ class _PartsCrossRefState extends State<PartsCrossRef>
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          buildContainerImage(),
-          buildProductInfo(huntPart),
-        ],
-      ),
-    );
-  }
-
-  SizedBox buildContainerImage() {
-    return SizedBox(
-      width: getProportionateScreenWidth(88),
-      child: AspectRatio(
-        aspectRatio: 0.88,
-        child: Container(
-          padding: EdgeInsets.all(getProportionateScreenWidth(5)),
-          decoration: const BoxDecoration(
-            // color: Colors.grey.shade200,
-            boxShadow: [
-              BoxShadow(
-                blurRadius: 15,
-                offset: Offset(4, 7),
-                color: Colors.white54,
-              )
-            ],
-          ),
-          child: Image.asset("assets/part-p.png"),
-        ),
-      ),
-    );
-  }
-
-  buildProductInfo(HunterModel product) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 10.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            product.brand.capitalizeEach(),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: getProportionateScreenWidth(14),
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          SizedBox(width: getProportionateScreenWidth(20)),
-          Text(
-            product.partNo.capitalize(),
-            style: TextStyle(
-              color: Colors.black87,
-              fontWeight: FontWeight.w500,
-              fontSize: getProportionateScreenWidth(13),
-            ),
-            maxLines: 1,
-          ),
+          buildContainerImage(child: Image.asset("assets/part-p.png")),
+          buildProductInfo(
+              huntPart.brand.capitalizeEach(), huntPart.partNo.capitalize()),
         ],
       ),
     );

@@ -129,6 +129,7 @@ class _VehicleDetailsState extends State<VehicleDetails>
     return buildFadeSlide(
       animationItems,
       child: buildCurveContainer(
+        context,
         const EdgeInsets.fromLTRB(24.0, 32.0, 24.0, 0.0),
         child: widget.parts == null
             ? buildFutureBuilder()

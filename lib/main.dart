@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'color_schemes.g.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 /*class MyHttpOverrides extends HttpOverrides {
   // Note: to Override HTTPS security ->  ByPass https security for development only(disable when in prod.)
@@ -57,7 +56,9 @@ class MyApp extends StatelessWidget {
     return ThemeData(
       useMaterial3: true,
       colorScheme: cs ?? lightColorScheme,
-      textTheme: GoogleFonts.poppinsTextTheme(),
+
+      // textTheme: GoogleFonts.poppinsTextTheme(),
+      // expansionTileTheme: const ExpansionTileThemeData(),
 
       appBarTheme: AppBarTheme(
         backgroundColor: lightColorScheme.primary,

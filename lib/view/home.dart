@@ -1,3 +1,4 @@
+import 'package:automasters/view/search_history.dart';
 import 'package:flutter/material.dart';
 import '../models/animation_item.dart';
 import '../service/change_notifier_service.dart';
@@ -164,7 +165,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
           context,
           child: buildTopBg(customTheme),
         ),
-        CollapsePanel(vin: widget.vin),
+        const CollapsePanel(),
         buildColoredBorder(
           false,
           context,
@@ -177,18 +178,25 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
 
   Row buildTopBg(ThemeData customTheme) {
     return Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              "Search Car Parts by:",
-              textAlign: TextAlign.center,
-              style: customTheme.textTheme.bodyLarge!
-                  .copyWith(fontWeight: FontWeight.bold, color: Colors.white),
+            _buildOptionalBtn(customTheme, onPress: ()=> displayDialog()),
+            SizedBox(
+              width: SizeConfig.screenWidth! * 0.7,
+              child: Text(
+                "Search Car Parts by:",
+                textAlign: TextAlign.center,
+                overflow: TextOverflow.ellipsis,
+                style: customTheme.textTheme.bodyLarge!
+                    .copyWith(fontWeight: FontWeight.bold, color: Colors.white),
+              ),
             ),
-            buildProductAgeButton(onPress: ()=>displayDialog())
+            _buildOptionalBtn(customTheme, icon: Icons.restore, onPress: ()=> displaySearchHistory())
           ],
         );
   }
+
+  _buildOptionalBtn(ThemeData customTheme, {IconData? icon, void Function()? onPress}) => buildOptionalButton(context, icon: icon, bgColor: Colors.white.withOpacity(0.6), color: customTheme.colorScheme.primary, onPress: onPress);
 
   Future<dynamic> buildAuthModal(BuildContext context, String authType) =>
       buildModal(context, AuthModal(authType: authType));
@@ -214,8 +222,8 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            buildOutlinedButton(context, 'Log In'),
             buildOutlinedButton(context, 'Sign Up'),
+            buildOutlinedButton(context, 'Log In'),
           ],
         ),
       ],
@@ -223,12 +231,11 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   }
 
   OutlinedButton buildOutlinedButton(BuildContext context, String label) {
-    return OutlinedButton(
-      style: OutlinedButton.styleFrom(
-        side: const BorderSide(color: Colors.white),
-      ),
-      onPressed: () => buildAuthModal(context, label),
-      child: Text(label, style: const TextStyle(color: Colors.white)),
+    return buildOutlinedBtn(
+      context,
+        label:label,
+      color: Colors.white,
+      onPress: () => buildAuthModal(context, label),
     );
   }
 
@@ -268,4 +275,11 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
         await ChangeNotifierService.setProductAge(opt);
       }
   }
+
+  displaySearchHistory() => buildModal(
+      context,
+      const SearchHistory(),
+      bgColor: Colors.transparent,
+      barColor: const Color.fromRGBO(250, 249, 249, 0.3),
+    );
 }

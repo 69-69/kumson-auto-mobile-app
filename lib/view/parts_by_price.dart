@@ -14,6 +14,7 @@ import '../models/vendor.dart';
 import '../service/api_service.dart';
 import '../service/change_notifier_service.dart';
 import '../widgets/async_progress_dialog.dart';
+import '../widgets/column_builder.dart';
 import '../widgets/show_confirmation_dialog.dart';
 import '../widgets/widgetery.dart';
 
@@ -144,6 +145,7 @@ class _PartsByPriceState extends State<PartsByPrice>
     return buildFadeSlide(
       animationItems,
       child: buildCurveContainer(
+        context,
         const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
         child: buildHunterFutureBuilder(widget.cPart.hunter),
       ),
@@ -176,9 +178,9 @@ class _PartsByPriceState extends State<PartsByPrice>
                           children: [
                             customLine(
                                 widget.cPart.part.toUpperCase(), context),
-                            buildProductAgeButton(
-                                onPress: () => displayDialog(context),
-                                color: Theme.of(context).colorScheme.primary),
+                            buildOptionalButton(
+                                context,
+                                onPress: () => displayDialog(context),),
                           ],
                         ),
                         const Divider(indent: 40),
@@ -196,31 +198,31 @@ class _PartsByPriceState extends State<PartsByPrice>
 
   /// done-1 List view display[buildListView]
   buildListView(result) {
-    return ListView.builder(
-      shrinkWrap: true,
+    return SingleChildScrollView(
       padding: EdgeInsets.zero,
-      itemCount: result.length,
-      itemBuilder: (context, index) {
-        HunterModel huntPart = result[index];
-        bool isLastIndex = index == result.length - 1;
+      physics: const NeverScrollableScrollPhysics(),
+      child: ColumnBuilder(
+        itemCount: result.length,
+        itemBuilder: (context, index) {
+          HunterModel huntPart = result[index];
+          bool isLastIndex = index == result.length - 1;
 
-        return GestureDetector(
-          onTap: () => animateTransition(context,
-              PartDetailsCheckout(huntPart: huntPart, vehicle: widget.vehicle)),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 2.0),
-            child: buildCard(context, huntPart, isLastIndex),
-          ),
-        );
-      },
+          return GestureDetector(
+            onTap: () => animateTransition(context,
+                PartDetailsCheckout(huntPart: huntPart, vehicle: widget.vehicle)),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 2.0),
+              child: buildListCard(context, huntPart, isLastIndex),
+            ),
+          );
+        },
+      ),
     );
   }
 
-  /// Card [buildCard]
-  Card buildCard(BuildContext context, HunterModel huntPart, bool isLastIndex) {
-    return Card(
-      elevation: 3.0,
-      // color: const Color(0xFFF0EEF6), //Colors.grey.shade300,
+  /// Card [buildListCard]
+  Card buildListCard(BuildContext context, HunterModel huntPart, bool isLastIndex) {
+    return buildCard(
       shape: isLastIndex
           ? const ContinuousRectangleBorder(
               borderRadius: BorderRadius.only(
@@ -289,8 +291,8 @@ class _PartsByPriceState extends State<PartsByPrice>
           buildBadge(context, minPriceWithoutOPM),
           Row(
             children: [
-              buildContainerImage(),
-              buildProductInfo(minPriceWithoutOPM),
+              buildContainerImage(child: Image.asset("assets/part-p.png")),
+              buildProductInfo(minPriceWithoutOPM.partNo.toUpperCase(), "$ghCediSign ${minPriceWithoutOPM.currentPrice}"),
             ],
           ),
         },
@@ -301,8 +303,8 @@ class _PartsByPriceState extends State<PartsByPrice>
           buildBadge(context, minPriceWithOPM, isRadius: false),
           Row(
             children: [
-              buildContainerImage(),
-              buildProductInfo(minPriceWithOPM),
+              buildContainerImage(child: Image.asset("assets/part-p.png")),
+              buildProductInfo(minPriceWithOPM.partNo.toUpperCase(), "$ghCediSign ${minPriceWithOPM.currentPrice}"),
             ],
           ),
         }
@@ -318,13 +320,13 @@ class _PartsByPriceState extends State<PartsByPrice>
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         buildBadgeBg(
-          child: buildBadgeText(
+          child: buildBadgeLabel(
               "${vendor.brand} ${opmCheck(vendor.opm)}${vendor.brandType}",
-              context),
+              color: Theme.of(context).colorScheme.onInverseSurface),
           isRadius: isRadius,
         ),
         buildBadgeBg(
-          child: buildBadgeText(vendor.productAge, context),
+          child: buildBadgeLabel(vendor.productAge),
           isRadius: false,
           radiusRight: true,
         ),
@@ -332,7 +334,7 @@ class _PartsByPriceState extends State<PartsByPrice>
     );
   }
 
-  Text buildBadgeText(String label, BuildContext context) {
+  Text buildBadgeLabel(String label, {Color? color}) {
     return Text(
       label.toUpperCase(),
       maxLines: 1,
@@ -340,7 +342,7 @@ class _PartsByPriceState extends State<PartsByPrice>
       style: TextStyle(
         fontSize: getProportionateScreenWidth(10),
         fontWeight: FontWeight.bold,
-        color: Theme.of(context).colorScheme.onPrimary,
+        color: color ?? Colors.white,
       ),
     );
   }
@@ -360,59 +362,6 @@ class _PartsByPriceState extends State<PartsByPrice>
             : BorderRadius.only(topRight: radiusRight ? r : Radius.zero),
       ),
       child: child,
-    );
-  }
-
-  SizedBox buildContainerImage() {
-    return SizedBox(
-      width: getProportionateScreenWidth(88),
-      child: AspectRatio(
-        aspectRatio: 0.88,
-        child: Container(
-          padding: EdgeInsets.all(getProportionateScreenWidth(5)),
-          decoration: const BoxDecoration(
-            // color: Colors.grey.shade200,
-            boxShadow: [
-              BoxShadow(
-                blurRadius: 15,
-                offset: Offset(4, 7),
-                color: Colors.white54,
-              )
-            ],
-          ),
-          child: Image.asset("assets/part-p.png"),
-        ),
-      ),
-    );
-  }
-
-  buildProductInfo(VendorModel product) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 10.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          Text(
-            product.partNo.toUpperCase(),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: getProportionateScreenWidth(14),
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          SizedBox(width: getProportionateScreenHeight(20)),
-          Text(
-            "$ghCediSign ${product.currentPrice}",
-            style: TextStyle(
-              color: Colors.black87,
-              fontWeight: FontWeight.w500,
-              fontSize: getProportionateScreenWidth(13),
-            ),
-            maxLines: 1,
-          ),
-        ],
-      ),
     );
   }
 
