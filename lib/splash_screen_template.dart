@@ -1,7 +1,7 @@
-import 'package:automasters/utils/avatar_glow.dart';
-import 'package:automasters/utils/size_config.dart';
-import 'package:automasters/widgets/async_progress_dialog.dart';
-import 'package:automasters/widgets/developer_info.dart';
+import 'package:automasters/core/util/avatar_glow.dart';
+import 'package:automasters/core/util/size_config.dart';
+import 'package:automasters/features/auto_mobile/presentation/widgets/async_progress_dialog.dart';
+import 'package:automasters/features/auto_mobile/presentation/widgets/developer_info.dart';
 import 'package:flutter/material.dart';
 
 class SplashScreenTemplate extends StatefulWidget {

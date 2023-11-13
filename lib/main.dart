@@ -1,9 +1,20 @@
-import 'package:automasters/service/change_notifier_service.dart';
-import 'package:automasters/view/onboarding_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
 import 'color_schemes.g.dart';
+import 'config/theme/app_theme.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:automasters/config/routes/app_routes.dart';
+import 'package:automasters/features/injection_container.dart';
+import 'package:automasters/features/auto_mobile/data/data_sources/local/app_local_database.dart';
+import 'package:automasters/features/auto_mobile/presentation/onboarding_screen.dart';
+import 'package:automasters/features/auto_mobile/presentation/bloc/hunter/remote/hunter_bloc.dart';
+import 'package:automasters/features/auto_mobile/presentation/bloc/make/remote/make_event.dart';
+import 'package:automasters/features/auto_mobile/presentation/bloc/model/remote/model_bloc.dart';
+import 'package:automasters/features/auto_mobile/presentation/bloc/vehicle/remote/vehicle_bloc.dart';
+import 'package:automasters/features/auto_mobile/presentation/bloc/vendor/remote/vendor_bloc.dart';
+import 'features/auto_mobile/presentation/bloc/make/remote/make_bloc.dart';
+import 'features/auto_mobile/presentation/bloc/parts/remote/part_bloc.dart';
+import 'features/auto_mobile/presentation/bloc/vehicle/remote/vehicle_event.dart';
 
 /*class MyHttpOverrides extends HttpOverrides {
   // Note: to Override HTTPS security ->  ByPass https security for development only(disable when in prod.)
@@ -15,11 +26,15 @@ import 'color_schemes.g.dart';
   }
 }*/
 
-void main() {
+Future<void> main() async {
   // Note: to Override HTTPS security -> for dev only
   // HttpOverrides.global = MyHttpOverrides();
 
-  runApp(const MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
+  await initializeDependencies();
+  await AppLocalDatabase.initFlutterHive();
+
+  runApp(const AutoMobile());
 
   // Disable screen orientation to PORTRAIT-UP ONLY
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
@@ -30,75 +45,71 @@ void main() {
   //SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class AutoMobile extends StatelessWidget {
+  const AutoMobile({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
+    /*MultiProvider(
         providers: [
           ChangeNotifierProvider(create: (context) => ChangeNotifierService()),
         ],
-        builder: (context, child) => MaterialApp(
-              debugShowCheckedModeBanner: false,
-              theme: buildThemeData(context),
-
-              darkTheme: buildThemeData(context, cs: darkColorScheme),
-
-              // theme: ThemeData.light(useMaterial3: true,),
-              //darkTheme: DarkTheme.darkTheme,
-              // themeMode: ThemeMode.system,
-              home: const OnBoardingScreen(),
-            ));
-  }
-
-  ThemeData buildThemeData(BuildContext context, {ColorScheme? cs}) {
-    return ThemeData(
-      useMaterial3: true,
-      colorScheme: cs ?? lightColorScheme,
-
-      // textTheme: GoogleFonts.poppinsTextTheme(),
-      // expansionTileTheme: const ExpansionTileThemeData(),
-
-      appBarTheme: AppBarTheme(
-        backgroundColor: lightColorScheme.primary,
-      ),
-
-      bottomSheetTheme: const BottomSheetThemeData(
-        backgroundColor: Colors.transparent,
-        modalElevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(
-            top: Radius.circular(30),
+        builder: (context, child) => MaterialApp( */
+    return MultiBlocProvider(
+        providers: [
+          /// Vehicles/Cars
+          BlocProvider<VehiclesBloc>(
+            create: (context) => sl()..add(const GetVehicles()),
           ),
-        ),
-      ),
+          BlocProvider<VehicleByVinBloc>(create: (context) => sl<VehicleByVinBloc>()),
+          BlocProvider<VehicleByVicBloc>(create: (context) => sl<VehicleByVicBloc>()),
 
-      inputDecorationTheme: InputDecorationTheme(
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(7),
-          borderSide: const BorderSide(color: Colors.black26),
-        ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(7),
-          borderSide: const BorderSide(color: Colors.black26),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderSide: const BorderSide(color: Color(0xFFBA1A1A)),
-          borderRadius: BorderRadius.circular(7),
-        ),
-        // focusColor:  Color(0xFFBA1A1A)
-      ),
-
-      outlinedButtonTheme: OutlinedButtonThemeData(
-        style: OutlinedButton.styleFrom(
-          side: const BorderSide(width: 1.0),
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(7)),
+          /// Makes
+          BlocProvider<MakesBloc>(
+            create: (context) => sl()..add(const GetMakes()),
           ),
-        ),
-      ),
-      // primarySwatch: Colors.red,
-    );
+
+          /// Models
+          /*BlocProvider<ModelsBloc>(
+            create: (context) => sl()..add(const GetModels()),
+          ),*/
+          BlocProvider<ModelsByMakeRefBloc>(create: (context) => sl<ModelsByMakeRefBloc>()),
+
+          /// Parts
+          /*BlocProvider<PartsBloc>(
+            create: (context) => sl()..add(const GetParts()),
+          ),*/
+          BlocProvider<PartByHunterNoBloc>(create: (context) => sl<PartByHunterNoBloc>()),
+          BlocProvider<PartsByVFamBloc>(create: (context) => sl<PartsByVFamBloc>()),
+          BlocProvider<PartsByMakeModelBloc>(create: (context) => sl<PartsByMakeModelBloc>()),
+          BlocProvider<PartsYearsByMakeModelBloc>(create: (context) => sl<PartsYearsByMakeModelBloc>()),
+
+          /// Hunter
+          /*BlocProvider<HuntersBloc>(
+            create: (context) => sl()..add(const GetHunters()),
+          ),*/
+          BlocProvider<HunterPartsByPartNoBloc>(create: (context) => sl<HunterPartsByPartNoBloc>()),
+          BlocProvider<HunterPartsByHunterNoBloc>(create: (context) => sl<HunterPartsByHunterNoBloc>()),
+
+          /// Vendor
+          /*BlocProvider<VendorsBloc>(
+            create: (context) => sl()..add(const GetVendors()),
+          ),*/
+          BlocProvider<VendorPartsByBrandPartNoBloc>(create: (context) => sl<VendorPartsByBrandPartNoBloc>()),
+        ],
+        child: MaterialApp(
+          title: "AutoMasters",
+          debugShowCheckedModeBanner: false,
+          theme: buildThemeData(context, cs: lightColorScheme),
+
+          darkTheme: buildThemeData(context, cs: darkColorScheme),
+
+          // theme: ThemeData.light(useMaterial3: true,),
+          //darkTheme: DarkTheme.darkTheme,
+          // themeMode: ThemeMode.system,
+          initialRoute: '/',
+          onGenerateRoute: AppRoutes.onGenerateRoutes,
+          home: const OnBoardingScreen(),
+        ));
   }
 }

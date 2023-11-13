@@ -1,0 +1,41 @@
+import 'package:automasters/features/auto_mobile/domain/entities/jwt.dart';
+
+class JWTModel extends JWTEntity {
+  const JWTModel({
+    String? accessToken,
+    String? expiresIn,
+    String? refreshExpiresIn,
+    String? refreshToken,
+
+    // required this.images
+  }) : super(
+    accessToken: accessToken,
+    expiresIn: expiresIn,
+    refreshExpiresIn: refreshExpiresIn,
+    refreshToken: refreshToken,
+  );
+
+  factory JWTModel.fromJson(Map<String, dynamic> map) {
+    return JWTModel(
+      accessToken: map['accessToken'],
+      expiresIn: map['accessExpiration'],
+      refreshExpiresIn: map['refreshExpiresIn'],
+      refreshToken: map['refreshToken'],
+    );
+  }
+
+  /// Convert object toMap / toJson[toMap]
+  factory JWTModel.fromEntity(JWTEntity entity) => JWTModel(
+    accessToken: entity.accessToken,
+    expiresIn: entity.expiresIn,
+    refreshExpiresIn: entity.refreshExpiresIn,
+    refreshToken: entity.refreshToken,
+  );
+
+  static List<JWTModel> fromJsonList(List data) =>
+      data.map((dynamic i) => JWTModel.fromJson(i as Map<String, dynamic>))
+          .toList();
+
+  ///custom comparing function to check if two models are equal
+  bool isEqual(JWTModel model) => refreshToken == model.refreshToken;
+}
