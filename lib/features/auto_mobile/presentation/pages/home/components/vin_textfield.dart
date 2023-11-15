@@ -1,8 +1,9 @@
+import 'package:flutter/material.dart';
+import 'package:automasters/features/auto_mobile/data/data_sources/local/product_status_service.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/local/search_history_service.dart';
 import 'package:automasters/features/auto_mobile/data/models/vehicle.dart';
 import 'package:automasters/features/auto_mobile/presentation/pages/home/components/_outline_btn_for_search.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/async_progress_dialog.dart';
-import 'package:flutter/material.dart';
 import 'package:automasters/config/routes/routes_constant.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/local/local_databse_pem.dart';
 import 'package:automasters/features/auto_mobile/data/repositories/home_repository_impl.dart';
@@ -89,25 +90,29 @@ class _VinTextFieldState extends State<VinTextField> {
   }
 
   Future<void> _onVinSearchFun() async {
-      final getData = HomeRepositoryImpl().getVehicleByVin(searchText);
+    final getData = HomeRepositoryImpl().getVehicleByVin(searchText);
 
-      // Show progressBar dialog/modal
-      await showProgressDialog(context, getData);
+    // Show progressBar dialog/modal
+    await showProgressDialog(context, getData);
 
-      getData.then((VehicleModel? vehicle) async {
-        if (vehicle != null) {
-          //Save VIN as recent searches.
-          await SearchHistoryDB()
-              .saveTo(searchText, key: vinSearchHistoryKey)
-              .whenComplete(() {
-            Map<String, dynamic> v = {"vehicle": vehicle};
-            _navigating(context, v);
-          });
-        } else {
+    getData.then((VehicleModel? vehicle) async {
+      if (vehicle != null) {
+        //Save VIN as recent searches.
+        await SearchHistoryDB()
+            .saveTo(searchText, key: vinSearchHistoryKey)
+            .whenComplete(() {
+          Map<String, dynamic> v = {"vehicle": vehicle};
+          _navigating(context, v);
+        });
+      } else {
+        await ProductStatusService()
+            .saveReadOnly(searchText, key: readOnlyVinKey)
+            .then((_) {
           _resetState();
-          showRequestModal(context, "vinRequest");
-        }
-      });
+          showRequestModal(context, vinRequest);
+        });
+      }
+    });
   }
 
   void _navigating(

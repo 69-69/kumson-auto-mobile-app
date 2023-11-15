@@ -25,7 +25,6 @@ Container buildCurveContainer(BuildContext context, EdgeInsets padding,
   );
 }
 
-
 buildProductInfo(String label, String label2) {
   return Padding(
     padding: const EdgeInsets.only(left: 10.0),
@@ -35,48 +34,25 @@ buildProductInfo(String label, String label2) {
         Text(
           label,
           maxLines: 2,
+          style: const TextStyle(
           overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            fontSize: getProportionateScreenWidth(14),
             fontWeight: FontWeight.bold,
           ),
         ),
         SizedBox(width: getProportionateScreenHeight(20)),
         Text(
           label2,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            /*color: Colors.black87,
-              fontWeight: FontWeight.w500,*/
-            fontSize: getProportionateScreenWidth(13),
-          ),
           maxLines: 1,
+          style: const TextStyle(
+          overflow: TextOverflow.ellipsis,
+            fontWeight: FontWeight.normal,
+          ),
         ),
       ],
     ),
   );
 }
 
-buildOptionalButton(BuildContext context,
-    {void Function()? onPress, Color? bgColor, Color? color, IconData? icon}) {
-  ColorScheme theme = Theme.of(context).colorScheme;
-
-  return SizedBox(
-    width: 30.0,
-    height: 30.0,
-    child: ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: bgColor ?? theme.onInverseSurface,
-        padding: EdgeInsets.zero,
-        shape: CircleBorder(
-          side: BorderSide(color: color ?? theme.surfaceTint),
-        ),
-      ),
-      onPressed: onPress,
-      child: Icon(icon ?? Icons.question_mark_sharp, color: color ?? theme.surfaceTint, size: 20,),
-    ),
-  );
-}
 
 SizedBox buildContainerImage({required Widget child}) {
   return SizedBox(

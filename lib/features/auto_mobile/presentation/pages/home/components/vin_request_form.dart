@@ -1,8 +1,8 @@
-import 'package:automasters/features/auto_mobile/data/models/make.dart';
-import 'package:automasters/features/auto_mobile/data/models/model.dart';
-import 'package:automasters/features/auto_mobile/data/repositories/home_repository_impl.dart';
-import 'package:automasters/features/auto_mobile/presentation/widgets/make_model_dropdown.dart';
 import 'package:flutter/material.dart';
+import 'package:automasters/features/auto_mobile/data/data_sources/local/local_databse_pem.dart';
+import 'package:automasters/features/auto_mobile/data/data_sources/local/product_status_service.dart';
+import 'package:automasters/features/auto_mobile/presentation/widgets/custom_dropdown.dart';
+import 'package:automasters/features/auto_mobile/presentation/widgets/make_model_dropdown.dart';
 
 import 'package:automasters/core/util/size_config.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/outline_btn.dart';
@@ -18,7 +18,7 @@ class _VinRequestFormState extends State<VinRequestForm> {
   TextEditingController? makeController, modelController;
   final _formKey = GlobalKey<FormState>();
   Map<String, dynamic> formData = {};
-
+  String makeRef ="";
 
   void _processData() {
     makeController?.clear();
@@ -37,11 +37,11 @@ class _VinRequestFormState extends State<VinRequestForm> {
       padding: const EdgeInsets.only(top: 10.0, bottom: 25.0),
       child: Column(
         children: [
+          _buildVinFormField(context),
+          _gaps(),
           _buildMakeFormField(),
           _gaps(),
           _buildModelFormField(),
-          _gaps(),
-          _buildVinFormField(context),
           _gaps(),
           _buildPartFormField(context),
           _gaps(),
@@ -59,7 +59,9 @@ class _VinRequestFormState extends State<VinRequestForm> {
             width: SizeConfig.screenWidth,
             child: buildOutlinedBtn(
               context,
-              onPress: () {_processData();},
+              onPress: () {
+                _processData();
+              },
               label: "Submit",
             ),
           ),
@@ -70,56 +72,59 @@ class _VinRequestFormState extends State<VinRequestForm> {
 
   SizedBox _gaps() => SizedBox(height: getProportionateScreenHeight(7));
 
-  MakeModelDropdown _buildMakeFormField() {
-    return MakeModelDropdown<MakeModel>(
+  CustomDropdown _buildMakeFormField() {
+    return buildMakesDropdown(
       controller: makeController,
-      value: formData['make'],
-      hintText: 'Car Make',
       onChanged: (v) {
-        debugPrint("make-1 $v");
-      },
-      setter: (dynamic newValue) {
-        debugPrint("make-2 $newValue");
-        formData['make'] = newValue;
-      },
-      asyncItems: (String query) async {
-        final v =
-        await _getData(query, "car_makes?page=0&size=300&sort=make,asc");
-        List<MakeModel> matches = MakeModel.fromJsonList(v);
+        setState(() => makeRef = v.makeRef);
 
-        filterResults<MakeModel>(matches, query);
-        return matches;
+        debugPrint("make-1 ${v.makeRef}");
       },
     );
   }
 
-  MakeModelDropdown _buildModelFormField() {
-    return MakeModelDropdown<Model>(
+  CustomDropdown _buildModelFormField() {
+    return buildModelsDropdown(
+      makeRef,
       controller: modelController,
-      value: modelController?.text,
-      hintText: 'Car Model',
       onChanged: (v) {
         debugPrint("model-1 $v");
       },
-      asyncItems: (String query) async {
-        final v =
-        await _getData(query, "car_models?page=0&size=300&sort=model,desc");
-        List<Model> matches = Model.fromJsonList(v);
-
-        filterResults<Model>(matches, query);
-        return matches;
-      },
-      setter: (dynamic newValue) {
-        debugPrint("model-2 $newValue");
-        formData['model'] = newValue;
-      },
     );
   }
 
-  Future _getData(String query, String endPoint) async {
-    return HomeRepositoryImpl().getData(query, endPoint);
-  }
   TextFormField _buildVinFormField(BuildContext context) {
+    String readOnlyVin = ProductStatusService().getStatus(key: readOnlyVinKey);
+    Color color = Theme.of(context).colorScheme.primary;
+    const textStyle = TextStyle(color: Colors.white, fontSize: 12);
+
+    return readOnlyVin.isNotEmpty
+        ? _readOnlyVinField(textStyle, readOnlyVin, color)
+        : _vinField(context);
+  }
+
+  TextFormField _readOnlyVinField(
+      TextStyle textStyle, String readOnlyVin, Color color) {
+    return TextFormField(
+      readOnly: true,
+      style: textStyle,
+      controller: TextEditingController(text: readOnlyVin),
+      keyboardType: TextInputType.text,
+      decoration: InputDecoration(
+        isDense: true,
+        filled: true,
+        fillColor: color,
+        prefix: Text("VIN: ",
+            style: textStyle.copyWith(fontWeight: FontWeight.bold)),
+        focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: color)),
+        // errorText: snapshot.hasError ? snapshot.error.toString() : "",
+        contentPadding:
+            const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
+      ),
+    );
+  }
+
+  TextFormField _vinField(BuildContext context) {
     return TextFormField(
       keyboardType: TextInputType.text,
       // onFieldSubmitted: bloc.onChangeEmail,
@@ -127,6 +132,7 @@ class _VinRequestFormState extends State<VinRequestForm> {
       decoration: InputDecoration(
         filled: true,
         hintText: "VIN",
+        labelText: "VIN",
         // errorText: snapshot.hasError ? snapshot.error.toString() : "",
         fillColor: Theme.of(context).colorScheme.primary.withOpacity(0.04),
         contentPadding:
@@ -148,6 +154,7 @@ class _VinRequestFormState extends State<VinRequestForm> {
       decoration: InputDecoration(
         filled: true,
         hintText: "Name",
+        labelText: "Name",
         // errorText: snapshot.hasError ? snapshot.error.toString() : "",
         fillColor: Theme.of(context).colorScheme.primary.withOpacity(0.04),
         contentPadding:
@@ -169,6 +176,7 @@ class _VinRequestFormState extends State<VinRequestForm> {
       decoration: InputDecoration(
         filled: true,
         hintText: "Email",
+        labelText: "Email",
         // errorText: snapshot.hasError ? snapshot.error.toString() : "",
         fillColor: Theme.of(context).colorScheme.primary.withOpacity(0.04),
         contentPadding:
@@ -190,6 +198,7 @@ class _VinRequestFormState extends State<VinRequestForm> {
       decoration: InputDecoration(
         filled: true,
         hintText: "Phone Number",
+        labelText: "Phone Number",
         // errorText: snapshot.hasError ? snapshot.error.toString() : "",
         fillColor: Theme.of(context).colorScheme.primary.withOpacity(0.04),
         contentPadding:
@@ -211,6 +220,7 @@ class _VinRequestFormState extends State<VinRequestForm> {
       decoration: InputDecoration(
         filled: true,
         hintText: "Engine Capacity",
+        labelText: "Engine Capacity",
         // errorText: snapshot.hasError ? snapshot.error.toString() : "",
         fillColor: Theme.of(context).colorScheme.primary.withOpacity(0.04),
         contentPadding:
@@ -232,6 +242,7 @@ class _VinRequestFormState extends State<VinRequestForm> {
       decoration: InputDecoration(
         filled: true,
         hintText: "Part Name",
+        labelText: "Part Name",
         // errorText: snapshot.hasError ? snapshot.error.toString() : "",
         fillColor: Theme.of(context).colorScheme.primary.withOpacity(0.04),
         contentPadding:
@@ -253,6 +264,7 @@ class _VinRequestFormState extends State<VinRequestForm> {
       decoration: InputDecoration(
         filled: true,
         hintText: "Fuel Type",
+        labelText: "Fuel Type",
         // errorText: snapshot.hasError ? snapshot.error.toString() : "",
         fillColor: Theme.of(context).colorScheme.primary.withOpacity(0.04),
         contentPadding:

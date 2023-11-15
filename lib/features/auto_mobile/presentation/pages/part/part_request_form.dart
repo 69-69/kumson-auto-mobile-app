@@ -50,6 +50,29 @@ class _PartRequestFormState extends State<PartRequestForm> {
 
   SizedBox _gaps() => SizedBox(height: getProportionateScreenHeight(7));
 
+
+  TextFormField _buildPartFormField(BuildContext context) {
+    return TextFormField(
+      keyboardType: TextInputType.text,
+      // onFieldSubmitted: bloc.onChangeEmail,
+      // onChanged: bloc.onChangeEmail,
+      decoration: InputDecoration(
+        filled: true,
+        hintText: "Part Name",
+        labelText: "Part Name",
+        // errorText: snapshot.hasError ? snapshot.error.toString() : "",
+        fillColor: Theme.of(context).colorScheme.primary.withOpacity(0.04),
+        contentPadding:
+        const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
+
+        alignLabelWithHint: true,
+        /*border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(5),
+          ),*/
+      ),
+    );
+  }
+
   TextFormField _buildNameFormField(BuildContext context) {
     return TextFormField(
       keyboardType: TextInputType.text,
@@ -58,10 +81,11 @@ class _PartRequestFormState extends State<PartRequestForm> {
       decoration: InputDecoration(
         filled: true,
         hintText: "Name",
+        labelText: "Name",
         // errorText: snapshot.hasError ? snapshot.error.toString() : "",
         fillColor: Theme.of(context).colorScheme.primary.withOpacity(0.04),
         contentPadding:
-            const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
+        const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
 
         alignLabelWithHint: true,
         /*border: OutlineInputBorder(
@@ -79,10 +103,11 @@ class _PartRequestFormState extends State<PartRequestForm> {
       decoration: InputDecoration(
         filled: true,
         hintText: "Email",
+        labelText: "Email",
         // errorText: snapshot.hasError ? snapshot.error.toString() : "",
         fillColor: Theme.of(context).colorScheme.primary.withOpacity(0.04),
         contentPadding:
-            const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
+        const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
 
         alignLabelWithHint: true,
         /*border: OutlineInputBorder(
@@ -100,31 +125,11 @@ class _PartRequestFormState extends State<PartRequestForm> {
       decoration: InputDecoration(
         filled: true,
         hintText: "Phone Number",
+        labelText: "Phone Number",
         // errorText: snapshot.hasError ? snapshot.error.toString() : "",
         fillColor: Theme.of(context).colorScheme.primary.withOpacity(0.04),
         contentPadding:
-            const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
-
-        alignLabelWithHint: true,
-        /*border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(5),
-          ),*/
-      ),
-    );
-  }
-
-  TextFormField _buildPartFormField(BuildContext context) {
-    return TextFormField(
-      keyboardType: TextInputType.text,
-      // onFieldSubmitted: bloc.onChangeEmail,
-      // onChanged: bloc.onChangeEmail,
-      decoration: InputDecoration(
-        filled: true,
-        hintText: "Part Name",
-        // errorText: snapshot.hasError ? snapshot.error.toString() : "",
-        fillColor: Theme.of(context).colorScheme.primary.withOpacity(0.04),
-        contentPadding:
-            const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
+        const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
 
         alignLabelWithHint: true,
         /*border: OutlineInputBorder(

@@ -5,7 +5,7 @@ import 'package:automasters/features/auto_mobile/data/data_sources/local/local_d
 
 class ProductStatusService extends AppLocalDatabase with ChangeNotifier {
 
-  _getProductAge(String key) => readData(key: key);
+  _getData(String key) => readData(key: key);
 
   saveStatus(bool i, {String? key}) async {
     String s = i ? "new" : "used";
@@ -13,5 +13,12 @@ class ProductStatusService extends AppLocalDatabase with ChangeNotifier {
     // notifyListeners();
   }
 
-  getStatus() => _getProductAge(partOldOrNewKey) ?? "";
+  Future saveReadOnly(String vin, {String? key}) async {
+    if (vin.isEmpty) return; //Should not be null
+
+    await writeData(key: key ?? readOnlyVinKey, data: vin);
+    // notifyListeners();
+  }
+
+  getStatus({String? key}) => _getData(key ?? partOldOrNewKey) ?? "";
 }

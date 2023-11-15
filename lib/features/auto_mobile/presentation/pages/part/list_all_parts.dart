@@ -1,16 +1,17 @@
+import 'package:automasters/features/auto_mobile/data/data_sources/local/local_databse_pem.dart';
+import 'package:flutter/material.dart';
+import 'package:automasters/core/util/size_config.dart';
+import 'package:automasters/core/constants/constants.dart';
+import 'package:automasters/config/routes/routes_constant.dart';
 import 'package:automasters/features/auto_mobile/data/models/hunter.dart';
 import 'package:automasters/features/auto_mobile/presentation/bloc/hunter/remote/hunter_bloc.dart';
 import 'package:automasters/features/auto_mobile/presentation/bloc/hunter/remote/hunter_event.dart';
 import 'package:automasters/features/auto_mobile/presentation/bloc/hunter/remote/hunter_state.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/page_navigator.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/refresh_button.dart';
-import 'package:flutter/material.dart';
 import 'package:automasters/features/auto_mobile/data/models/vehicle.dart';
-import 'package:automasters/core/constants/constants.dart';
-import 'package:automasters/config/routes/routes_constant.dart';
 import 'package:automasters/features/auto_mobile/data/models/custom_appbar.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/custom_app_bar.dart';
-import 'package:automasters/core/util/size_config.dart';
 import 'package:automasters/features/auto_mobile/data/models/parts.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/column_builder.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/custom_card.dart';
@@ -38,9 +39,9 @@ class ListAllParts extends StatelessWidget {
         headerSliverBuilder: (_, __) {
           CustomAppBarModel appBarInfo = CustomAppBarModel(
             title: "Available Parts",
-            expandedHeight: getProportionateScreenHeight(50),
+            expandedHeight: getProportionateScreenHeight(250),
             currentScreen: partRequest,
-            imageUrl: "",
+            imageUrl: kDefaultPartImage,
             // routeName: vehicleDetailsRoute,
             // arguments: {"vehicle": vehicle},
           );

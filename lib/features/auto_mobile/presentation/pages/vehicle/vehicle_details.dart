@@ -1,3 +1,4 @@
+import 'package:automasters/features/auto_mobile/data/data_sources/local/local_databse_pem.dart';
 import 'package:flutter/material.dart';
 import 'package:automasters/core/constants/constants.dart';
 import 'package:automasters/features/auto_mobile/data/models/custom_appbar.dart';
@@ -59,9 +60,9 @@ class VehicleDetails extends StatelessWidget {
     return buildCurveContainer(
       context,
       const EdgeInsets.fromLTRB(24.0, 32.0, 24.0, 0.0),
-      child: data.containsKey("parts") && data["parts"] != null
+      child: data.containsKey('parts') && data['parts'] != null
           ? FilterPartsCategory(
-              focusNode: focusNode, vehicle: vehicle, carParts: data["parts"])
+              focusNode: focusNode, vehicle: vehicle, carParts: data['parts'])
           : _partsBloc(context, vehicle),
     );
   }

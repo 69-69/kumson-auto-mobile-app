@@ -7,6 +7,8 @@ Future<dynamic> buildModal(
   Color? barColor,
 }) =>
     showModalBottomSheet(
+        // Don't let bottom sheet extend past the top of the safe area
+        useSafeArea: true,
         enableDrag: true,
         showDragHandle: true,
         isDismissible: true,

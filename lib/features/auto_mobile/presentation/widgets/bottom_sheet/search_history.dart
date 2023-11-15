@@ -35,7 +35,7 @@ class SearchHistory extends StatelessWidget {
     SizeConfig().init(context);
 
     return CustomBottomSheet(
-      initialChildSize: 0.5,
+      initialChildSize: 0.3,
       // bgColor: const Color.fromRGBO(250, 249, 249, 0.3),
       padding: const EdgeInsets.symmetric(vertical: 20),
       headerWidget: const Text(

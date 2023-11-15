@@ -79,20 +79,3 @@ class MakeModelTypeAhead<T> extends StatelessWidget {
     );
   }
 }
-
-class Result<T> {
-  final T? data;
-
-  const Result({this.data});
-
-//and here -->
-  factory Result.fromJson(Map<String, dynamic> map) =>
-      Result<T>(data: map['data']);
-
-  static List<Result> fromJsonList(List obj) {
-    debugPrint(obj.toString());
-    return obj
-        .map((dynamic i) => Result.fromJson(i as Map<String, dynamic>))
-        .toList();
-  }
-}

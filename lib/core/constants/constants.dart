@@ -63,8 +63,4 @@ const Map<String, String> customHeaders = {
 
 const Color kPrimaryColor = Color(0xFF4F5298);
 
-const vinRequest ="vinRequest";
-const partNoRequest ="partNoRequest";
-const partRequest ="partRequest";
-const crossRefRequest ="crossRefRequest";
 

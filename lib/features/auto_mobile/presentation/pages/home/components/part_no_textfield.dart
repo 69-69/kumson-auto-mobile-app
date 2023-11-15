@@ -1,7 +1,8 @@
 import 'dart:async';
 
-import 'package:automasters/features/auto_mobile/data/data_sources/local/search_history_service.dart';
 import 'package:flutter/material.dart';
+import 'package:automasters/features/auto_mobile/data/data_sources/local/product_status_service.dart';
+import 'package:automasters/features/auto_mobile/data/data_sources/local/search_history_service.dart';
 import 'package:automasters/config/routes/routes_constant.dart';
 import 'package:automasters/core/util/keyboard.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/local/local_databse_pem.dart';
@@ -98,8 +99,13 @@ class _PartNoTextFieldState extends State<PartNoTextField> {
             _navigating(context, hunters);
           });
         } else {
-          _resetState();
-          showRequestModal(context, "partNoRequest");
+
+          await ProductStatusService()
+              .saveReadOnly(searchText, key: readOnlyPartNoKey)
+              .then((_) {
+            _resetState();
+            showRequestModal(context, partNoRequest);
+          });
         }
       });
     }

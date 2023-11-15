@@ -11,6 +11,7 @@ part of 'automobile_api_service.dart';
 class _AutomobileApiService implements AutomobileApiService {
   _AutomobileApiService(
     this._dio, {
+    // ignore: unused_element
     this.baseUrl,
   }) {
     baseUrl ??= automobileAPIBaseURL;

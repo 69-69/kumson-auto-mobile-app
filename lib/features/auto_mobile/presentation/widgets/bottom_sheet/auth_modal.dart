@@ -34,23 +34,29 @@ class _AuthModalState extends State<AuthModal> {
     // You have to call it on your starting screen
     SizeConfig().init(context);
     bool isAuth = widget.authType.toLowerCase() == "log in";
-    // double sheetHeight = textEditing ? 0.30 : 0;
+    double sheetHeight = textEditing ? 0.30 : 0;
 
-    return IntrinsicHeight(
-      // height: SizeConfig.screenHeight! * (isAuth ? (0.35 + sheetHeight) : (0.47 + sheetHeight)),
+    // return IntrinsicHeight(
+    return SizedBox(
+      height: SizeConfig.screenHeight! *
+          (isAuth ? (0.35 + sheetHeight) : (0.47 + sheetHeight)),
+      // height: SizeConfig.screenHeight! * 0.50 - MediaQuery.of(context).viewInsets.bottom,
 
-      child: SingleChildScrollView(
-        primary: true,
-        scrollDirection: Axis.vertical,
-        // padding: EdgeInsets.symmetric(vertical: SizeConfig.screenHeight! / 4),
-        physics: const BouncingScrollPhysics(),
-        padding: EdgeInsets.only(
-          left: getProportionateScreenWidth(30),
-          right: getProportionateScreenWidth(30),
-          bottom: getProportionateScreenWidth(30),// MediaQuery.of(context).viewInsets.bottom,
-        ),
-        child: Form(
-          child: isAuth ? buildAuthForm(context) : buildRegForm(context),
+      child: Padding(
+        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+        child: SingleChildScrollView(
+          // primary: true,
+          // scrollDirection: Axis.vertical,
+          // padding: EdgeInsets.symmetric(vertical: SizeConfig.screenHeight! / 4),
+          physics: const ClampingScrollPhysics(),
+          padding: EdgeInsets.only(
+            left: getProportionateScreenWidth(30),
+            right: getProportionateScreenWidth(30),
+            bottom: getProportionateScreenWidth(30), // MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: Form(
+            child: isAuth ? buildAuthForm(context) : buildRegForm(context),
+          ),
         ),
       ),
     );
@@ -58,6 +64,7 @@ class _AuthModalState extends State<AuthModal> {
 
   Column buildAuthForm(BuildContext context) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         buildText(context),
         const Divider(thickness: 1),
@@ -99,10 +106,8 @@ class _AuthModalState extends State<AuthModal> {
             alignLabelWithHint: true,
             suffixIcon: IconButton(
               onPressed: showHide,
-              icon: Icon(
-                _secureText ? Icons.visibility_off : Icons.visibility,
-                color: _secureText ? Colors.grey : const Color(0xFF757575)
-              ),
+              icon: Icon(_secureText ? Icons.visibility_off : Icons.visibility,
+                  color: _secureText ? Colors.grey : const Color(0xFF757575)),
             ),
             /*border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(5),
@@ -121,27 +126,29 @@ class _AuthModalState extends State<AuthModal> {
 
   Text buildText(BuildContext context) {
     return Text(
-        widget.authType,
-        style: TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: getProportionateScreenWidth(20),
-          color: Theme.of(context).colorScheme.primary,
-        ),
-      );
+      widget.authType,
+      style: TextStyle(
+        fontWeight: FontWeight.bold,
+        fontSize: getProportionateScreenWidth(20),
+        color: Theme.of(context).colorScheme.primary,
+      ),
+    );
   }
 
   buildOutlinedButton(BuildContext context, String label,
-      {required void Function()? onPress}) => SizedBox(
-      width: SizeConfig.screenWidth,
-      child: buildOutlinedBtn(
-        context,
-        label: label,
-        onPress: onPress,
-      ),
-    );
+          {required void Function()? onPress}) =>
+      SizedBox(
+        width: SizeConfig.screenWidth,
+        child: buildOutlinedBtn(
+          context,
+          label: label,
+          onPress: onPress,
+        ),
+      );
 
   Column buildRegForm(BuildContext context) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         buildText(context),
         const Divider(thickness: 1),
@@ -204,10 +211,8 @@ class _AuthModalState extends State<AuthModal> {
             alignLabelWithHint: true,
             suffixIcon: IconButton(
               onPressed: showHide,
-              icon: Icon(
-                _secureText ? Icons.visibility_off : Icons.visibility,
-                color: _secureText ? Colors.grey : const Color(0xFF757575)
-              ),
+              icon: Icon(_secureText ? Icons.visibility_off : Icons.visibility,
+                  color: _secureText ? Colors.grey : const Color(0xFF757575)),
             ),
             /*border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(5),
@@ -233,10 +238,8 @@ class _AuthModalState extends State<AuthModal> {
             alignLabelWithHint: true,
             suffixIcon: IconButton(
               onPressed: showHide,
-              icon: Icon(
-                _secureText ? Icons.visibility_off : Icons.visibility,
-                color: _secureText ? Colors.grey : const Color(0xFF757575)
-              ),
+              icon: Icon(_secureText ? Icons.visibility_off : Icons.visibility,
+                  color: _secureText ? Colors.grey : const Color(0xFF757575)),
             ),
             /*border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(5),

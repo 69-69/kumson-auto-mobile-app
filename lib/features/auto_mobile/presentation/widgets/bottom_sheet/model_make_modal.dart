@@ -50,7 +50,6 @@ class _ModelMakeModalState extends State<ModelMakeModal> {
   int isMakeSelectedIndex = 0,
       isModelSelectedIndex = 0,
       isYearSelectedIndex = 0;
-  final FocusNode focusNode = FocusNode();
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +70,7 @@ class _ModelMakeModalState extends State<ModelMakeModal> {
             child: (!isMakeSelected && !isModelSelected && !isYearSelected)
                 ? _carMakeBloc()
                 : (isMakeSelected && getMakeRef.isNotEmpty)
-                    ? _carModelBlock(context)
+                    ? _carModelBloc(context)
                     : (isModelSelected &&
                             (getMakeName.isNotEmpty && getModelName.isNotEmpty)
                         ? _carYearsBloc(context)
@@ -129,17 +128,43 @@ class _ModelMakeModalState extends State<ModelMakeModal> {
     );
   }
 
-  Widget _buildEnginTypeNav(BuildContext context) {
-    return buildPagerTitle("Engine type", context,
-        isActive: (isYearSelected &&
-                getMakeName.isNotEmpty &&
-                getModelName.isNotEmpty)
+  GestureDetector _buildMakeNav(BuildContext context) {
+    return GestureDetector(
+      child: buildPagerTitle(
+        "Make",
+        context,
+        isActive: (!isMakeSelected && !isModelSelected && !isYearSelected)
             ? true
-            : false);
+            : false,
+      ),
+      onTap: () => setState(() {
+        isMakeSelected = false;
+        isModelSelected = false;
+        isYearSelected = false;
+      }),
+    );
   }
 
-  InkWell _buildYearNav(BuildContext context) {
-    return InkWell(
+  _buildModelNav(BuildContext context) {
+    return GestureDetector(
+      child: buildPagerTitle(
+        "Model",
+        context,
+        isActive: (isMakeSelected && getMakeRef.isNotEmpty) ? true : false,
+      ),
+      onTap: () {
+        if (isModelSelected && getMakeRef.isNotEmpty) {
+          setState(() {
+            isModelSelected = false;
+            isMakeSelected = true;
+          });
+        }
+      },
+    );
+  }
+
+  GestureDetector _buildYearNav(BuildContext context) {
+    return GestureDetector(
       child: buildPagerTitle("Year", context,
           isActive: (isModelSelected &&
                   getMakeName.isNotEmpty &&
@@ -158,33 +183,13 @@ class _ModelMakeModalState extends State<ModelMakeModal> {
     );
   }
 
-  InkWell _buildModelNav(BuildContext context) {
-    return InkWell(
-      child: buildPagerTitle("Model", context,
-          isActive: (isMakeSelected && getMakeRef.isNotEmpty) ? true : false),
-      onTap: () {
-        if (isModelSelected && getMakeRef.isNotEmpty) {
-          setState(() {
-            isModelSelected = false;
-            isMakeSelected = true;
-          });
-        }
-      },
-    );
-  }
-
-  InkWell _buildMakeNav(BuildContext context) {
-    return InkWell(
-      child: buildPagerTitle("Make", context,
-          isActive: (!isMakeSelected && !isModelSelected && !isYearSelected)
-              ? true
-              : false),
-      onTap: () => setState(() {
-        isMakeSelected = false;
-        isModelSelected = false;
-        isYearSelected = false;
-      }),
-    );
+  Widget _buildEnginTypeNav(BuildContext context) {
+    return buildPagerTitle("Engine type", context,
+        isActive: (isYearSelected &&
+                getMakeName.isNotEmpty &&
+                getModelName.isNotEmpty)
+            ? true
+            : false);
   }
 
   Widget buildPagerTitle(String label, BuildContext context,
@@ -193,6 +198,7 @@ class _ModelMakeModalState extends State<ModelMakeModal> {
         label.capitalizeEach(),
         context,
         fontSize: 16,
+        allowCopy: false,
         isUnderline: false,
         isActive: isActive,
         color: Theme.of(context).colorScheme.primary,
@@ -220,8 +226,8 @@ class _ModelMakeModalState extends State<ModelMakeModal> {
     );
   }
 
-  BlocBuilder _carModelBlock(BuildContext context) {
-    _onCarModelPressed(context);
+  BlocBuilder _carModelBloc(BuildContext context) {
+    _getCarModels(context);
 
     return BlocBuilder<ModelsByMakeRefBloc, ModelsState>(
       builder: (context, state) {
@@ -242,14 +248,12 @@ class _ModelMakeModalState extends State<ModelMakeModal> {
     );
   }
 
-  void _onCarModelPressed(BuildContext context) {
+  void _getCarModels(BuildContext context) {
     context.read<ModelsByMakeRefBloc>().add(GetModelsBy(getMakeRef));
   }
 
   BlocBuilder _carYearsBloc(BuildContext context) {
-    context
-        .read<PartsYearsByMakeModelBloc>()
-        .add(GetByMakeModel(getMakeName, getModelName));
+    _getCarYears(context);
 
     return BlocBuilder<PartsYearsByMakeModelBloc, PartsState>(
       builder: (context, state) {
@@ -268,6 +272,12 @@ class _ModelMakeModalState extends State<ModelMakeModal> {
         return const SizedBox();
       },
     );
+  }
+
+  void _getCarYears(BuildContext context) {
+    context
+        .read<PartsYearsByMakeModelBloc>()
+        .add(GetByMakeModel(getMakeName, getModelName));
   }
 
   BlocBuilder _engineTypeBloc(BuildContext context) {
@@ -289,7 +299,7 @@ class _ModelMakeModalState extends State<ModelMakeModal> {
           return listEngineTypeCard(state);
         }
 
-        return const SizedBox();
+        return _notFound();
       },
     );
   }
@@ -339,8 +349,9 @@ class _ModelMakeModalState extends State<ModelMakeModal> {
     );
   }
 
-  buildListCard(String value, bool isClicked, {void Function()? onTap}) {
-    return InkWell(
+  GestureDetector _buildListCard(String value, bool isClicked,
+      {void Function()? onTap}) {
+    return GestureDetector(
       onTap: onTap,
       child: customCard(
         color: isClicked
@@ -376,7 +387,7 @@ class _ModelMakeModalState extends State<ModelMakeModal> {
         itemBuilder: (_, index, value) {
           MakeModel make = result[index];
 
-          return buildListCard(
+          return _buildListCard(
             value.capitalizeEach(),
             isMakeSelectedIndex == make.id!,
             onTap: () {
@@ -400,7 +411,7 @@ class _ModelMakeModalState extends State<ModelMakeModal> {
         itemBuilder: (_, index, value) {
           Model model = result[index];
 
-          return buildListCard(
+          return _buildListCard(
             value.capitalizeEach(),
             isModelSelectedIndex == model.id!,
             onTap: () {
@@ -422,7 +433,7 @@ class _ModelMakeModalState extends State<ModelMakeModal> {
     return buildAlphabeticalScrollView(
         list: result.map((e) => AlphaModel(e.toString())).toList(),
         itemBuilder: (_, index, value) {
-          return buildListCard(
+          return _buildListCard(
             value,
             isYearSelectedIndex == index,
             onTap: () {
@@ -453,7 +464,7 @@ class _ModelMakeModalState extends State<ModelMakeModal> {
 
           return part.engineType != "0"
               ? _getVehicleEnginesBloc(result, value, part)
-              : _notFound();
+              : const SizedBox.shrink();
         });
   }
 
@@ -463,6 +474,8 @@ class _ModelMakeModalState extends State<ModelMakeModal> {
     PartModel part,
   ) {
     return BlocListener<VehicleByVinBloc, VehiclesState>(
+      // If listenWhen returns true, listener will be called with new state
+      // listenWhen: (previousState, currentState) => currentState != previousState,
       listener: (_, state) {
         if (state is VehiclesError) {
           Text(state.error!.message!);
@@ -477,17 +490,17 @@ class _ModelMakeModalState extends State<ModelMakeModal> {
               routeName: vehicleDetailsRoute, arguments: data);
         }
       },
-      child: buildListCard(
+      child: _buildListCard(
         value,
         false,
         onTap: () {
-          _onPressedGetVehicle(part);
+          _onPressedGetEngines(part);
         },
       ),
     );
   }
 
-  void _onPressedGetVehicle(PartModel part) {
+  void _onPressedGetEngines(PartModel part) {
     context.read<VehicleByVinBloc>().add(GetVehicleByVin(part.vin!));
   }
 

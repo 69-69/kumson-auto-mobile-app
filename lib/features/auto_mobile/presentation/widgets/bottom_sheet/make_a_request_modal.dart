@@ -1,13 +1,14 @@
-import 'package:automasters/core/constants/constants.dart';
+import 'package:flutter/material.dart';
+import 'package:automasters/core/util/keyboard.dart';
+import 'package:automasters/features/auto_mobile/data/data_sources/local/local_databse_pem.dart';
 import 'package:automasters/features/auto_mobile/presentation/pages/by_cross_ref/cross_ref_request_form.dart';
 import 'package:automasters/features/auto_mobile/presentation/pages/home/components/part_no_request_form.dart';
 import 'package:automasters/features/auto_mobile/presentation/pages/home/components/vin_request_form.dart';
 import 'package:automasters/features/auto_mobile/presentation/pages/part/part_request_form.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/or_separator.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/outline_btn.dart';
-import 'package:flutter/material.dart';
 import 'package:automasters/core/util/size_config.dart';
-import 'package:automasters/features/auto_mobile/presentation/pages/home/components/make_model_request_form.dart';
+import 'package:automasters/features/auto_mobile/presentation/pages/home/components/manual_request_form.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/build_modal.dart';
 
 /// Show Modal-dialog by user's click [showMakeRequestButton]
@@ -46,12 +47,17 @@ class _MakeARequestModalState extends State<MakeARequestModal> {
   Widget build(BuildContext context) {
     // You have to call it on your starting screen
     SizeConfig().init(context);
+    KeyboardUtil.hide(context);
 
-    return IntrinsicHeight(
-      // height: SizeConfig.screenHeight! * 0.7,
+    final height = isClick || widget.reqType == "manualRequest";
+
+    // return IntrinsicHeight(
+    return SizedBox(
+      height: SizeConfig.screenHeight! * (height ? 0.7 : 0.17),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          if (isClick) ...{
+          if (height) ...{
             _buildTitle(context),
             const Divider(thickness: 1),
           },
@@ -63,16 +69,20 @@ class _MakeARequestModalState extends State<MakeARequestModal> {
 
   Expanded _buildBody(BuildContext context) {
     return Expanded(
-      child: SingleChildScrollView(
-        primary: true,
-        scrollDirection: Axis.vertical,
-        physics: const BouncingScrollPhysics(),
-        padding: EdgeInsets.symmetric(
-          horizontal: getProportionateScreenWidth(20),
+      child: Padding(
+        padding:
+            EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+        child: SingleChildScrollView(
+          primary: true,
+          scrollDirection: Axis.vertical,
+          physics: const BouncingScrollPhysics(),
+          padding: EdgeInsets.symmetric(
+            horizontal: getProportionateScreenWidth(20),
+          ),
+          child: isClick || widget.reqType == "manualRequest"
+              ? buildMakeRequestForm(widget.reqType)
+              : _notFoundOrMakeRequest(context),
         ),
-        child: isClick || widget.reqType == "manualRequest"
-            ? buildMakeRequestForm(widget.reqType)
-            : _searchNotFoundOrRequest(context),
       ),
     );
   }
@@ -104,11 +114,11 @@ class _MakeARequestModalState extends State<MakeARequestModal> {
         return const CrossRefRequestForm();
       default:
         // If make/model/year/enginType fails
-        return const MakeModelRequestForm();
+        return const ManualRequestForm();
     }
   }
 
-  _searchNotFoundOrRequest(BuildContext context) {
+  _notFoundOrMakeRequest(BuildContext context) {
     final color = Theme.of(context).colorScheme.primary;
 
     return Padding(

@@ -54,6 +54,6 @@ class MakeModel extends MakeEntity {
 
   @override
   String toString() {
-    return make!; //.replaceFirst(make![0], make![0].toUpperCase());
+    return make!.replaceFirst(make![0], make![0].toUpperCase());
   }
 }

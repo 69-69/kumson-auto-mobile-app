@@ -70,7 +70,7 @@ class CustomBottomSheet extends StatelessWidget {
             DraggableScrollableSheet(
               initialChildSize: initialCSize,
               minChildSize: 0.2,
-              maxChildSize: maxCSize,
+              maxChildSize: maxCSize - MediaQuery.of(context).viewInsets.bottom,
               builder: (_, controller) => buildContainer(controller),
             ),
       );

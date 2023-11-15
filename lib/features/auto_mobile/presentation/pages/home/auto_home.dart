@@ -3,6 +3,8 @@ import 'package:automasters/features/auto_mobile/data/data_sources/local/local_d
 import 'package:automasters/features/auto_mobile/presentation/widgets/animation_switcher.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/build_modal.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/outline_btn.dart';
+import 'package:automasters/features/auto_mobile/presentation/widgets/question_button.dart';
+import 'package:automasters/features/auto_mobile/presentation/widgets/text_overflow.dart';
 import 'package:flutter/material.dart';
 import 'package:automasters/core/constants/constants.dart';
 import 'package:automasters/features/auto_mobile/presentation/pages/home/components/collapse_panel.dart';
@@ -14,7 +16,6 @@ import 'package:automasters/features/auto_mobile/data/data_sources/local/product
 import 'package:automasters/features/auto_mobile/data/models/animation_item.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/bottom_sheet/search_history.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/bottom_sheet/show_confirmation_dialog.dart';
-import 'package:automasters/features/auto_mobile/presentation/widgets/widgetery.dart';
 
 class AutoHome extends StatefulWidget {
   const AutoHome({super.key});
@@ -89,7 +90,10 @@ class _AutoHomeState extends State<AutoHome>
         AppLocalDatabase().readData(key: accessTokenKey, defaultValue: "");
     if (token.isEmpty) {
       // print("form $token");
-      AppLocalDatabase().writeData(key: accessTokenKey, data: "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJkZXZtYWlsMDI2QGdtYWlsLmNvbSIsImlhdCI6MTY5OTY0MjU1MSwiZXhwIjoxNzMxMTc4NTUxfQ.3qYTmRe_fXy6Ef3DfOIuv2cl-T4LGw8OIPEEr5ses6o");
+      AppLocalDatabase().writeData(
+          key: accessTokenKey,
+          data:
+              "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJkZXZtYWlsMDI2QGdtYWlsLmNvbSIsImlhdCI6MTY5OTY0MjU1MSwiZXhwIjoxNzMxMTc4NTUxfQ.3qYTmRe_fXy6Ef3DfOIuv2cl-T4LGw8OIPEEr5ses6o");
     }
     // 19unc1b14hy000003 - 12434452011
     // context.read<VehicleByVicBloc>().add(const GetModelsBy("12434452011"));
@@ -201,14 +205,13 @@ class _AutoHomeState extends State<AutoHome>
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         _buildOptionalBtn(customTheme, onPress: () => displayDialog()),
-        SizedBox(
-          width: SizeConfig.screenWidth! * 0.7,
-          child: Text(
-            "Search Car Parts by:",
-            textAlign: TextAlign.center,
-            overflow: TextOverflow.ellipsis,
-            style: customTheme.textTheme.bodyLarge!
-                .copyWith(fontWeight: FontWeight.bold, color: Colors.white),
+        textOverflow(
+          width: 0.7,
+          textAlign: TextAlign.center,
+          text: "Search Car Parts by:",
+          textStyle: customTheme.textTheme.bodyLarge!.copyWith(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
           ),
         ),
         _buildOptionalBtn(customTheme,
@@ -219,7 +222,7 @@ class _AutoHomeState extends State<AutoHome>
 
   _buildOptionalBtn(ThemeData customTheme,
           {IconData? icon, void Function()? onPress}) =>
-      buildOptionalButton(context,
+      buildQuestionButton(context,
           icon: icon,
           bgColor: Colors.white.withOpacity(0.6),
           color: customTheme.colorScheme.primary,

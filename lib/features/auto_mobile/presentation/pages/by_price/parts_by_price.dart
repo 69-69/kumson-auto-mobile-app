@@ -1,4 +1,6 @@
+import 'package:automasters/features/auto_mobile/data/data_sources/local/local_databse_pem.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/bottom_sheet/make_a_request_modal.dart';
+import 'package:automasters/features/auto_mobile/presentation/widgets/question_button.dart';
 import 'package:flutter/material.dart';
 import 'package:automasters/core/util/size_config.dart';
 import 'package:automasters/core/constants/constants.dart';
@@ -125,7 +127,7 @@ class _PartsByPriceState extends State<PartsByPrice> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               customLine(part.toUpperCase(), context),
-              buildOptionalButton(
+              buildQuestionButton(
                 context,
                 onPress: () => displayDialog(context),
               ),

@@ -24,7 +24,7 @@ class PartDetailsCheckout extends StatelessWidget {
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      backgroundColor: Theme.of(context).colorScheme.primary,
+      // backgroundColor: Theme.of(context).colorScheme.primary,
       body: NestedScrollView(
         physics: const BouncingScrollPhysics(),
         headerSliverBuilder: (_, __) {
