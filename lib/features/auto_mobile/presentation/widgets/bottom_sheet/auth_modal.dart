@@ -34,14 +34,12 @@ class _AuthModalState extends State<AuthModal> {
     // You have to call it on your starting screen
     SizeConfig().init(context);
     bool isAuth = widget.authType.toLowerCase() == "log in";
-    double sheetHeight = textEditing ? 0.30 : 0;
+    // double sheetHeight = textEditing ? 0.30 : 0;
 
-    // return IntrinsicHeight(
-    return SizedBox(
+    return IntrinsicHeight(
+    /*return SizedBox(
       height: SizeConfig.screenHeight! *
-          (isAuth ? (0.35 + sheetHeight) : (0.47 + sheetHeight)),
-      // height: SizeConfig.screenHeight! * 0.50 - MediaQuery.of(context).viewInsets.bottom,
-
+          (isAuth ? (0.35 + sheetHeight) : (0.47 + sheetHeight)),*/
       child: Padding(
         padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
         child: SingleChildScrollView(

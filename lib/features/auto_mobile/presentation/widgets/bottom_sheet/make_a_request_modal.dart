@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:automasters/core/util/keyboard.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/local/local_databse_pem.dart';
 import 'package:automasters/features/auto_mobile/presentation/pages/by_cross_ref/cross_ref_request_form.dart';
 import 'package:automasters/features/auto_mobile/presentation/pages/home/components/part_no_request_form.dart';
@@ -47,13 +46,13 @@ class _MakeARequestModalState extends State<MakeARequestModal> {
   Widget build(BuildContext context) {
     // You have to call it on your starting screen
     SizeConfig().init(context);
-    KeyboardUtil.hide(context);
+    // KeyboardUtil.hide(context);
 
     final height = isClick || widget.reqType == "manualRequest";
 
-    // return IntrinsicHeight(
-    return SizedBox(
-      height: SizeConfig.screenHeight! * (height ? 0.7 : 0.17),
+    return IntrinsicHeight(
+    /*return SizedBox(
+      height: SizeConfig.screenHeight! * (height ? 0.7 : 0.17),*/
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
