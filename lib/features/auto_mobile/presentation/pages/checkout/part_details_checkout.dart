@@ -29,10 +29,11 @@ class PartDetailsCheckout extends StatelessWidget {
         physics: const BouncingScrollPhysics(),
         headerSliverBuilder: (_, __) {
           CustomAppBarModel appBarInfo = CustomAppBarModel(
-            imageUrl: kDefaultPartImage,
             title: huntPart.product!,
             subTitle: "${vehicle.year} ${vehicle.make} ${vehicle.model}",
             subMiniTitle: "SKU: ${huntPart.sku}",
+            imageUrl: kDefaultPartImage,
+            videoUrl: 'https://youtu.be/EgF01aSQyno?si=HBUGAORJ-DPVH0CY',
             expandedHeight: getProportionateScreenHeight(250),
           );
 

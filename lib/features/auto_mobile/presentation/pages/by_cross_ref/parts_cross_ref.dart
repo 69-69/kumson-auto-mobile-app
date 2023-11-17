@@ -1,14 +1,13 @@
+import 'package:flutter/material.dart';
 import 'package:automasters/config/routes/routes_constant.dart';
 import 'package:automasters/core/constants/constants.dart';
 import 'package:automasters/core/util/size_config.dart';
-import 'package:automasters/features/auto_mobile/data/data_sources/local/local_databse_pem.dart';
+import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_pem.dart';
 import 'package:automasters/features/auto_mobile/data/models/custom_appbar.dart';
 import 'package:automasters/features/auto_mobile/data/models/hunter.dart';
 import 'package:automasters/features/auto_mobile/data/models/parts.dart';
 import 'package:automasters/features/auto_mobile/data/models/vehicle.dart';
-import 'package:automasters/features/auto_mobile/presentation/bloc/hunter/remote/hunter_bloc.dart';
-import 'package:automasters/features/auto_mobile/presentation/bloc/hunter/remote/hunter_event.dart';
-import 'package:automasters/features/auto_mobile/presentation/bloc/hunter/remote/hunter_state.dart';
+import 'package:automasters/features/auto_mobile/presentation/bloc/hunter/remote/hunter_e.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/async_progress_dialog.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/column_builder.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/custom_app_bar.dart';
@@ -18,7 +17,6 @@ import 'package:automasters/features/auto_mobile/presentation/widgets/bottom_she
 import 'package:automasters/features/auto_mobile/presentation/widgets/page_navigator.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/refresh_button.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/widgetery.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:string_capitalize/string_capitalize.dart';
 
@@ -46,9 +44,10 @@ class PartsCrossRef extends StatelessWidget {
         headerSliverBuilder: (_, __) {
           CustomAppBarModel appBarInfo = CustomAppBarModel(
             imageUrl: kDefaultPartImage,
+            videoUrl: 'https://youtu.be/EgF01aSQyno?si=HBUGAORJ-DPVH0CY',
             title: "${vehicle.year} ${vehicle.make} ${vehicle.model}",
             subTitle: "${cPart.part!} for",
-            subMiniTitle: "Available ${cPart.part}".capitalizeEach(),
+            subMiniTitle: "${cPart.part}s".capitalizeEach(),
             expandedHeight: getProportionateScreenHeight(250),
             currentScreen: crossRefRequest,
           );

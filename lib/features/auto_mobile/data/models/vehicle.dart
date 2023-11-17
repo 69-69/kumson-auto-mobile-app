@@ -30,7 +30,7 @@ class VehicleModel extends VehicleEntity {
   }) : super(
           id: id,
           vin: vin,
-    vehicleCode: vehicleCode,
+          vehicleCode: vehicleCode,
           vfam: vfam,
           model: model,
           make: make,
@@ -53,6 +53,30 @@ class VehicleModel extends VehicleEntity {
           // required doors,
           // required source,
         );
+
+  VehicleModel copyWith({
+    int? id,
+    String? vin,
+    String? vehicleCode,
+    String? vfam,
+    String? model,
+    String? make,
+    String? fuelType,
+    String? year,
+    String? category,
+  }) {
+    return VehicleModel(
+      id: id ?? this.id,
+      vin: vin ?? this.vin,
+      vehicleCode: vehicleCode ?? this.vehicleCode,
+      vfam: vfam ?? this.vfam,
+      model: model ?? this.model,
+      make: make ?? this.make,
+      fuelType: fuelType ?? this.fuelType,
+      year: year ?? this.vfam,
+      category: category ?? this.category,
+    );
+  }
 
   factory VehicleModel.fromJson(Map<String, dynamic> map) {
     return VehicleModel(

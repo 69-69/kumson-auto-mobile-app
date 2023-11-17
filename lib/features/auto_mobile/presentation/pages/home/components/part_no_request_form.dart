@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:automasters/features/auto_mobile/data/data_sources/local/local_databse_pem.dart';
-import 'package:automasters/features/auto_mobile/data/data_sources/local/product_status_service.dart';
-import 'package:automasters/features/auto_mobile/presentation/widgets/custom_dropdown.dart';
-import 'package:automasters/features/auto_mobile/presentation/widgets/make_model_dropdown.dart';
 import 'package:automasters/core/util/size_config.dart';
+import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_pem.dart';
+import 'package:automasters/features/auto_mobile/data/data_sources/local/product_status_service.dart';
+import 'package:automasters/features/auto_mobile/presentation/widgets/make_model_dropdown.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/outline_btn.dart';
 
 class PartNoRequestForm extends StatefulWidget {
@@ -99,6 +98,81 @@ class _PartNoRequestFormState extends State<PartNoRequestForm> {
     );
   }
 
+  IconButton _swapFieldsButton() => IconButton(
+        icon: const Icon(Icons.swap_horiz),
+        onPressed: () => setState(() => makeRef = ""),
+      );
+
+  _buildMakeFormField() {
+    return makeRef.toLowerCase() != "others"
+        ? buildMakesDropdown(
+            controller: makeController,
+            onChanged: (v) {
+              var ref = (v.runtimeType == String) ? v : v.makeRef;
+              setState(() => makeRef = ref);
+
+              debugPrint("make-1 $ref");
+            },
+          )
+        : _otherMakeFormField(context);
+  }
+
+  _buildModelFormField() {
+    return makeRef.toLowerCase() != "others"
+        ? buildModelsDropdown(
+            makeRef,
+            controller: modelController,
+            onChanged: (v) {
+              debugPrint("model-1 $v");
+            },
+          )
+        : _otherModelFormField(context);
+  }
+
+  TextFormField _otherMakeFormField(BuildContext context) {
+    return TextFormField(
+      keyboardType: TextInputType.text,
+      // onFieldSubmitted: bloc.onChangeEmail,
+      // onChanged: bloc.onChangeEmail,
+      decoration: InputDecoration(
+        filled: true,
+        hintText: "Others: Specify",
+        labelText: "Car Make",
+        // errorText: snapshot.hasError ? snapshot.error.toString() : "",
+        fillColor: Theme.of(context).colorScheme.primary.withOpacity(0.04),
+        contentPadding:
+            const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
+        suffixIcon: _swapFieldsButton(),
+        alignLabelWithHint: true,
+        /*border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(5),
+          ),*/
+      ),
+    );
+  }
+
+  TextFormField _otherModelFormField(BuildContext context) {
+    return TextFormField(
+      keyboardType: TextInputType.text,
+      // onFieldSubmitted: bloc.onChangeEmail,
+      // onChanged: bloc.onChangeEmail,
+      decoration: InputDecoration(
+        filled: true,
+        hintText: "Others: Specify",
+        labelText: "Car Model",
+        // errorText: snapshot.hasError ? snapshot.error.toString() : "",
+        fillColor: Theme.of(context).colorScheme.primary.withOpacity(0.04),
+        contentPadding:
+            const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
+        suffixIcon: _swapFieldsButton(),
+        alignLabelWithHint: true,
+        /*border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(5),
+          ),*/
+      ),
+    );
+  }
+
   TextFormField partNoField(BuildContext context) {
     return TextFormField(
       keyboardType: TextInputType.text,
@@ -111,34 +185,13 @@ class _PartNoRequestFormState extends State<PartNoRequestForm> {
         // errorText: snapshot.hasError ? snapshot.error.toString() : "",
         fillColor: Theme.of(context).colorScheme.primary.withOpacity(0.04),
         contentPadding:
-            const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
+        const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
 
         alignLabelWithHint: true,
         /*border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(5),
         ),*/
       ),
-    );
-  }
-
-  CustomDropdown _buildMakeFormField() {
-    return buildMakesDropdown(
-      controller: makeController,
-      onChanged: (v) {
-        setState(() => makeRef = v.makeRef);
-
-        debugPrint("make-1 ${v.makeRef}");
-      },
-    );
-  }
-
-  CustomDropdown _buildModelFormField() {
-    return buildModelsDropdown(
-      makeRef,
-      controller: modelController,
-      onChanged: (v) {
-        debugPrint("model-1 $v");
-      },
     );
   }
 

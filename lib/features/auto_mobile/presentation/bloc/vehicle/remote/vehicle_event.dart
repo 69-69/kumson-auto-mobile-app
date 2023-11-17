@@ -2,18 +2,18 @@ abstract class VehiclesEvent {
   const VehiclesEvent();
 }
 
-class GetVehicles extends VehiclesEvent {
-  const GetVehicles();
+class GetVehiclesEvent extends VehiclesEvent {
+  const GetVehiclesEvent();
 }
 
-class GetVehicleByVin extends VehiclesEvent {
+class GetVehicleByVinEvent extends VehiclesEvent {
   final String vin;
 
-  const GetVehicleByVin(this.vin);
+  const GetVehicleByVinEvent(this.vin);
 }
 
-class GetVehicleByVic extends VehiclesEvent {
+class GetVehicleByVicEvent extends VehiclesEvent {
   final String vehicleCode;
 
-  const GetVehicleByVic(this.vehicleCode);
+  const GetVehicleByVicEvent(this.vehicleCode);
 }

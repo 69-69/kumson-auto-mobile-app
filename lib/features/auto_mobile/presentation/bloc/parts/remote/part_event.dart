@@ -2,26 +2,26 @@ abstract class PartsEvent {
   const PartsEvent();
 }
 
-class GetParts extends PartsEvent {
-  const GetParts();
+class GetPartsEvent extends PartsEvent {
+  const GetPartsEvent();
 }
 
-class GetPartsByVFam extends PartsEvent {
+class GetPartsByVFamEvent extends PartsEvent {
   final String vfam;
 
-  const GetPartsByVFam(this.vfam);
+  const GetPartsByVFamEvent(this.vfam);
 }
 
-class GetPartByHunterNo extends PartsEvent {
+class GetPartByHunterNoEvent extends PartsEvent {
   final String hunterNo;
 
-  const GetPartByHunterNo(this.hunterNo);
+  const GetPartByHunterNoEvent(this.hunterNo);
 }
 
 // Get{Parts or PartsYears} ByMakeModel
-class GetByMakeModel extends PartsEvent {
+class GetByMakeModelEvent extends PartsEvent {
   final String make;
   final String model;
 
-  const GetByMakeModel(this.make, this.model);
+  const GetByMakeModelEvent(this.make, this.model);
 }

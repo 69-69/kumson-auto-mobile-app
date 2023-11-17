@@ -5,7 +5,7 @@ import 'package:automasters/features/auto_mobile/data/models/vehicle.dart';
 import 'package:automasters/features/auto_mobile/presentation/pages/home/components/_outline_btn_for_search.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/async_progress_dialog.dart';
 import 'package:automasters/config/routes/routes_constant.dart';
-import 'package:automasters/features/auto_mobile/data/data_sources/local/local_databse_pem.dart';
+import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_pem.dart';
 import 'package:automasters/features/auto_mobile/data/repositories/home_repository_impl.dart';
 import 'package:automasters/core/util/keyboard.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/bottom_sheet/make_a_request_modal.dart';
@@ -23,6 +23,7 @@ class _VinTextFieldState extends State<VinTextField> {
   String searchText = "";
   Map<String, dynamic>? oldState;
   final FocusNode focusNode = FocusNode();
+  MaterialStatesController? buttonController;
   TextEditingController txtControl = TextEditingController();
 
   @override
@@ -47,6 +48,10 @@ class _VinTextFieldState extends State<VinTextField> {
           });
           // debugPrint("searchText:: $value");
         }
+      },
+      onEditingComplete: () {
+        // FocusScope.of(context).requestFocus(FocusNode());
+        buttonController?.update(MaterialState.pressed, false);
       },
       decoration: inputDecoration(context),
       keyboardType: TextInputType.text,
@@ -80,6 +85,7 @@ class _VinTextFieldState extends State<VinTextField> {
     return outlinedBtnForSearch(
       btnContext,
       isSearching: isSearching,
+      buttonController: buttonController,
       onPress: () async {
         if (searchText.isNotEmpty && searchText.length > 7) {
           setState(() => isSearching = true);

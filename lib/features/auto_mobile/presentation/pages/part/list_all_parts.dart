@@ -1,12 +1,10 @@
-import 'package:automasters/features/auto_mobile/data/data_sources/local/local_databse_pem.dart';
 import 'package:flutter/material.dart';
 import 'package:automasters/core/util/size_config.dart';
 import 'package:automasters/core/constants/constants.dart';
+import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_pem.dart';
 import 'package:automasters/config/routes/routes_constant.dart';
 import 'package:automasters/features/auto_mobile/data/models/hunter.dart';
-import 'package:automasters/features/auto_mobile/presentation/bloc/hunter/remote/hunter_bloc.dart';
-import 'package:automasters/features/auto_mobile/presentation/bloc/hunter/remote/hunter_event.dart';
-import 'package:automasters/features/auto_mobile/presentation/bloc/hunter/remote/hunter_state.dart';
+import 'package:automasters/features/auto_mobile/presentation/bloc/hunter/remote/hunter_e.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/page_navigator.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/refresh_button.dart';
 import 'package:automasters/features/auto_mobile/data/models/vehicle.dart';
@@ -38,12 +36,11 @@ class ListAllParts extends StatelessWidget {
         physics: const BouncingScrollPhysics(),
         headerSliverBuilder: (_, __) {
           CustomAppBarModel appBarInfo = CustomAppBarModel(
-            title: "Available Parts",
             expandedHeight: getProportionateScreenHeight(250),
+            title: "Available Parts",
             currentScreen: partRequest,
             imageUrl: kDefaultPartImage,
-            // routeName: vehicleDetailsRoute,
-            // arguments: {"vehicle": vehicle},
+            videoUrl: 'https://youtu.be/EgF01aSQyno?si=HBUGAORJ-DPVH0CY',
           );
 
           return [CustomSliverAppBar(data: appBarInfo)];

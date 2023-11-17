@@ -1,3 +1,5 @@
+import 'package:automasters/features/auto_mobile/presentation/widgets/appbar_video_player.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/bottom_sheet/make_a_request_modal.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/question_button.dart';
@@ -23,9 +25,12 @@ class _CustomSliverAppBarState extends State<CustomSliverAppBar>
   late AnimationController animationController;
   List<AnimationItem> animationItems = [];
   late Animation animation;
+  bool switchToBgImage = false;
 
   @override
   void initState() {
+    super.initState();
+
     createAnimation();
 
     super.initState();
@@ -82,20 +87,21 @@ class _CustomSliverAppBarState extends State<CustomSliverAppBar>
             ),
             buildQuestionButton(
               context,
-              bgColor: Colors.transparent,
               color: Colors.white,
+              bgColor: Colors.transparent,
               onPress: () => showRequestModal(context, model.currentScreen),
             ),
           ],
         ),
         FlexibleSpaceBar(
           centerTitle: true,
-          background:
-              model.imageUrl.isNotEmpty ? _buildImage(model.imageUrl) : null,
+          background: model.imageUrl.isNotEmpty && !switchToBgImage
+              ? AppBarVideoPlayer(videoUrl: model.videoUrl)
+              : _buildImage(model.imageUrl),
           title: _buildTitle(model.title, model.subTitle),
           collapseMode: CollapseMode.pin,
         ),
-        preferredSize: _buildSubMiniTitle(model.subMiniTitle),
+        preferredSize: _buildSubMiniTitle(model.subMiniTitle, context),
       );
 
   SliverAppBar buildSliverAppBars(
@@ -138,7 +144,8 @@ class _CustomSliverAppBarState extends State<CustomSliverAppBar>
 
   _buildTitle(String title, String subTitle) => title.isNotEmpty
       ? Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 3.0),
+          padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 3.0),
+          margin: const EdgeInsets.only(bottom: 12.0),
           decoration: const BoxDecoration(
             color: Color.fromRGBO(0, 0, 0, 0.3),
             borderRadius: BorderRadius.only(
@@ -155,46 +162,66 @@ class _CustomSliverAppBarState extends State<CustomSliverAppBar>
         )
       : const SizedBox.shrink();
 
-  PreferredSize _buildSubMiniTitle(String text) {
-    return PreferredSize(
-      preferredSize: const Size.fromHeight(0.0),
-      child: Transform.translate(
-        offset: const Offset(0, 50),
-        child: Padding(
-          padding: const EdgeInsets.only(bottom: 10.0),
-          child: Text(text.toUpperCase()),
-        ),
-      ),
-    );
-  }
-
   _buildRichText(String title, String subTitle) {
     final title0 = subTitle.isEmpty ? title : "$title\n";
 
     return SelectableText.rich(
       textAlign: TextAlign.center,
       TextSpan(
+        text: title0.capitalizeEach(),
+        style: const TextStyle(
+          fontWeight: FontWeight.w600,
+          fontSize: 13.0,
+          color: Color(0xFFFFFFFF),
+          overflow: TextOverflow.ellipsis,
+        ),
         children: [
-          TextSpan(
-            text: title0.capitalizeEach(),
-            style: const TextStyle(
-              fontWeight: FontWeight.w600,
-              fontSize: 15.0,
-              color: Color(0xFFFFFFFF),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
           TextSpan(
             text: subTitle.capitalizeEach(),
             style: const TextStyle(
-              height: 1.7,
-              fontSize: 13.0,
+              height: 1,
+              fontSize: 12.0,
               color: Colors.white70,
               overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
       ),
+    );
+  }
+
+  PreferredSize _buildSubMiniTitle(String text, BuildContext context) {
+    final color = Theme.of(context).colorScheme.primary;
+
+    return PreferredSize(
+      preferredSize: const Size.fromHeight(0.0),
+      child: Transform.translate(
+        offset: const Offset(0, 20),
+        child: _floatingActionButton(color, text),
+      ),
+    );
+  }
+
+  FloatingActionButton _floatingActionButton(Color color, String text) {
+    return FloatingActionButton.extended(
+      extendedPadding: const EdgeInsets.symmetric(horizontal: 5),
+      backgroundColor: color.withOpacity(0.6),
+      extendedIconLabelSpacing: 3.0,
+      icon: Icon(
+        switchToBgImage
+            ? CupertinoIcons.video_camera_solid
+            : CupertinoIcons.camera,
+        color: Colors.white,
+      ),
+      label: Text(
+        text.toUpperCase(),
+        style: const TextStyle(
+          fontSize: 12,
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      onPressed: () => setState(() => switchToBgImage = !switchToBgImage),
     );
   }
 }

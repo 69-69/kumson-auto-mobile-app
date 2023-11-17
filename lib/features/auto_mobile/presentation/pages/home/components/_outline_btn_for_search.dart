@@ -5,9 +5,11 @@ OutlinedButton outlinedBtnForSearch(
   BuildContext context, {
   bool isSearching = false,
   required void Function()? onPress,
+      MaterialStatesController? buttonController,
 }) {
   return OutlinedButton(
     onPressed: onPress,
+    statesController: buttonController,
     style: OutlinedButton.styleFrom(
       padding: EdgeInsets.zero,
       side: const BorderSide(width: 1.0, color: Colors.transparent),

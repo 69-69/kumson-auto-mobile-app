@@ -12,10 +12,10 @@ class PartsBloc extends Bloc<PartsEvent, PartsState> {
   final GetPartsUseCase _getPartsUseCase;
 
   PartsBloc(this._getPartsUseCase) : super(const PartsLoading()) {
-    on<GetParts>(onGetParts);
+    on<GetPartsEvent>(onGetParts);
   }
 
-  void onGetParts(GetParts event, Emitter<PartsState> emit) async {
+  void onGetParts(GetPartsEvent event, Emitter<PartsState> emit) async {
     final dataState = await _getPartsUseCase();
 
     if (dataState is DataSuccess && dataState.data!.isNotEmpty) {
@@ -36,14 +36,14 @@ class PartByHunterNoBloc extends Bloc<PartsEvent, PartsState> {
 
   PartByHunterNoBloc(this._getPartByHunterNoUseCase)
       : super(const PartsLoading()) {
-    on<GetPartByHunterNo>(
+    on<GetPartByHunterNoEvent>(
       onGetPartByHunterNo,
       transformer: debounce(),
     );
   }
 
   void onGetPartByHunterNo(
-      GetPartByHunterNo event, Emitter<PartsState> emit) async {
+      GetPartByHunterNoEvent event, Emitter<PartsState> emit) async {
     final dataState =
         await _getPartByHunterNoUseCase.call(params: event.hunterNo);
 
@@ -65,13 +65,13 @@ class PartsByVFamBloc extends Bloc<PartsEvent, PartsState> {
   final GetPartsByVFamUseCase _getPartsByVFamUseCase;
 
   PartsByVFamBloc(this._getPartsByVFamUseCase) : super(const PartsLoading()) {
-    on<GetPartsByVFam>(
+    on<GetPartsByVFamEvent>(
       onGetPartsByVFam,
       transformer: debounce(),
     );
   }
 
-  void onGetPartsByVFam(GetPartsByVFam event, Emitter<PartsState> emit) async {
+  void onGetPartsByVFam(GetPartsByVFamEvent event, Emitter<PartsState> emit) async {
     final dataState = await _getPartsByVFamUseCase.call(params: event.vfam);
 
     if (dataState is DataSuccess && dataState.data!.isNotEmpty) {
@@ -92,13 +92,13 @@ class PartsByMakeModelBloc extends Bloc<PartsEvent, PartsState> {
 
   PartsByMakeModelBloc(this._getPartsByMakeModelUseCase)
       : super(const PartsLoading()) {
-    on<GetByMakeModel>(
+    on<GetByMakeModelEvent>(
       onGetPartsByMakeModel,
       transformer: debounce(),
     );
   }
 
-  void onGetPartsByMakeModel(GetByMakeModel event, Emitter<PartsState> emit) async {
+  void onGetPartsByMakeModel(GetByMakeModelEvent event, Emitter<PartsState> emit) async {
     PartEntity params = PartEntity(make: event.make, model: event.model);
     final dataState = await _getPartsByMakeModelUseCase.call(params: params);
 
@@ -120,13 +120,13 @@ class PartsYearsByMakeModelBloc extends Bloc<PartsEvent, PartsState> {
 
   PartsYearsByMakeModelBloc(this._getYearsByMakeModelUseCase)
       : super(const PartsLoading()) {
-    on<GetByMakeModel>(
+    on<GetByMakeModelEvent>(
       onGetPartsYearsByMakeModel,
       transformer: debounce(),
     );
   }
 
-  void onGetPartsYearsByMakeModel(GetByMakeModel event, Emitter<PartsState> emit) async {
+  void onGetPartsYearsByMakeModel(GetByMakeModelEvent event, Emitter<PartsState> emit) async {
     PartEntity params = PartEntity(make: event.make, model: event.model);
     final dataState = await _getYearsByMakeModelUseCase.call(params: params);
 

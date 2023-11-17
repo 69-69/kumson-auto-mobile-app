@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:automasters/core/util/size_config.dart';
-import 'package:automasters/features/auto_mobile/data/data_sources/local/local_databse_pem.dart';
+import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_pem.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/local/search_history_service.dart';
 import 'package:automasters/features/auto_mobile/data/models/hunter.dart';
 import 'package:automasters/features/auto_mobile/data/models/vehicle.dart';
@@ -92,7 +92,7 @@ class SearchHistory extends StatelessWidget {
   }
 
   BlocBuilder vehicleBloc(String vin, BuildContext context) {
-    context.read<VehicleByVinBloc>().add(GetVehicleByVin(vin));
+    context.read<VehicleByVinBloc>().add(GetVehicleByVinEvent(vin));
 
     return BlocBuilder<VehicleByVinBloc, VehiclesState>(
       builder: (_, state) {

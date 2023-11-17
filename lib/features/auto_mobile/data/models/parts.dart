@@ -37,6 +37,42 @@ class PartModel extends PartEntity {
           personnel: personnel,
         );
 
+  PartModel copyWith({
+    int? id,
+    String? vin,
+    String? vfam,
+    String? part,
+    String? partCode,
+    String? model,
+    String? modelCode,
+    String? make,
+    String? makeCode,
+    String? description,
+    String? engine,
+    String? engineType,
+    String? hunter,
+    String? note,
+    String? personnel,
+  }) {
+    return PartModel(
+      id: id ?? this.id,
+      vin: vin ?? this.vin,
+      vfam: vfam ?? this.vfam,
+      part: part ?? this.part,
+      partCode: partCode ?? this.partCode,
+      model: model ?? this.model,
+      modelCode: modelCode ?? this.modelCode,
+      make: make ?? this.make,
+      makeCode: makeCode ?? this.makeCode,
+      description: description ?? this.description,
+      engine: engine ?? this.engine,
+      engineType: engineType ?? this.engineType,
+      hunter: hunter ?? this.hunter,
+      note: note ?? this.note,
+      personnel: personnel ?? this.personnel,
+    );
+  }
+
   factory PartModel.fromJson(Map<String, dynamic> map) {
     return PartModel(
       id: map["id"],

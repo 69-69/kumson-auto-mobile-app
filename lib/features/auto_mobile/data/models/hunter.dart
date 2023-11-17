@@ -37,6 +37,42 @@ class HunterModel extends HunterEntity {
           personnel: personnel,
         );
 
+  HunterModel copyWith({
+    int? id,
+    String? product,
+    String? partNo,
+    String? brand,
+    String? brandCode,
+    String? productCode,
+    String? productStatus,
+    String? hunter,
+    String? sku,
+    String? universalPartNo,
+    String? manufacturerNo,
+    String? manufacturerType,
+    String? sources,
+    String? note,
+    String? personnel,
+  }) {
+    return HunterModel(
+      id: id ?? this.id,
+      product: product ?? this.product,
+      partNo: partNo ?? this.partNo,
+      brand: brand ?? this.brand,
+      brandCode: brandCode ?? this.brandCode,
+      productCode: productCode ?? this.productCode,
+      productStatus: productStatus ?? this.productStatus,
+      hunter: hunter ?? this.hunter,
+      sku: sku ?? this.sku,
+      universalPartNo: universalPartNo ?? this.universalPartNo,
+      manufacturerNo: manufacturerNo ?? this.manufacturerNo,
+      manufacturerType: manufacturerType ?? this.manufacturerType,
+      sources: sources ?? this.sources,
+      note: note ?? this.note,
+      personnel: personnel ?? this.personnel,
+    );
+  }
+
   factory HunterModel.fromJson(Map<String, dynamic> map) {
     return HunterModel(
       id: map["id"],

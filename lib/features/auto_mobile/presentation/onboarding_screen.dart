@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:dio/dio.dart';
-import 'package:automasters/core/constants/constants.dart';
+import 'package:automasters/features/auto_mobile/data/repositories/home_repository_impl.dart';
 import 'package:automasters/core/util/keyboard.dart';
 import 'package:automasters/core/util/size_config.dart';
 import 'package:automasters/splash_screen_template.dart';
@@ -23,18 +22,13 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
     super.initState();
   }
 
-  // Check if API is Online / Offline
-  Future<bool> isAPILive() async {
-    var response = await Dio().get(isAPILiveUrl);
-    return response.statusCode == 200 ? true : false;
-  }
 
   void homeScreen() {
     /* Delay navigation for 1s, to show splashScreen logo */
     Future.delayed(
       const Duration(seconds: 2),
       () {
-        return isAPILive().then(
+        return HomeRepositoryImpl.isAPILive().then(
           (val) => Navigator.pushReplacement(
             context,
             MaterialPageRoute(

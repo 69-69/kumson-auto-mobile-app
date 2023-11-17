@@ -1,17 +1,17 @@
+import 'package:automasters/core/util/keyboard.dart';
+import 'package:flutter/material.dart';
+import 'package:automasters/core/util/size_config.dart';
+import 'package:automasters/core/constants/constants.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/local/app_local_database.dart';
-import 'package:automasters/features/auto_mobile/data/data_sources/local/local_databse_pem.dart';
+import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_pem.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/animation_switcher.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/build_modal.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/outline_btn.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/question_button.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/text_overflow.dart';
-import 'package:flutter/material.dart';
-import 'package:automasters/core/constants/constants.dart';
 import 'package:automasters/features/auto_mobile/presentation/pages/home/components/collapse_panel.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/or_separator.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/bottom_sheet/auth_modal.dart';
-
-import 'package:automasters/core/util/size_config.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/local/product_status_service.dart';
 import 'package:automasters/features/auto_mobile/data/models/animation_item.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/bottom_sheet/search_history.dart';
@@ -281,6 +281,8 @@ class _AutoHomeState extends State<AutoHome>
   }
 
   displayDialog() async {
+    KeyboardUtil.hide;
+
     final opt = await showConfirmationDialog(
       context,
       title: "Welcome",
@@ -294,10 +296,14 @@ class _AutoHomeState extends State<AutoHome>
     }
   }
 
-  displaySearchHistory() => buildModal(
+  displaySearchHistory() {
+    KeyboardUtil.hide;
+
+    return buildModal(
         context,
         const SearchHistory(),
         bgColor: Colors.transparent,
         barColor: const Color.fromRGBO(250, 249, 249, 0.3),
       );
+  }
 }

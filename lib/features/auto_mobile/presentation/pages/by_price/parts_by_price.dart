@@ -1,16 +1,12 @@
-import 'package:automasters/features/auto_mobile/data/data_sources/local/local_databse_pem.dart';
-import 'package:automasters/features/auto_mobile/presentation/widgets/bottom_sheet/make_a_request_modal.dart';
-import 'package:automasters/features/auto_mobile/presentation/widgets/question_button.dart';
 import 'package:flutter/material.dart';
 import 'package:automasters/core/util/size_config.dart';
 import 'package:automasters/core/constants/constants.dart';
+import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_pem.dart';
+import 'package:automasters/features/auto_mobile/presentation/widgets/bottom_sheet/make_a_request_modal.dart';
+import 'package:automasters/features/auto_mobile/presentation/widgets/question_button.dart';
 import 'package:automasters/config/routes/routes_constant.dart';
-import 'package:automasters/features/auto_mobile/presentation/bloc/hunter/remote/hunter_bloc.dart';
-import 'package:automasters/features/auto_mobile/presentation/bloc/hunter/remote/hunter_event.dart';
-import 'package:automasters/features/auto_mobile/presentation/bloc/hunter/remote/hunter_state.dart';
-import 'package:automasters/features/auto_mobile/presentation/bloc/vendor/remote/vendor_bloc.dart';
-import 'package:automasters/features/auto_mobile/presentation/bloc/vendor/remote/vendor_event.dart';
-import 'package:automasters/features/auto_mobile/presentation/bloc/vendor/remote/vendor_state.dart';
+import 'package:automasters/features/auto_mobile/presentation/bloc/hunter/remote/hunter_e.dart';
+import 'package:automasters/features/auto_mobile/presentation/bloc/vendor/remote/index.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/custom_card.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/refresh_button.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/local/product_status_service.dart';
@@ -60,9 +56,10 @@ class _PartsByPriceState extends State<PartsByPrice> {
         headerSliverBuilder: (_, __) {
           CustomAppBarModel appBarInfo = CustomAppBarModel(
             imageUrl: kDefaultPartImage,
+            videoUrl: 'https://youtu.be/EgF01aSQyno?si=HBUGAORJ-DPVH0CY',
             title: "${vehicle.year} ${vehicle.make} ${vehicle.model}",
             subTitle: carPart.part!,
-            subMiniTitle: "Available ${carPart.part}".capitalizeEach(),
+            subMiniTitle: "${carPart.part}s".capitalizeEach(),
             expandedHeight: getProportionateScreenHeight(250),
             currentScreen: partRequest,
           );

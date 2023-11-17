@@ -2,17 +2,22 @@ import 'package:flutter/cupertino.dart';
 
 class KeyboardUtil {
   static bool isKeyboardShowing() {
-    if (WidgetsBinding.instance.platformDispatcher.views.first.viewInsets.bottom > 0) {
-      return WidgetsBinding.instance.platformDispatcher.views.first.viewInsets.bottom > 0;
+    if (WidgetsBinding
+            .instance.platformDispatcher.views.first.viewInsets.bottom >
+        0) {
+      return WidgetsBinding
+              .instance.platformDispatcher.views.first.viewInsets.bottom >
+          0;
     } else {
       return false;
     }
   }
 
   static void hide(BuildContext context) {
-    if(isKeyboardShowing()) {
+    if (isKeyboardShowing()) {
       FocusScopeNode currentFocus = FocusScope.of(context);
-      if (!currentFocus.hasPrimaryFocus) {
+      if (!currentFocus.hasPrimaryFocus && currentFocus.hasFocus) {
+        FocusManager.instance.primaryFocus?.unfocus();
         currentFocus.unfocus();
       }
     }

@@ -59,14 +59,14 @@ class AutoMobile extends StatelessWidget {
         providers: [
           /// Vehicles/Cars
           BlocProvider<VehiclesBloc>(
-            create: (context) => sl()..add(const GetVehicles()),
+            create: (context) => sl()..add(const GetVehiclesEvent()),
           ),
           BlocProvider<VehicleByVinBloc>(create: (context) => sl<VehicleByVinBloc>()),
           BlocProvider<VehicleByVicBloc>(create: (context) => sl<VehicleByVicBloc>()),
 
           /// Makes
           BlocProvider<MakesBloc>(
-            create: (context) => sl()..add(const GetMakes()),
+            create: (context) => sl()..add(const GetMakesEvent()),
           ),
 
           /// Models

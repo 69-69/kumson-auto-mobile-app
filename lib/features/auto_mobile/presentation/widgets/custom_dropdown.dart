@@ -8,7 +8,6 @@ class CustomDropdown<T> extends StatefulWidget {
   final String hintText;
   final dynamic value;
   final Function(dynamic) onChanged;
-  final Function(dynamic)? setter;
   final TextEditingController? controller;
   final AsyncSearchItems<T> asyncItems;
 
@@ -18,7 +17,6 @@ class CustomDropdown<T> extends StatefulWidget {
     this.value,
     required this.onChanged,
     required this.asyncItems,
-    this.setter,
     this.controller,
   });
 
@@ -60,16 +58,21 @@ class _CustomDropdownState<T> extends State<CustomDropdown<T>> {
 
   Widget _buildBody(BuildContext context) {
     return TypeAheadFormField<T>(
+      key: ValueKey(widget.hintText),
       textFieldConfiguration: _textFieldConfiguration(context),
       loadingBuilder: (_) => _loadSpinner(),
       suggestionsCallback: (pattern) async => await widget.asyncItems(pattern),
       itemBuilder: (context, T suggestion) => _itemBuilder(suggestion),
       itemSeparatorBuilder: (context, index) => const Divider(height: 1),
       onSuggestionSelected: (T suggestion) {
+        debugPrint("onSuggestionSelected $suggestion");
+        if(suggestion.toString().contains("Others: specify")){
+          _suggestionsBoxController?.close();
+        }
         // suggestion is OBJECT of type T
         // suggestion.toString() is STRING of type T
         widget.onChanged(suggestion);
-       setState(() => _typeAheadController.text = suggestion.toString());
+        setState(() => _typeAheadController.text = suggestion.toString());
         // Navigator.pop(context);
       },
       onReset: () {},
@@ -89,19 +92,28 @@ class _CustomDropdownState<T> extends State<CustomDropdown<T>> {
     );
   }
 
-  Center _noItemsFoundBuilder() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(9.0),
-        child: Text('...search not found!\nEnter your ${widget.hintText}'),
+  _noItemsFoundBuilder() {
+    return InkWell(
+      onTap: (){
+        widget.onChanged("others");
+      },
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(9.0),
+          child: Text('...search not found!\nEnter Other ${widget.hintText}'),
+        ),
       ),
     );
   }
 
-  Padding _itemBuilder(suggestion) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
-      child: Text(suggestion.toString()),
+  Row _itemBuilder(suggestion) {
+    return Row(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
+          child: Text(suggestion.toString()),
+        ),
+      ],
     );
   }
 

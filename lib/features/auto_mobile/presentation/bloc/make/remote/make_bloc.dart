@@ -9,10 +9,10 @@ class MakesBloc extends Bloc<MakesEvent, MakesState> {
   final GetMakesUseCase _getVehicleUseCase;
 
   MakesBloc(this._getVehicleUseCase) : super(const MakesLoading()) {
-    on<GetMakes>(onGetMakes);
+    on<GetMakesEvent>(onGetMakes);
   }
 
-  void onGetMakes(GetMakes event, Emitter<MakesState> emit) async {
+  void onGetMakes(GetMakesEvent event, Emitter<MakesState> emit) async {
     final dataState = await _getVehicleUseCase();
 
     if (dataState is DataSuccess && dataState.data!.isNotEmpty) {

@@ -1,32 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:automasters/features/auto_mobile/presentation/widgets/or_separator.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:automasters/core/util/size_config.dart';
+import 'package:automasters/core/util/get_distinct_by.dart';
 import 'package:automasters/config/routes/routes_constant.dart';
+import 'package:automasters/features/auto_mobile/presentation/widgets/or_separator.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/bottom_sheet/make_a_request_modal.dart';
 
-import 'package:automasters/features/auto_mobile/presentation/bloc/vehicle/remote/vehicle_bloc.dart';
-import 'package:automasters/features/auto_mobile/presentation/bloc/vehicle/remote/vehicle_event.dart';
-import 'package:automasters/features/auto_mobile/presentation/bloc/vehicle/remote/vehicle_state.dart';
+import 'package:automasters/features/auto_mobile/presentation/bloc/vehicle/remote/index.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/build_modal.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/custom_card.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/custom_line.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/page_navigator.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/refresh_button.dart';
-import 'package:automasters/features/auto_mobile/presentation/bloc/model/remote/model_event.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:automasters/core/util/size_config.dart';
-import 'package:automasters/core/util/get_distinct_by.dart';
 
-import 'package:automasters/features/auto_mobile/presentation/bloc/parts/remote/part_event.dart';
-import 'package:automasters/features/auto_mobile/presentation/bloc/parts/remote/part_bloc.dart';
-import 'package:automasters/features/auto_mobile/presentation/bloc/parts/remote/part_state.dart';
+import 'package:automasters/features/auto_mobile/presentation/bloc/parts/remote/index.dart';
 
 import 'package:automasters/features/auto_mobile/data/models/model.dart';
 import 'package:automasters/features/auto_mobile/data/models/make.dart';
 import 'package:automasters/features/auto_mobile/data/models/parts.dart';
-import 'package:automasters/features/auto_mobile/presentation/bloc/make/remote/make_bloc.dart';
-import 'package:automasters/features/auto_mobile/presentation/bloc/make/remote/make_state.dart';
-import 'package:automasters/features/auto_mobile/presentation/bloc/model/remote/model_bloc.dart';
-import 'package:automasters/features/auto_mobile/presentation/bloc/model/remote/model_state.dart';
+import 'package:automasters/features/auto_mobile/presentation/bloc/make/remote/index.dart';
+import 'package:automasters/features/auto_mobile/presentation/bloc/model/remote/index.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/alphabetical_scroll_view.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/async_progress_dialog.dart';
 
@@ -249,7 +242,7 @@ class _ModelMakeModalState extends State<ModelMakeModal> {
   }
 
   void _getCarModels(BuildContext context) {
-    context.read<ModelsByMakeRefBloc>().add(GetModelsBy(getMakeRef));
+    context.read<ModelsByMakeRefBloc>().add(GetModelsByEvent(getMakeRef));
   }
 
   BlocBuilder _carYearsBloc(BuildContext context) {
@@ -277,13 +270,13 @@ class _ModelMakeModalState extends State<ModelMakeModal> {
   void _getCarYears(BuildContext context) {
     context
         .read<PartsYearsByMakeModelBloc>()
-        .add(GetByMakeModel(getMakeName, getModelName));
+        .add(GetByMakeModelEvent(getMakeName, getModelName));
   }
 
   BlocBuilder _engineTypeBloc(BuildContext context) {
     context
         .read<PartsByMakeModelBloc>()
-        .add(GetByMakeModel(getMakeName, getModelName));
+        .add(GetByMakeModelEvent(getMakeName, getModelName));
 
     return BlocBuilder<PartsByMakeModelBloc, PartsState>(
       builder: (context, state) {
@@ -501,7 +494,7 @@ class _ModelMakeModalState extends State<ModelMakeModal> {
   }
 
   void _onPressedGetEngines(PartModel part) {
-    context.read<VehicleByVinBloc>().add(GetVehicleByVin(part.vin!));
+    context.read<VehicleByVinBloc>().add(GetVehicleByVinEvent(part.vin!));
   }
 
   Center _notFound() => Center(

@@ -15,6 +15,20 @@ class JWTModel extends JWTEntity {
     refreshToken: refreshToken,
   );
 
+  JWTModel copyWith({
+    String? accessToken,
+    String? expiresIn,
+    String? refreshExpiresIn,
+    String? refreshToken,
+  }) {
+    return JWTModel(
+      accessToken: accessToken ?? this.accessToken,
+      expiresIn: expiresIn ?? this.expiresIn,
+      refreshExpiresIn: refreshExpiresIn ?? this.refreshExpiresIn,
+      refreshToken: refreshToken ?? this.refreshToken,
+    );
+  }
+
   factory JWTModel.fromJson(Map<String, dynamic> map) {
     return JWTModel(
       accessToken: map['accessToken'],

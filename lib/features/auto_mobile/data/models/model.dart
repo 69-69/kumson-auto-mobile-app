@@ -1,5 +1,5 @@
 
-import '../../domain/entities/model.dart';
+import 'package:automasters/features/auto_mobile/domain/entities/model.dart';
 
 class Model extends ModelEntity {
   const Model({
@@ -19,6 +19,23 @@ class Model extends ModelEntity {
     note: note,
     personnel: personnel,
   );
+
+  Model copyWith({
+    int? id,
+    String? model,
+    String? modelRef,
+    String? makeRef,
+    String? note,
+    String? personnel,
+  }) {
+    return Model(
+      model: model ?? this.model,
+      modelRef: modelRef ?? this.modelRef,
+      makeRef: makeRef ?? this.makeRef,
+      note: note ?? this.note,
+      personnel: personnel ?? this.personnel,
+    );
+  }
 
   factory Model.fromJson(Map<String, dynamic> map) {
     return Model(

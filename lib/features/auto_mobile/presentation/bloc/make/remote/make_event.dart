@@ -2,8 +2,8 @@ abstract class MakesEvent {
   const MakesEvent();
 }
 
-class GetMakes extends MakesEvent {
-  const GetMakes();
+class GetMakesEvent extends MakesEvent {
+  const GetMakesEvent();
 }
 
 /*class GetMakeById extends MakesEvent {

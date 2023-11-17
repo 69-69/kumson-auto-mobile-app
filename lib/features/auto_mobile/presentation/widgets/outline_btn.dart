@@ -6,6 +6,7 @@ OutlinedButton buildOutlinedBtn(
   Color? borderColor,
   String label = '',
   required void Function()? onPress,
+  MaterialStatesController? buttonController,
 }) {
   Color tColor = color ?? Theme.of(context).colorScheme.surfaceTint;
 
@@ -14,6 +15,7 @@ OutlinedButton buildOutlinedBtn(
       side: BorderSide(color: borderColor ?? tColor),
     ),
     onPressed: onPress,
+    statesController: buttonController,
     child: Text(label, style: TextStyle(color: tColor)),
   );
 }

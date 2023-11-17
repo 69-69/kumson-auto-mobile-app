@@ -1,5 +1,5 @@
 import 'package:automasters/features/auto_mobile/data/data_sources/local/app_local_database.dart';
-import 'package:automasters/features/auto_mobile/data/data_sources/local/local_databse_pem.dart';
+import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_pem.dart';
 
 class SearchHistoryDB extends AppLocalDatabase {
   _getRecentSearches(String key) => readData(key: key);

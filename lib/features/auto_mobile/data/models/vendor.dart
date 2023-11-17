@@ -37,6 +37,42 @@ class VendorModel extends VendorEntity {
           personnel: personnel,
         );
 
+  VendorModel copyWith({
+    int? id,
+    String? partNo,
+    String? brand,
+    String? brandCode,
+    String? brandType,
+    String? vendor,
+    String? vendorCode,
+    int? currentPrice,
+    String? stockStatus,
+    String? productAge,
+    String? opm,
+    String? transactionDatetime,
+    String? sources,
+    String? note,
+    String? personnel,
+  }) {
+    return VendorModel(
+      id: id ?? this.id,
+      partNo: partNo ?? this.partNo,
+      brand: brand ?? this.brand,
+      brandCode: brandCode ?? this.brandCode,
+      brandType: brandType ?? this.brandType,
+      vendor: vendor ?? this.vendor,
+      vendorCode: vendorCode ?? this.vendorCode,
+      currentPrice: currentPrice ?? this.currentPrice,
+      stockStatus: stockStatus ?? this.stockStatus,
+      productAge: productAge ?? this.productAge,
+      opm: opm ?? this.opm,
+      transactionDatetime: transactionDatetime ?? this.transactionDatetime,
+      sources: sources ?? this.sources,
+      note: note ?? this.note,
+      personnel: personnel ?? this.personnel,
+    );
+  }
+
   factory VendorModel.fromJson(Map<String, dynamic> map) {
     return VendorModel(
       id: map["id"],

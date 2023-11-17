@@ -25,12 +25,19 @@ buildBackButton(BuildContext context, {String? routeName, Object? arguments}) =>
         routeName: routeName,
         arguments: arguments,
       ),
-      child: SizedBox(
-        height: getProportionateScreenHeight(60.0),
-        width: getProportionateScreenWidth(60.0),
+      child: Container(
+        height: getProportionateScreenHeight(30.0),
+        width: getProportionateScreenWidth(30.0),
+        padding: const EdgeInsets.fromLTRB(5.0, 1.0, 0, 1.0),
+        decoration: BoxDecoration(
+          color: const Color.fromRGBO(0, 0, 0, 0.3),
+          border: Border.all(color: Colors.white),
+          borderRadius: const BorderRadius.all(Radius.circular(50.0)),
+        ),
         child: Icon(
           Icons.adaptive.arrow_back,
           color: const Color(0xFFFFFFFF),
+          size: 20,
         ),
       ),
     );

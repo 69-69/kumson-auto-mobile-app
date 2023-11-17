@@ -11,10 +11,10 @@ class ModelsBloc extends Bloc<ModelsEvent, ModelsState> {
   final GetModelsUseCase _getModelsUseCase;
 
   ModelsBloc(this._getModelsUseCase) : super(const ModelsLoading()) {
-    on<GetModels>(onGetModels);
+    on<GetModelsEvent>(onGetModels);
   }
 
-  void onGetModels(GetModels event, Emitter<ModelsState> emit) async {
+  void onGetModels(GetModelsEvent event, Emitter<ModelsState> emit) async {
     final dataState = await _getModelsUseCase();
 
     if (dataState is DataSuccess && dataState.data!.isNotEmpty) {
@@ -34,11 +34,11 @@ class ModelsByMakeRefBloc extends Bloc<ModelsEvent, ModelsState> {
   final GetModelsByMakeRefUseCase _getModelsByMakeRefUseCase;
 
   ModelsByMakeRefBloc(this._getModelsByMakeRefUseCase) : super(const ModelsLoading()) {
-    on<GetModelsBy>(onGetModelsByMakeRef, transformer: debounce(),
+    on<GetModelsByEvent>(onGetModelsByMakeRef, transformer: debounce(),
     );
   }
 
-  void onGetModelsByMakeRef(GetModelsBy event, Emitter<ModelsState> emit) async {
+  void onGetModelsByMakeRef(GetModelsByEvent event, Emitter<ModelsState> emit) async {
     final dataState = await _getModelsByMakeRefUseCase.call(params: event.makeRef);
 
     if (dataState is DataSuccess && dataState.data!.isNotEmpty) {

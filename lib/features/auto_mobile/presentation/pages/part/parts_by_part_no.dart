@@ -1,20 +1,15 @@
+import 'package:flutter/material.dart';
 import 'package:automasters/config/routes/routes_constant.dart';
 import 'package:automasters/core/constants/constants.dart';
 import 'package:automasters/core/util/size_config.dart';
-import 'package:automasters/features/auto_mobile/data/data_sources/local/local_databse_pem.dart';
+import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_pem.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/local/product_status_service.dart';
 import 'package:automasters/features/auto_mobile/data/models/custom_appbar.dart';
 import 'package:automasters/features/auto_mobile/data/models/vehicle.dart';
 import 'package:automasters/features/auto_mobile/data/models/vendor.dart';
-import 'package:automasters/features/auto_mobile/presentation/bloc/parts/remote/part_bloc.dart';
-import 'package:automasters/features/auto_mobile/presentation/bloc/parts/remote/part_event.dart';
-import 'package:automasters/features/auto_mobile/presentation/bloc/parts/remote/part_state.dart';
-import 'package:automasters/features/auto_mobile/presentation/bloc/vehicle/remote/vehicle_bloc.dart';
-import 'package:automasters/features/auto_mobile/presentation/bloc/vehicle/remote/vehicle_event.dart';
-import 'package:automasters/features/auto_mobile/presentation/bloc/vehicle/remote/vehicle_state.dart';
-import 'package:automasters/features/auto_mobile/presentation/bloc/vendor/remote/vendor_bloc.dart';
-import 'package:automasters/features/auto_mobile/presentation/bloc/vendor/remote/vendor_event.dart';
-import 'package:automasters/features/auto_mobile/presentation/bloc/vendor/remote/vendor_state.dart';
+import 'package:automasters/features/auto_mobile/presentation/bloc/parts/remote/index.dart';
+import 'package:automasters/features/auto_mobile/presentation/bloc/vehicle/remote/index.dart';
+import 'package:automasters/features/auto_mobile/presentation/bloc/vendor/remote/index.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/custom_app_bar.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/async_progress_dialog.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/column_builder.dart';
@@ -24,7 +19,6 @@ import 'package:automasters/features/auto_mobile/presentation/widgets/bottom_she
 import 'package:automasters/features/auto_mobile/presentation/widgets/page_navigator.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/question_button.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/widgetery.dart';
-import 'package:flutter/material.dart';
 import 'package:automasters/features/auto_mobile/data/models/hunter.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -68,13 +62,13 @@ class _PartsByPartNoState extends State<PartsByPartNo> {
       physics: const BouncingScrollPhysics(),
       headerSliverBuilder: (_, __) {
         CustomAppBarModel appBar = CustomAppBarModel(
-          // routeName: "auto_home",
-          imageUrl: kDefaultCarImage,
           title: hunters[0].product!,
           subTitle: _buildSubTitle(),
-          subMiniTitle: "Available ${hunters[0].product}",
+          subMiniTitle: "${hunters[0].product}s",
           expandedHeight: getProportionateScreenHeight(250),
           currentScreen: partNoRequest,
+          imageUrl: kDefaultCarImage,
+          videoUrl: 'https://youtu.be/EgF01aSQyno?si=HBUGAORJ-DPVH0CY',
         );
 
         return [CustomSliverAppBar(data: appBar)];
@@ -153,7 +147,7 @@ class _PartsByPartNoState extends State<PartsByPartNo> {
 
   /// Get Prices From Vendors [blocBuilder]
   blocBuilder(HunterModel huntPart) {
-    context.read<PartByHunterNoBloc>().add(GetPartByHunterNo(huntPart.hunter!));
+    context.read<PartByHunterNoBloc>().add(GetPartByHunterNoEvent(huntPart.hunter!));
 
     context
         .read<VendorPartsByBrandPartNoBloc>()
@@ -177,7 +171,7 @@ class _PartsByPartNoState extends State<PartsByPartNo> {
       if (pState is PartByDone) {
         context
             .read<VehicleByVinBloc>()
-            .add(GetVehicleByVin(pState.part!.vin ?? ""));
+            .add(GetVehicleByVinEvent(pState.part!.vin ?? ""));
       }
 
       if (cState is VehiclesLoading) {

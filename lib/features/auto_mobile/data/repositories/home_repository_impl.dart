@@ -1,6 +1,6 @@
 import 'package:automasters/core/constants/constants.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/local/app_local_database.dart';
-import 'package:automasters/features/auto_mobile/data/data_sources/local/local_databse_pem.dart';
+import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_pem.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/remote/auth_interceptor.dart';
 import 'package:automasters/features/auto_mobile/data/models/hunter.dart';
 import 'package:automasters/features/auto_mobile/data/models/vehicle.dart';
@@ -8,6 +8,12 @@ import 'package:dio/dio.dart';
 
 class HomeRepositoryImpl {
   final AppLocalDatabase _appLocalDatabase = AppLocalDatabase();
+
+  // Check if API is Online / Offline
+  static Future<bool> isAPILive() async {
+    var response = await Dio().get(isAPILiveUrl);
+    return response.statusCode == 200 ? true : false;
+  }
 
   Future<List<dynamic>?> getData(String query, String endPoint) async {
     try {

@@ -11,10 +11,10 @@ class VehiclesBloc extends Bloc<VehiclesEvent, VehiclesState> {
   final GetVehicleUseCase _getVehicleUseCase;
 
   VehiclesBloc(this._getVehicleUseCase) : super(const VehiclesLoading()) {
-    on<GetVehicles>(onGetVehicles);
+    on<GetVehiclesEvent>(onGetVehicles);
   }
 
-  void onGetVehicles(GetVehicles event, Emitter<VehiclesState> emit) async {
+  void onGetVehicles(GetVehiclesEvent event, Emitter<VehiclesState> emit) async {
     final dataState = await _getVehicleUseCase();
 
     if (dataState is DataSuccess && dataState.data!.isNotEmpty) {
@@ -35,14 +35,14 @@ class VehicleByVinBloc extends Bloc<VehiclesEvent, VehiclesState> {
 
   VehicleByVinBloc(this._getVehicleByVinUseCase)
       : super(const VehiclesLoading()) {
-    on<GetVehicleByVin>(
+    on<GetVehicleByVinEvent>(
       onGetVehicleByVin,
       transformer: debounce(),
     );
   }
 
   void onGetVehicleByVin(
-      GetVehicleByVin event, Emitter<VehiclesState> emit) async {
+      GetVehicleByVinEvent event, Emitter<VehiclesState> emit) async {
     final dataState = await _getVehicleByVinUseCase.call(params: event.vin);
 
     if (dataState is DataSuccess && dataState.data!.vin!.isNotEmpty) {
@@ -63,14 +63,14 @@ class VehicleByVicBloc extends Bloc<VehiclesEvent, VehiclesState> {
 
   VehicleByVicBloc(this._getVehicleByVicUseCase)
       : super(const VehiclesLoading()) {
-    on<GetVehicleByVic>(
+    on<GetVehicleByVicEvent>(
       onGetVehicleByVic,
       transformer: debounce(),
     );
   }
 
   void onGetVehicleByVic(
-      GetVehicleByVic event, Emitter<VehiclesState> emit) async {
+      GetVehicleByVicEvent event, Emitter<VehiclesState> emit) async {
     final dataState = await _getVehicleByVicUseCase.call(params: event.vehicleCode);
 
     if (dataState is DataSuccess && dataState.data!.vehicleCode!.isNotEmpty) {

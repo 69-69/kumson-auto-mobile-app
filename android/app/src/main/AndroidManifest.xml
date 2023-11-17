@@ -30,4 +30,11 @@
             android:name="flutterEmbedding"
             android:value="2" />
     </application>
+    <!--Internet Permission-->
+    <uses-permission android:name="android.permission.INTERNET"/>
+
+    <!-- Storage Permissions -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
 </manifest>

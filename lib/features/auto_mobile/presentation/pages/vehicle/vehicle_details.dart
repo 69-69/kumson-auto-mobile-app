@@ -1,10 +1,8 @@
-import 'package:automasters/features/auto_mobile/data/data_sources/local/local_databse_pem.dart';
 import 'package:flutter/material.dart';
 import 'package:automasters/core/constants/constants.dart';
+import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_pem.dart';
 import 'package:automasters/features/auto_mobile/data/models/custom_appbar.dart';
-import 'package:automasters/features/auto_mobile/presentation/bloc/parts/remote/part_bloc.dart';
-import 'package:automasters/features/auto_mobile/presentation/bloc/parts/remote/part_event.dart';
-import 'package:automasters/features/auto_mobile/presentation/bloc/parts/remote/part_state.dart';
+import 'package:automasters/features/auto_mobile/presentation/bloc/parts/remote/index.dart';
 import 'package:automasters/features/auto_mobile/presentation/pages/vehicle/filter_parts_category.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/custom_app_bar.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/async_progress_dialog.dart';
@@ -32,13 +30,12 @@ class VehicleDetails extends StatelessWidget {
     VehicleModel vehicle = data['vehicle'] as VehicleModel;
 
     return Scaffold(
-      resizeToAvoidBottomInset: true,
+      resizeToAvoidBottomInset: false,
       // backgroundColor: Theme.of(context).colorScheme.primary,
       body: NestedScrollView(
         physics: const BouncingScrollPhysics(),
         headerSliverBuilder: (_, __) {
           CustomAppBarModel appBarInfo = CustomAppBarModel(
-            imageUrl: kDefaultCarImage,
             title: vehicle.category!,
             subTitle: "${vehicle.year} ${vehicle.make} ${vehicle.model}",
             subMiniTitle: "${vehicle.make!} - ${vehicle.model!}",
@@ -46,12 +43,13 @@ class VehicleDetails extends StatelessWidget {
               focusNode.hasPrimaryFocus ? 100 : 250,
             ),
             currentScreen: vinRequest,
+            imageUrl: kDefaultCarImage,
+            videoUrl: 'https://youtu.be/EgF01aSQyno?si=HBUGAORJ-DPVH0CY',
           );
 
           return [CustomSliverAppBar(data: appBarInfo)];
         },
         body: _buildBody(context, vehicle),
-        //
       ),
     );
   }
@@ -59,7 +57,12 @@ class VehicleDetails extends StatelessWidget {
   Widget _buildBody(BuildContext context, VehicleModel vehicle) {
     return buildCurveContainer(
       context,
-      const EdgeInsets.fromLTRB(24.0, 32.0, 24.0, 0.0),
+      EdgeInsets.fromLTRB(
+        24.0,
+        32.0,
+        24.0,
+        MediaQuery.of(context).viewInsets.bottom,
+      ),
       child: data.containsKey('parts') && data['parts'] != null
           ? FilterPartsCategory(
               focusNode: focusNode, vehicle: vehicle, carParts: data['parts'])
@@ -67,7 +70,8 @@ class VehicleDetails extends StatelessWidget {
     );
   }
 
-  BlocBuilder<PartsByVFamBloc, PartsState> _partsBloc(BuildContext context, VehicleModel vehicle) {
+  BlocBuilder<PartsByVFamBloc, PartsState> _partsBloc(
+      BuildContext context, VehicleModel vehicle) {
     _getPartsFunc(context, vehicle);
 
     return BlocBuilder<PartsByVFamBloc, PartsState>(
@@ -94,6 +98,8 @@ class VehicleDetails extends StatelessWidget {
   }
 
   void _getPartsFunc(BuildContext context, VehicleModel vehicle) {
-    context.read<PartsByVFamBloc>().add(GetPartsByVFam(vehicle.vfam ?? ""));
+    context
+        .read<PartsByVFamBloc>()
+        .add(GetPartsByVFamEvent(vehicle.vfam ?? ""));
   }
 }

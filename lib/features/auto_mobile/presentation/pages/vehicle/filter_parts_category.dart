@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:automasters/config/routes/routes_constant.dart';
 import 'package:automasters/core/util/keyboard.dart';
 import 'package:automasters/core/util/size_config.dart';
@@ -9,7 +10,6 @@ import 'package:automasters/features/auto_mobile/presentation/widgets/custom_lin
 import 'package:automasters/features/auto_mobile/presentation/widgets/ensure_visible_textarea.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/bottom_sheet/show_confirmation_dialog.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/page_navigator.dart';
-import 'package:flutter/material.dart';
 import 'package:string_capitalize/string_capitalize.dart';
 
 class FilterPartsCategory extends StatelessWidget {
@@ -141,7 +141,7 @@ class FilterPartsCategory extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        customLine("Select Your Part - ", context),
+        customLine("Select Your Part", context),
         TextButton(
           onPressed: () {
             pageNavigator(

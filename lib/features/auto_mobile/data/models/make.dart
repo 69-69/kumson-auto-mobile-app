@@ -17,6 +17,22 @@ class MakeModel extends MakeEntity {
           personnel: personnel,
         );
 
+  MakeModel copyWith({
+    int? id,
+    String? make,
+    String? makeRef,
+    String? note,
+    String? personnel,
+  }) {
+    return MakeModel(
+      id: id ?? this.id,
+      make: make ?? this.make,
+      makeRef: makeRef ?? this.makeRef,
+      note: note ?? this.note,
+      personnel: personnel ?? this.personnel,
+    );
+  }
+
   factory MakeModel.fromJson(Map<String, dynamic> map) {
     return MakeModel(
       id: map['id'],

@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 
-buildQuestionButton(BuildContext context,
-    {void Function()? onPress, Color? bgColor, Color? color, IconData? icon}) {
+buildQuestionButton(
+  BuildContext context, {
+  void Function()? onPress,
+  Color? bgColor,
+  Color? color,
+  IconData? icon,
+}) {
   ColorScheme theme = Theme.of(context).colorScheme;
 
   return SizedBox(
