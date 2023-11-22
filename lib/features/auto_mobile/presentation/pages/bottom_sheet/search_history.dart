@@ -1,16 +1,13 @@
+import 'package:automasters/config/routes/routes_constant.dart';
+import 'package:automasters/features/auto_mobile/presentation/widgets/page_navigator.dart';
 import 'package:flutter/material.dart';
 import 'package:automasters/core/util/size_config.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_pem.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/local/search_history_service.dart';
 import 'package:automasters/features/auto_mobile/data/models/hunter.dart';
 import 'package:automasters/features/auto_mobile/data/models/vehicle.dart';
-import 'package:automasters/features/auto_mobile/presentation/bloc/hunter/remote/hunter_bloc.dart';
-import 'package:automasters/features/auto_mobile/presentation/bloc/hunter/remote/hunter_event.dart';
-import 'package:automasters/features/auto_mobile/presentation/bloc/hunter/remote/hunter_state.dart';
-import 'package:automasters/features/auto_mobile/presentation/bloc/parts/remote/part_state.dart';
-import 'package:automasters/features/auto_mobile/presentation/bloc/vehicle/remote/vehicle_bloc.dart';
-import 'package:automasters/features/auto_mobile/presentation/bloc/vehicle/remote/vehicle_event.dart';
-import 'package:automasters/features/auto_mobile/presentation/bloc/vehicle/remote/vehicle_state.dart';
+import 'package:automasters/features/auto_mobile/presentation/bloc/hunter/remote/index.dart';
+import 'package:automasters/features/auto_mobile/presentation/bloc/vehicle/remote/index.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/async_progress_dialog.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/column_builder.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/refresh_button.dart';
@@ -35,7 +32,7 @@ class SearchHistory extends StatelessWidget {
     SizeConfig().init(context);
 
     return CustomBottomSheet(
-      initialChildSize: 0.3,
+      initialChildSize: 0.4,
       // bgColor: const Color.fromRGBO(250, 249, 249, 0.3),
       padding: const EdgeInsets.symmetric(vertical: 20),
       headerWidget: const Text(
@@ -50,7 +47,7 @@ class SearchHistory extends StatelessWidget {
   }
 
   _buildListView({required String key, String id = ""}) {
-    List<String> historyData = SearchHistoryDB().getFrom(key: key).toList();
+    List<String> historyData = SearchHistoryDB().getHistory(key: key).toList();
 
     return historyData.isNotEmpty ? ListView.separated(
       itemCount: historyData.length,
@@ -71,22 +68,22 @@ class SearchHistory extends StatelessWidget {
             : const SizedBox.shrink();
   }
 
-  ListTile buildListTile(String txt, String txt2, {void Function()? onTap}) {
+  ListTile buildListTile(String title, String subTitle, {void Function()? onTap}) {
     return ListTile(
       dense: true,
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            txt.capitalizeEach(),
+            title.capitalizeEach(),
             style: const TextStyle(
               fontWeight: FontWeight.bold,
             ),
           ),
-          const Icon(Icons.restore, size: 14, color: Colors.grey),
+          Icon(Icons.adaptive.arrow_forward, size: 14, color: Colors.grey),
         ],
       ),
-      subtitle: SelectionArea(child: Text(txt2.toUpperCase())),
+      subtitle: SelectionArea(child: Text(subTitle.toUpperCase())),
       onTap: onTap,
     );
   }
@@ -95,7 +92,7 @@ class SearchHistory extends StatelessWidget {
     context.read<VehicleByVinBloc>().add(GetVehicleByVinEvent(vin));
 
     return BlocBuilder<VehicleByVinBloc, VehiclesState>(
-      builder: (_, state) {
+      builder: (context2, state) {
         if (state is VehiclesLoading) {
           return _loadSpinner();
         }
@@ -104,8 +101,8 @@ class SearchHistory extends StatelessWidget {
           return buildRefreshApp(context);
         }
 
-        if (state is VehicleByDone) {
-          return _buildVehicleCard(state, vin);
+        if (state is VehiclesDone) {
+          return _vehicleCard(state, vin, context2);
         }
 
         return const SizedBox();
@@ -113,17 +110,27 @@ class SearchHistory extends StatelessWidget {
     );
   }
 
-  _buildVehicleCard(VehicleByDone state, String vin) {
+  _vehicleCard(VehiclesDone state, String vin, BuildContext context) {
+
     VehicleModel v = state.vehicle as VehicleModel;
-    return buildListTile("${v.year} ${v.make} ${v.model}", vin);
+    Map<String, dynamic> vic = {"vehicle": v};
+
+    return buildListTile("${v.year} ${v.make} ${v.model}", vin, onTap: (){
+
+      pageNavigator(
+        context,
+        routeName: vehicleDetailsRoute,
+        arguments: vic,
+      );
+    });
   }
 
   BlocBuilder _partsBloc(String partNo, BuildContext context) {
-    context.read<HunterPartsByPartNoBloc>().add(GetHunterPartsByPartNo(partNo));
+    context.read<HunterPartsByPartNoBloc>().add(GetHunterPartsByPartNoEvent(partNo));
 
     return BlocBuilder<HunterPartsByPartNoBloc, HuntersState>(
       builder: (_, state) {
-        if (state is PartsLoading) {
+        if (state is HuntersLoading) {
           return _loadSpinner();
         }
 
@@ -132,7 +139,7 @@ class SearchHistory extends StatelessWidget {
         }
 
         if (state is HuntersDone) {
-          return _buildPartsCard(state, partNo);
+          return _partsCard(state, partNo);
         }
 
         return const SizedBox();
@@ -140,14 +147,21 @@ class SearchHistory extends StatelessWidget {
     );
   }
 
-  ColumnBuilder _buildPartsCard(HuntersDone state, String partNo) {
-    List<HunterModel> part = state.hunters as List<HunterModel>;
+  ColumnBuilder _partsCard(HuntersDone state, String partNo) {
+    List<HunterModel> hunterParts = state.hunter as List<HunterModel>;
     return ColumnBuilder(
-      itemCount: part.length,
+      itemCount: hunterParts.length,
       itemBuilder: (context, int i) {
-        HunterModel p = part[i];
+        HunterModel p = hunterParts[i];
 
-        return buildListTile("${p.product} ${p.brand}", partNo);
+        return buildListTile("${p.product} ${p.brand}", partNo, onTap: (){
+
+          pageNavigator(
+            context,
+            routeName: partsByPartNoRoute,
+            arguments: hunterParts,
+          );
+        });
       },
     );
   }
@@ -181,7 +195,6 @@ class SearchHistory extends StatelessWidget {
       ),
     );
   }
-
 
   Padding _loadSpinner() {
     return Padding(

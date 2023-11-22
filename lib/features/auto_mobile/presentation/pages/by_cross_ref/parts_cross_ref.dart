@@ -7,15 +7,14 @@ import 'package:automasters/features/auto_mobile/data/models/custom_appbar.dart'
 import 'package:automasters/features/auto_mobile/data/models/hunter.dart';
 import 'package:automasters/features/auto_mobile/data/models/parts.dart';
 import 'package:automasters/features/auto_mobile/data/models/vehicle.dart';
-import 'package:automasters/features/auto_mobile/presentation/bloc/hunter/remote/hunter_e.dart';
+import 'package:automasters/features/auto_mobile/presentation/bloc/hunter/remote/index.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/async_progress_dialog.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/column_builder.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/custom_app_bar.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/custom_card.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/custom_line.dart';
-import 'package:automasters/features/auto_mobile/presentation/widgets/bottom_sheet/make_a_request_modal.dart';
+import 'package:automasters/features/auto_mobile/presentation/pages/bottom_sheet/make_a_request_modal.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/page_navigator.dart';
-import 'package:automasters/features/auto_mobile/presentation/widgets/refresh_button.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/widgetery.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:string_capitalize/string_capitalize.dart';
@@ -34,7 +33,7 @@ class PartsCrossRef extends StatelessWidget {
 
     context
         .read<HunterPartsByHunterNoBloc>()
-        .add(GetHunterPartsByHunterNo(cPart.hunter!));
+        .add(GetHunterPartsByHunterNoEvent(cPart.hunter!));
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -60,30 +59,35 @@ class PartsCrossRef extends StatelessWidget {
     );
   }
 
+  showRequestForm(BuildContext context, String type){
+    Future.delayed(const Duration(milliseconds: 10),
+            () => showRequestModal(context, type));
+  }
+
   BlocBuilder<HunterPartsByHunterNoBloc, HuntersState> _buildBlocBuilder(
     PartModel cPart,
     VehicleModel vehicle,
   ) {
     return BlocBuilder<HunterPartsByHunterNoBloc, HuntersState>(
-        builder: (context, state) {
+        builder: (hunterContext, state) {
       if (state is HuntersLoading) {
         return _loadSpinner();
       }
 
-      if (state is HuntersError) {
-        return buildRefreshApp(context);
-      }
+      /*if (state is HuntersError) {
+        return FittedBox(child: showMakeRequestButton(context, crossRefRequest),);
+      }*/
 
       if (state is HuntersDone) {
         return _buildBody(
-          context,
+          hunterContext,
           cPart.part!,
-          state.hunters! as List<HunterModel>,
+          state.hunter as List<HunterModel>,
           vehicle,
         );
       }
-
-      return showMakeRequestButton(context, readOnlyPartNoKey);
+      showRequestForm(hunterContext, crossRefRequest);
+      return const SizedBox.shrink();
     });
   }
 
@@ -115,8 +119,8 @@ class PartsCrossRef extends StatelessWidget {
           ),
           const Divider(indent: 40),
           Expanded(
-            child: buildListView(hunter, vehicle),
-          ),
+                  child: buildListView(hunter, vehicle),
+                ),
         ],
       ),
     );

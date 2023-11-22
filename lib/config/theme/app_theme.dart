@@ -24,16 +24,16 @@ ThemeData buildThemeData(BuildContext context, {required ColorScheme cs}) {
 
     inputDecorationTheme: InputDecorationTheme(
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(7),
+        borderRadius: BorderRadius.circular(10),
         borderSide: const BorderSide(color: Colors.black26),
       ),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(7),
+        borderRadius: BorderRadius.circular(10),
         borderSide: const BorderSide(color: Colors.black26),
       ),
       focusedBorder: OutlineInputBorder(
         borderSide: const BorderSide(color: Color(0xFFBA1A1A)),
-        borderRadius: BorderRadius.circular(7),
+        borderRadius: BorderRadius.circular(10),
       ),
       // focusColor:  Color(0xFFBA1A1A)
     ),
@@ -42,7 +42,14 @@ ThemeData buildThemeData(BuildContext context, {required ColorScheme cs}) {
       style: OutlinedButton.styleFrom(
         side: const BorderSide(width: 1.0),
         shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(7)),
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+        ),
+      ),
+    ),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(10)),
         ),
       ),
     ),

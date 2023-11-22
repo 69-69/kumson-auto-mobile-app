@@ -1,18 +1,19 @@
+import 'package:automasters/core/constants/constants.dart';
 import 'package:automasters/core/util/avatar_glow.dart';
 import 'package:automasters/core/util/size_config.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/async_progress_dialog.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/developer_info.dart';
 import 'package:flutter/material.dart';
 
-class SplashScreenTemplate extends StatefulWidget {
+class SplashScreen extends StatefulWidget {
   final String? label;
-  const SplashScreenTemplate({this.label, Key? key}) : super(key: key);
+  const SplashScreen({this.label, super.key});
 
   @override
-  State<SplashScreenTemplate> createState() => _SplashScreenTemplateState();
+  State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenTemplateState extends State<SplashScreenTemplate>
+class _SplashScreenState extends State<SplashScreen>
     with TickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(
     duration: const Duration(seconds: 10),
@@ -59,7 +60,7 @@ class _SplashScreenTemplateState extends State<SplashScreenTemplate>
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(50),
                           child: Image.asset(
-                            'assets/logo.png',
+                            kLogo,
                             fit: BoxFit.scaleDown,
                             scale: 1,
                           ),

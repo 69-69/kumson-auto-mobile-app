@@ -8,7 +8,7 @@ import 'package:automasters/features/auto_mobile/presentation/widgets/column_bui
 import 'package:automasters/features/auto_mobile/presentation/widgets/custom_card.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/custom_line.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/ensure_visible_textarea.dart';
-import 'package:automasters/features/auto_mobile/presentation/widgets/bottom_sheet/show_confirmation_dialog.dart';
+import 'package:automasters/features/auto_mobile/presentation/pages/bottom_sheet/show_confirmation_dialog.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/page_navigator.dart';
 import 'package:string_capitalize/string_capitalize.dart';
 

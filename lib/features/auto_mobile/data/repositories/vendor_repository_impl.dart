@@ -1,20 +1,27 @@
 import 'dart:io';
 
+import 'package:dio/dio.dart';
+import 'package:retrofit/dio.dart';
+import 'package:automasters/core/constants/constants.dart';
 import 'package:automasters/core/resources/data_state.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/local/app_local_database.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_pem.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/remote/automobile_api_service.dart';
 import 'package:automasters/features/auto_mobile/data/models/vendor.dart';
 import 'package:automasters/features/auto_mobile/domain/repositories/vendor_repository.dart';
-import 'package:dio/dio.dart';
 
-import '../../../../core/constants/constants.dart';
+
 
 class VendorRepositoryImpl implements VendorRepository {
   final AutomobileApiService _automobileApiService;
   final AppLocalDatabase _appLocalDatabase = AppLocalDatabase();
 
   VendorRepositoryImpl(this._automobileApiService);
+
+  /// Check for Valid Response [_responseValid]
+  bool _responseValid<T>(HttpResponse<T> httpRes) =>
+      httpRes.response.data != null &&
+      httpRes.response.statusCode == HttpStatus.ok;
 
   @override
   Future<DataState<List<VendorModel>>> getVendors() async {
@@ -30,7 +37,7 @@ class VendorRepositoryImpl implements VendorRepository {
         sort: "currentPrice,$pagerOrder",
       );
 
-      if (httpResponse.response.statusCode == HttpStatus.ok) {
+      if (_responseValid<List<VendorModel>>(httpResponse)) {
         //print("httpResponse-> ${httpResponse.response.data}");
         return DataSuccess(httpResponse.data);
       } else {
@@ -58,7 +65,7 @@ class VendorRepositoryImpl implements VendorRepository {
         authToken: "Bearer $accessToken",
           id: id);
 
-      if (httpResponse.response.statusCode == HttpStatus.ok) {
+      if (_responseValid<VendorModel>(httpResponse)) {
         //print("httpResponse-> ${httpResponse.response.data}");
         return DataSuccess(httpResponse.data);
       } else {
@@ -95,8 +102,8 @@ class VendorRepositoryImpl implements VendorRepository {
         sort: "currentPrice,$pagerOrder",
       );
 
-      if (httpResponse.response.statusCode == HttpStatus.ok) {
-        //print("httpResponse-> ${httpResponse.response.data}");
+      if (_responseValid<List<VendorModel>>(httpResponse)) {
+        // print("getVendorPartsByBrandPartNo-Repo-> ${httpResponse.response.data}");
         return DataSuccess(httpResponse.data);
       } else {
         return DataFailed(

@@ -1,15 +1,15 @@
 import 'package:automasters/core/resources/data_state.dart';
-import 'package:automasters/features/auto_mobile/data/models/vendor.dart';
+import 'package:automasters/features/auto_mobile/domain/entities/vendor.dart';
 
 /// Domain -> Repository <- Data
 abstract class VendorRepository {
   /// Remote API Methods Calls ///
 
-  Future<DataState<List<VendorModel>>> getVendors();
+  Future<DataState<List<VendorEntity>>> getVendors();
 
-  Future<DataState<VendorModel>> getVendorById(int id);
+  Future<DataState<VendorEntity>> getVendorById(int id);
 
-  Future<DataState<List<VendorModel>>> getVendorPartsByBrandPartNo(
+  Future<DataState<List<VendorEntity>>> getVendorPartsByBrandPartNo(
     String brand,
     String partNo,
   );

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:automasters/core/util/size_config.dart';
 
@@ -15,20 +17,27 @@ Align showCircularProgress({
         height: height,
         width: width,
         child: CircularProgressIndicator(
-          strokeWidth: strokeWidth, color: color,
+          strokeWidth: strokeWidth,
+          color: color,
         ),
       ),
     );
 
 /// Show Async ProgressDialog loading Data
 Future<void> showProgressDialog(
-    BuildContext context, Future<dynamic>? getParts,
-    {String label = 'Searching...'}) async =>
+  BuildContext context, {
+  Future<dynamic>? request,
+  Function? onSuccess,
+  Function? onError,
+  String label = 'Searching...',
+}) async =>
     await showDialog(
       context: context,
       builder: (context) => AsyncProgressDialog(
-        getParts,
+        request,
         message: Text(label),
+        onError: onError,
+        onSuccess: onSuccess,
       ),
     );
 
@@ -54,6 +63,9 @@ class AsyncProgressDialog extends StatefulWidget {
   /// On error handler
   final Function? onError;
 
+  /// On success handler
+  final Function? onSuccess;
+
   /// If TRUE, show Dialog Modal widget, else only circularProgressBar [isDialog].
   final bool isDialog;
 
@@ -77,12 +89,13 @@ class AsyncProgressDialog extends StatefulWidget {
 
   const AsyncProgressDialog(
     this.future, {
-    Key? key,
+    super.key,
     this.decoration,
     this.opacity = 1.0,
     this.progress,
     this.message,
     this.onError,
+    this.onSuccess,
     this.isDialog = true,
     this.size,
     this.loadProgress,
@@ -90,7 +103,7 @@ class AsyncProgressDialog extends StatefulWidget {
     this.strokeCap,
     this.strokeWidth = 3.0,
     this.bgColor = Colors.white,
-  }) : super(key: key);
+  });
 
   @override
   State<AsyncProgressDialog> createState() => _AsyncProgressDialogState();
@@ -99,21 +112,36 @@ class AsyncProgressDialog extends StatefulWidget {
 class _AsyncProgressDialogState extends State<AsyncProgressDialog> {
   @override
   void initState() {
-    if (widget.future != null) {
-      widget.future!.then((val) {
-        Navigator.of(context).pop(val);
-      }).catchError((e) {
-        Navigator.of(context).pop();
-        widget.onError != null ? widget.onError!.call(e) : throw e;
-      });
-    }
+    _whenComplete();
     super.initState();
   }
 
+  void _whenComplete() {
+    if (widget.future != null) {
+      widget.future!.then(
+        (val) {
+          if (widget.onSuccess != null) {
+            widget.onSuccess!.call(val);
+          }
+          Navigator.of(context).pop(val);
+        },
+        onError: (e) {
+          if (widget.onError != null) {
+            widget.onError!.call(e);
+          }
+          Navigator.of(context).pop();
+        },
+      ).catchError((e) {
+        widget.onError != null ? widget.onError!.call(e) : throw e;
+        Navigator.of(context).pop();
+      });
+    }
+  }
+
   @override
-  Widget build(BuildContext context) => WillPopScope(
+  Widget build(BuildContext context) => PopScope(
         child: _buildDialog(context),
-        onWillPop: () => Future(() => false),
+        onPopInvoked: (_) => Future(() => false),
       );
 
   /// CircularProgressIndicator
@@ -123,7 +151,8 @@ class _AsyncProgressDialogState extends State<AsyncProgressDialog> {
         strokeAlign: widget.strokeAlign,
         strokeCap: widget.strokeCap,
         backgroundColor: widget.bgColor,
-        valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.primary),
+        valueColor: AlwaysStoppedAnimation<Color>(
+            Theme.of(context).colorScheme.primary),
       );
 
   Widget _buildDialog(BuildContext context) {

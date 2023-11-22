@@ -1,8 +1,8 @@
+import 'package:automasters/features/auto_mobile/presentation/widgets/custom_stepper.dart';
 import 'package:flutter/material.dart';
 import 'package:automasters/core/util/size_config.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/custom_snackbar.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/make_model_dropdown.dart';
-import 'package:automasters/features/auto_mobile/presentation/widgets/outline_btn.dart';
 
 class ManualRequestForm extends StatefulWidget {
   const ManualRequestForm({super.key});
@@ -13,17 +13,18 @@ class ManualRequestForm extends StatefulWidget {
 
 class _ManualRequestFormState extends State<ManualRequestForm> {
   TextEditingController makeController = TextEditingController();
-  TextEditingController productController = TextEditingController();
   TextEditingController modelController = TextEditingController();
+  TextEditingController productController = TextEditingController();
   MaterialStatesController? buttonController;
   final _formKey = GlobalKey<FormState>();
   Map<String, dynamic> formData = {};
-  String makeRef = "";
   String productName = "";
+  String makeRef = "";
 
   void _processData() {
     makeController.clear();
     modelController.clear();
+    productController.clear();
     // Process your data and upload to server
     _formKey.currentState?.reset();
 
@@ -32,7 +33,26 @@ class _ManualRequestFormState extends State<ManualRequestForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Form(key: _formKey, child: _buildBody(context));
+    return _buildBody(context);
+    // return Form(key: _formKey, child: _buildBody(context));
+  }
+
+  Form _buildBody(BuildContext context) {
+    return Form(
+      key: _formKey,
+      child: CustomStepper(
+        titles: const ['Vehicle', 'Personal'],
+        subTitle: const ['Helps data collection', 'Helps to contact you'],
+        stepperContents: [
+          _vehicleInfo(context),
+          _personalInfo(context),
+        ],
+        onSubmit: (int currentStepper) {
+          debugPrint("submitted $currentStepper");
+          _processData();
+        },
+      ),
+    );
   }
 
   /*_ExampleFormState() {
@@ -42,7 +62,7 @@ class _ManualRequestFormState extends State<ManualRequestForm> {
     };
   }*/
 
-  Padding _buildBody(BuildContext context) {
+  Padding _vehicleInfo(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(top: 10.0, bottom: 25.0),
       child: Column(
@@ -55,12 +75,6 @@ class _ManualRequestFormState extends State<ManualRequestForm> {
           _gaps(),
           _buildProductNameFormField(),
           _gaps(),
-          _buildNameFormField(context),
-          _gaps(),
-          _buildEmailFormField(context),
-          _gaps(),
-          _buildPhoneFormField(context),
-          _gaps(),
           _buildEngineCCFormField(context),
           _gaps(),
           _buildFuelTypeFormField(context),
@@ -68,7 +82,22 @@ class _ManualRequestFormState extends State<ManualRequestForm> {
           _buildBodyTypeFormField(context),
           _gaps(),
           _buildManuYearFormField(context),
+        ],
+      ),
+    );
+  }
+
+  Padding _personalInfo(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 10.0, bottom: 25.0),
+      child: Column(
+        children: [
+          _buildNameFormField(context),
           _gaps(),
+          _buildEmailFormField(context),
+          _gaps(),
+          _buildPhoneFormField(context),
+          /*_gaps(),
           SizedBox(
             width: SizeConfig.screenWidth,
             child: buildOutlinedBtn(
@@ -79,7 +108,7 @@ class _ManualRequestFormState extends State<ManualRequestForm> {
               label: "Submit",
               buttonController: buttonController,
             ),
-          ),
+          ),*/
         ],
       ),
     );
@@ -91,7 +120,7 @@ class _ManualRequestFormState extends State<ManualRequestForm> {
         icon: const Icon(Icons.swap_horiz),
         onPressed: () {
           setState(() {
-            isProduct ? (makeRef = "") : (productName = "");
+            isProduct ? (productName = "") : (makeRef = "");
           });
         },
       );
@@ -101,6 +130,7 @@ class _ManualRequestFormState extends State<ManualRequestForm> {
         ? buildMakesDropdown(
             controller: makeController,
             onChanged: (v) {
+              // Check if 'v' is a String or Model Object
               var ref = (v.runtimeType == String) ? v : v.makeRef;
               setState(() => makeRef = ref);
 
@@ -127,7 +157,8 @@ class _ManualRequestFormState extends State<ManualRequestForm> {
         ? buildProductsDropdown(
             controller: productController,
             onChanged: (v) {
-              var name = (v.runtimeType == String) ? v : v.techName;
+              // Check if 'v' is a String or Model Object
+              var name = (v.runtimeType == String) ? v : v.locPartName;
               setState(() => productName = name);
 
               debugPrint("product-1 $name");
@@ -172,6 +203,28 @@ class _ManualRequestFormState extends State<ManualRequestForm> {
         contentPadding:
             const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
         suffixIcon: _swapFieldsButton(),
+        alignLabelWithHint: true,
+        /*border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(5),
+          ),*/
+      ),
+    );
+  }
+
+  TextFormField _otherProductNameFormField(BuildContext context) {
+    return TextFormField(
+      keyboardType: TextInputType.text,
+      // onFieldSubmitted: bloc.onChangeEmail,
+      // onChanged: bloc.onChangeEmail,
+      decoration: InputDecoration(
+        filled: true,
+        hintText: "Others: specify",
+        labelText: "Product Name",
+        // errorText: snapshot.hasError ? snapshot.error.toString() : "",
+        fillColor: Theme.of(context).colorScheme.primary.withOpacity(0.04),
+        contentPadding:
+            const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
+        suffixIcon: _swapFieldsButton(isProduct: true),
         alignLabelWithHint: true,
         /*border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(5),
@@ -259,28 +312,6 @@ class _ManualRequestFormState extends State<ManualRequestForm> {
         contentPadding:
             const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
 
-        alignLabelWithHint: true,
-        /*border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(5),
-          ),*/
-      ),
-    );
-  }
-
-  TextFormField _otherProductNameFormField(BuildContext context) {
-    return TextFormField(
-      keyboardType: TextInputType.text,
-      // onFieldSubmitted: bloc.onChangeEmail,
-      // onChanged: bloc.onChangeEmail,
-      decoration: InputDecoration(
-        filled: true,
-        hintText: "Others: specify",
-        labelText: "Product Name",
-        // errorText: snapshot.hasError ? snapshot.error.toString() : "",
-        fillColor: Theme.of(context).colorScheme.primary.withOpacity(0.04),
-        contentPadding:
-            const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
-        suffixIcon: _swapFieldsButton(isProduct:true),
         alignLabelWithHint: true,
         /*border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(5),

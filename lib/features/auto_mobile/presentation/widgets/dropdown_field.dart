@@ -70,7 +70,7 @@ class DropDownField<T> extends FormField<String> {
 
   DropDownField(
     this.textFieldKey, {
-    Key? key,
+    super.key,
     this.controller,
     this.value,
     this.isRequired = false,
@@ -88,7 +88,6 @@ class DropDownField<T> extends FormField<String> {
     this.isEnabled = true,
     this.strict = true,
   }) : super(
-          key: key,
           autovalidateMode: AutovalidateMode.disabled,
           initialValue: controller != null ? controller.text : (value ?? ''),
           onSaved: setter,

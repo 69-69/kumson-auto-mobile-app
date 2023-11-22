@@ -1,7 +1,7 @@
 import 'package:automasters/features/auto_mobile/presentation/widgets/appbar_video_player.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:automasters/features/auto_mobile/presentation/widgets/bottom_sheet/make_a_request_modal.dart';
+import 'package:automasters/features/auto_mobile/presentation/pages/bottom_sheet/make_a_request_modal.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/question_button.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/animation_switcher.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/fade_slide.dart';

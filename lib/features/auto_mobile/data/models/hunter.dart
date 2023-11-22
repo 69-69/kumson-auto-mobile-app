@@ -2,40 +2,24 @@ import '../../domain/entities/hunter.dart';
 
 class HunterModel extends HunterEntity {
   const HunterModel({
-    int? id,
-    String? product,
-    String? partNo,
-    String? brand,
-    String? brandCode,
-    String? productCode,
-    String? productStatus,
-    String? hunter,
-    String? sku,
-    String? universalPartNo,
-    String? manufacturerNo,
-    String? manufacturerType,
-    String? sources,
-    String? note,
-    String? personnel,
+    super.id,
+    super.product,
+    super.partNo,
+    super.brand,
+    super.brandCode,
+    super.productCode,
+    super.productStatus,
+    super.hunter,
+    super.sku,
+    super.universalPartNo,
+    super.manufacturerNo,
+    super.manufacturerType,
+    super.sources,
+    super.note,
+    super.personnel,
 
     // required this.images
-  }) : super(
-          id: id,
-          product: product,
-          partNo: partNo,
-          brand: brand,
-          brandCode: brandCode,
-          productCode: productCode,
-          productStatus: productStatus,
-          hunter: hunter,
-          sku: sku,
-          universalPartNo: universalPartNo,
-          manufacturerNo: manufacturerNo,
-          manufacturerType: manufacturerType,
-          sources: sources,
-          note: note,
-          personnel: personnel,
-        );
+  });
 
   HunterModel copyWith({
     int? id,
@@ -72,6 +56,17 @@ class HunterModel extends HunterEntity {
       personnel: personnel ?? this.personnel,
     );
   }
+
+  /// Empty hunter which has no data.
+  static const empty = HunterModel(product: '');
+
+  /// Convenience getter to determine whether the current hunter request is empty.
+  @override
+  bool get isEmpty => this == HunterModel.empty;
+
+  /// Convenience getter to determine whether the current hunter request is not empty.
+  @override
+  bool get isNotEmpty => this != HunterModel.empty;
 
   factory HunterModel.fromJson(Map<String, dynamic> map) {
     return HunterModel(

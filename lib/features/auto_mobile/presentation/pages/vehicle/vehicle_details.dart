@@ -6,7 +6,7 @@ import 'package:automasters/features/auto_mobile/presentation/bloc/parts/remote/
 import 'package:automasters/features/auto_mobile/presentation/pages/vehicle/filter_parts_category.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/custom_app_bar.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/async_progress_dialog.dart';
-import 'package:automasters/features/auto_mobile/presentation/widgets/bottom_sheet/make_a_request_modal.dart';
+import 'package:automasters/features/auto_mobile/presentation/pages/bottom_sheet/make_a_request_modal.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/refresh_button.dart';
 import 'package:automasters/core/util/size_config.dart';
 import 'package:automasters/features/auto_mobile/data/models/parts.dart';
@@ -54,52 +54,52 @@ class VehicleDetails extends StatelessWidget {
     );
   }
 
-  Widget _buildBody(BuildContext context, VehicleModel vehicle) {
+  Widget _buildBody(BuildContext parentContext, VehicleModel vehicle) {
     return buildCurveContainer(
-      context,
+      parentContext,
       EdgeInsets.fromLTRB(
         24.0,
         32.0,
         24.0,
-        MediaQuery.of(context).viewInsets.bottom,
+        MediaQuery.of(parentContext).viewInsets.bottom,
       ),
       child: data.containsKey('parts') && data['parts'] != null
           ? FilterPartsCategory(
               focusNode: focusNode, vehicle: vehicle, carParts: data['parts'])
-          : _partsBloc(context, vehicle),
+          : _partsBloc(parentContext, vehicle),
     );
   }
 
   BlocBuilder<PartsByVFamBloc, PartsState> _partsBloc(
-      BuildContext context, VehicleModel vehicle) {
-    _getPartsFunc(context, vehicle);
+      BuildContext parentContext, VehicleModel vehicle) {
+    _getPartsFunc(parentContext, vehicle);
 
     return BlocBuilder<PartsByVFamBloc, PartsState>(
       // If listenWhen returns true, listener will be called with new state
-      buildWhen: (previousState, state) => state != previousState,
-      builder: (context, state) {
+      // buildWhen: (previousState, state) => state != previousState,
+      builder: (partsContext, state) {
         if (state is PartsLoading) {
           return showCircularProgress();
         }
 
         if (state is PartsError) {
-          return buildRefreshApp(context);
+          return buildRefreshApp(partsContext);
         }
 
         if (state is PartsDone) {
-          List<PartModel> veh = state.parts! as List<PartModel>;
+          List<PartModel> veh = state.part! as List<PartModel>;
 
           return FilterPartsCategory(
               focusNode: focusNode, vehicle: vehicle, carParts: veh);
         }
-        return showMakeRequestButton(context, "partRequest");
+        return showMakeRequestButton(partsContext, "partRequest");
       },
     );
   }
 
-  void _getPartsFunc(BuildContext context, VehicleModel vehicle) {
-    context
+  void _getPartsFunc(BuildContext partsContext, VehicleModel vehicle) {
+    partsContext
         .read<PartsByVFamBloc>()
-        .add(GetPartsByVFamEvent(vehicle.vfam ?? ""));
+        .add(GetPartsByVFamEvent(vehicle.vfam!));
   }
 }

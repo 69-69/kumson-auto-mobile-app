@@ -149,19 +149,19 @@ class _AutomobileApiService implements AutomobileApiService {
     const Map<String, dynamic>? _data = null;
     final _result = await _dio.fetch<Map<String, dynamic>>(
         _setStreamType<HttpResponse<List<Model>>>(Options(
-      method: 'GET',
-      headers: _headers,
-      extra: _extra,
-      contentType: contentType,
-    )
+          method: 'GET',
+          headers: _headers,
+          extra: _extra,
+          contentType: contentType,
+        )
             .compose(
-              _dio.options,
-              '/test/runner/2023/k1/car_models/make_ref/${makeRef}',
-              queryParameters: queryParameters,
-              data: _data,
-            )
+          _dio.options,
+          '/test/runner/2023/k1/car_models/make_ref/${makeRef}',
+          queryParameters: queryParameters,
+          data: _data,
+        )
             .copyWith(
-                baseUrl: _combineBaseUrls(
+            baseUrl: _combineBaseUrls(
               _dio.options.baseUrl,
               baseUrl,
             ))));
@@ -271,6 +271,7 @@ class _AutomobileApiService implements AutomobileApiService {
               _dio.options.baseUrl,
               baseUrl,
             ))));
+    // debugPrint("today "+ _result.data!.toString());
     final value = VehicleModel.fromJson(_result.data!);
     final httpResponse = HttpResponse(value, _result);
     return httpResponse;
@@ -651,6 +652,7 @@ class _AutomobileApiService implements AutomobileApiService {
               _dio.options.baseUrl,
               baseUrl,
             ))));
+    // print("Steve ${_result.data!['content']}");
     /*var json = _result.data!['content']
         .map((dynamic i) => HunterModel.fromJson(i as Map<String, dynamic>));
     List<HunterModel> value = List<HunterModel>.from(json);*/
@@ -851,6 +853,7 @@ class _AutomobileApiService implements AutomobileApiService {
               _dio.options.baseUrl,
               baseUrl,
             ))));
+    // debugPrint(_result.data!['content'].toString());
     /*var json = _result.data!['content']
         .map((dynamic i) => VendorModel.fromJson(i as Map<String, dynamic>));
     List<VendorModel> value = List<VendorModel>.from(json);*/

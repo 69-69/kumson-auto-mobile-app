@@ -1,8 +1,9 @@
+import 'package:automasters/features/auto_mobile/presentation/widgets/custom_stepper.dart';
+import 'package:automasters/features/auto_mobile/presentation/widgets/make_model_dropdown.dart';
 import 'package:flutter/material.dart';
 import 'package:automasters/core/util/size_config.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_pem.dart';
-import 'package:automasters/features/auto_mobile/data/data_sources/local/product_status_service.dart';
-import 'package:automasters/features/auto_mobile/presentation/widgets/outline_btn.dart';
+import 'package:automasters/features/auto_mobile/data/data_sources/local/search_history_service.dart';
 
 class CrossRefRequestForm extends StatefulWidget {
   const CrossRefRequestForm({super.key});
@@ -12,33 +13,64 @@ class CrossRefRequestForm extends StatefulWidget {
 }
 
 class _CrossRefRequestFormState extends State<CrossRefRequestForm> {
+  TextEditingController productController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  String productName = "";
 
   void _processData() {
+    productController.clear();
     // Process your data and upload to server
     _formKey.currentState?.reset();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Form(key: _formKey, child: _buildBody(context));
+    return _buildBody(context);
+    // return Form(key: _formKey, child: _buildBody(context));
   }
 
-  Padding _buildBody(BuildContext context) {
+  Form _buildBody(BuildContext context) {
+    return Form(
+      key: _formKey,
+      child: CustomStepper(
+        titles: const ['Vehicle', 'Personal'],
+        subTitle: const ['Helps data collection', 'Helps to contact you'],
+        stepperContents: [
+          _vehicleInfo(context),
+          _personalInfo(context),
+        ],
+        onSubmit: (int currentStepper) {
+          debugPrint("submitted $currentStepper");
+          _processData();
+        },
+      ),
+    );
+  }
+
+  Padding _vehicleInfo(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(top: 10.0, bottom: 25.0),
       child: Column(
         children: [
           _buildVinFormField(context),
           _gaps(),
-          _buildPartFormField(context),
-          _gaps(),
+          _buildProductNameFormField(),
+        ],
+      ),
+    );
+  }
+
+  Padding _personalInfo(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 10.0, bottom: 25.0),
+      child: Column(
+        children: [
           _buildNameFormField(context),
           _gaps(),
           _buildEmailFormField(context),
           _gaps(),
           _buildPhoneFormField(context),
-          _gaps(),
+          /*_gaps(),
           SizedBox(
             width: SizeConfig.screenWidth,
             child: buildOutlinedBtn(
@@ -48,7 +80,7 @@ class _CrossRefRequestFormState extends State<CrossRefRequestForm> {
               },
               label: "Submit",
             ),
-          ),
+          ),*/
         ],
       ),
     );
@@ -56,8 +88,15 @@ class _CrossRefRequestFormState extends State<CrossRefRequestForm> {
 
   SizedBox _gaps() => SizedBox(height: getProportionateScreenHeight(7));
 
+  IconButton _swapFieldsButton() => IconButton(
+    icon: const Icon(Icons.swap_horiz),
+    onPressed: () {
+      setState(() => productName = "");
+    },
+  );
+
   TextFormField _buildVinFormField(BuildContext context) {
-    String readOnlyVin = ProductStatusService().getStatus(key: readOnlyVinKey);
+    String readOnlyVin = SearchHistoryDB().getProductStatus(key: readOnlyVinKey);
     Color color = Theme.of(context).colorScheme.primary;
     const textStyle = TextStyle(color: Colors.white, fontSize: 12);
 
@@ -175,20 +214,35 @@ class _CrossRefRequestFormState extends State<CrossRefRequestForm> {
     );
   }
 
-  TextFormField _buildPartFormField(BuildContext context) {
+  _buildProductNameFormField() {
+    return productName.toLowerCase() != "others"
+        ? buildProductsDropdown(
+      controller: productController,
+      onChanged: (v) {
+        // Check if 'v' is a String or Model Object
+        var name = (v.runtimeType == String) ? v : v.locPartName;
+        setState(() => productName = name);
+
+        debugPrint("product-1 $name");
+      },
+    )
+        : _otherProductNameFormField(context);
+  }
+
+  TextFormField _otherProductNameFormField(BuildContext context) {
     return TextFormField(
       keyboardType: TextInputType.text,
       // onFieldSubmitted: bloc.onChangeEmail,
       // onChanged: bloc.onChangeEmail,
       decoration: InputDecoration(
         filled: true,
-        hintText: "Part Name",
-        labelText: "Part Name",
+        hintText: "Others: specify",
+        labelText: "Product Name",
         // errorText: snapshot.hasError ? snapshot.error.toString() : "",
         fillColor: Theme.of(context).colorScheme.primary.withOpacity(0.04),
         contentPadding:
         const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
-
+        suffixIcon: _swapFieldsButton(),
         alignLabelWithHint: true,
         /*border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(5),
@@ -196,4 +250,5 @@ class _CrossRefRequestFormState extends State<CrossRefRequestForm> {
       ),
     );
   }
+
 }

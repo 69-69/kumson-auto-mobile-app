@@ -1,20 +1,25 @@
 import 'dart:io';
 
+import 'package:dio/dio.dart';
+import 'package:retrofit/dio.dart';
 import 'package:automasters/core/constants/constants.dart';
 import 'package:automasters/core/resources/data_state.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/local/app_local_database.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_pem.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/remote/automobile_api_service.dart';
 import 'package:automasters/features/auto_mobile/data/models/vehicle.dart';
-import 'package:automasters/features/auto_mobile/domain/entities/vehicle.dart';
 import 'package:automasters/features/auto_mobile/domain/repositories/vehicle_repository.dart';
-import 'package:dio/dio.dart';
 
 class VehicleRepositoryImpl implements VehicleRepository {
   final AutomobileApiService _automobileApiService;
   final AppLocalDatabase _appLocalDatabase = AppLocalDatabase();
 
   VehicleRepositoryImpl(this._automobileApiService);
+
+  /// Check for Valid Response [_responseValid]
+  bool _responseValid<T>(HttpResponse<T> httpRes) =>
+      httpRes.response.data != null &&
+      httpRes.response.statusCode == HttpStatus.ok;
 
   /// Get Remote Vehicles from API
   @override
@@ -31,7 +36,7 @@ class VehicleRepositoryImpl implements VehicleRepository {
         sort: "$pagerSort,$pagerOrder",
       );
 
-      if (httpResponse.response.statusCode == HttpStatus.ok) {
+      if (_responseValid<List<VehicleModel>>(httpResponse)) {
         //print("httpResponse-> ${httpResponse.response.data}");
         return DataSuccess(httpResponse.data);
       } else {
@@ -50,7 +55,7 @@ class VehicleRepositoryImpl implements VehicleRepository {
 
   /// Get VehicleByVIN
   @override
-  Future<DataState<VehicleEntity>> getVehicleByVin(String vin) async {
+  Future<DataState<VehicleModel>> getVehicleByVin(String vin) async {
     try {
       // Get AccessToken from App localStorage
       final accessToken = _appLocalDatabase.readData(key: accessTokenKey);
@@ -61,7 +66,7 @@ class VehicleRepositoryImpl implements VehicleRepository {
         vin: vin,
       );
 
-      if (httpResponse.response.statusCode == HttpStatus.ok) {
+      if (_responseValid<VehicleModel>(httpResponse)) {
         //print("httpResponse-> ${httpResponse.response.data}");
         return DataSuccess(httpResponse.data);
       } else {
@@ -80,7 +85,7 @@ class VehicleRepositoryImpl implements VehicleRepository {
 
   /// Get VehicleByVIC
   @override
-  Future<DataState<VehicleEntity>> getVehicleByVic(String vehicleCode) async {
+  Future<DataState<VehicleModel>> getVehicleByVic(String vehicleCode) async {
     try {
       // Get AccessToken from App localStorage
       final accessToken = _appLocalDatabase.readData(key: accessTokenKey);
@@ -91,7 +96,7 @@ class VehicleRepositoryImpl implements VehicleRepository {
         vehicleCode: vehicleCode,
       );
 
-      if (httpResponse.response.statusCode == HttpStatus.ok) {
+      if (_responseValid<VehicleModel>(httpResponse)) {
         //print("success httpResponse-> ${httpResponse.response.data}");
         return DataSuccess(httpResponse.data);
       } else {

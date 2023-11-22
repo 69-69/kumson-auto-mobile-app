@@ -11,3 +11,4 @@ const vinRequest ="vinRequest";
 const partNoRequest ="partNoRequest";
 const partRequest ="partRequest";
 const crossRefRequest ="crossRefRequest";
+const priceRequest ="priceRequest";

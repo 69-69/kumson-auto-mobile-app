@@ -3,9 +3,17 @@ import 'package:flutter/material.dart';
 // PART-No: BKR5ES
 // VIN: 19unc1b14hy000003 - 19unc1b04hy000002
 
+const String appName = "AutoMasters";
+final passwordRegExp = RegExp(r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$');
+final RegExp emailRegExp = RegExp(
+  r'^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$',
+);
+
 const String automobileAPIBaseURL = "http://ec2-18-188-42-121.us-east-2.compute.amazonaws.com";
-    // "http://localhost:8080";
+// "http://localhost:8080";
 const String isAPILiveUrl = "$automobileAPIBaseURL/api/v1/auth";
+const String refreshTokenUrl =
+    "$automobileAPIBaseURL/api/v1/auth/refresh/token";
 // PRODUCTION
 const String prodPath = "/api/v1/auto";
 const String authPath = "/api/v1/auth";
@@ -14,6 +22,7 @@ const String devPath = "/test/runner/2023/k1";
 const String kDefaultPartImage = "assets/part-p.png";
 const String kDefaultCarImage = "assets/car3.png";
 const String kHomeBg = "assets/home-bg.jpg";
+const String kLogo = "assets/logo.png";
 const ghCediSign = "GH";
 
 // Pagination Request
@@ -62,5 +71,3 @@ const Map<String, String> customHeaders = {
 };
 
 const Color kPrimaryColor = Color(0xFF4F5298);
-
-

@@ -30,7 +30,7 @@ class HomeRepositoryImpl {
       if (response.statusCode == 200) {
         // debugPrint("httpResponse-> ${response.data}");
 
-        return response.data!['content'];
+        return endPoint=="car_products" ? response.data! : response.data!['content'];
       } else {
         return null;
       }

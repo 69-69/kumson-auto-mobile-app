@@ -16,8 +16,8 @@ class CustomBottomSheet extends StatelessWidget {
     this.maxChildSize,
     this.bgColor,
     this.headerWidget,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

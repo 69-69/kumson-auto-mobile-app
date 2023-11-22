@@ -55,7 +55,7 @@ class _AppBarVideoPlayerState extends State<AppBarVideoPlayer> {
     _controller = YoutubePlayerController(
       initialVideoId: videoId ?? "",
       flags: const YoutubePlayerFlags(
-        autoPlay: true,
+        autoPlay: false,
         mute: true,
         isLive: false,
       ),

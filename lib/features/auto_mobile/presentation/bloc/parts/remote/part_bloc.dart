@@ -1,11 +1,12 @@
 import 'package:automasters/core/resources/data_state.dart';
 import 'package:automasters/core/util/utils.dart';
 import 'package:automasters/features/auto_mobile/domain/entities/parts.dart';
+import 'package:automasters/features/auto_mobile/domain/usecases/get_parts.dart';
 import 'package:automasters/features/auto_mobile/presentation/bloc/parts/remote/part_event.dart';
 import 'package:automasters/features/auto_mobile/presentation/bloc/parts/remote/part_state.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../domain/usecases/get_parts.dart';
 
 /// Parts Bloc
 class PartsBloc extends Bloc<PartsEvent, PartsState> {
@@ -19,7 +20,7 @@ class PartsBloc extends Bloc<PartsEvent, PartsState> {
     final dataState = await _getPartsUseCase();
 
     if (dataState is DataSuccess && dataState.data!.isNotEmpty) {
-      emit(PartsDone<PartEntity>(dataState.data!));
+      emit(PartsDone<List<PartEntity>>(dataState.data!));
     }
 
     if (dataState is DataFailed) {
@@ -38,6 +39,7 @@ class PartByHunterNoBloc extends Bloc<PartsEvent, PartsState> {
       : super(const PartsLoading()) {
     on<GetPartByHunterNoEvent>(
       onGetPartByHunterNo,
+      /// Apply the custom `EventTransformer` to the `EventHandler`.
       transformer: debounce(),
     );
   }
@@ -47,9 +49,9 @@ class PartByHunterNoBloc extends Bloc<PartsEvent, PartsState> {
     final dataState =
         await _getPartByHunterNoUseCase.call(params: event.hunterNo);
 
-    if (dataState is DataSuccess && dataState.data!.hunter!.isNotEmpty) {
+    if (dataState is DataSuccess && dataState.data!.isNotEmpty) {
       // pass the data
-      emit(PartByDone(dataState.data!));
+      emit(PartsDone<PartEntity>(dataState.data!));
     }
 
     if (dataState is DataFailed) {
@@ -57,6 +59,22 @@ class PartByHunterNoBloc extends Bloc<PartsEvent, PartsState> {
       // pass the error
       emit(PartsError(dataState.error!));
     }
+  }
+
+
+  /// For Debugging Purpose Only: observe all state changes [onChange]
+  @override
+  void onChange(Change<PartsState> change) {
+    super.onChange(change);
+    debugPrint("Parts-HunterNo-Bloc: ${change.currentState}\n\n");
+  }
+
+  /// For Debugging Purpose Only:
+  /// current state, the event, and the next state [onTransition]
+  @override
+  void onTransition(Transition<PartsEvent, PartsState> transition) {
+    super.onTransition(transition);
+    debugPrint("Parts-HunterNo-Bloc: $transition\n\n");
   }
 }
 
@@ -67,6 +85,7 @@ class PartsByVFamBloc extends Bloc<PartsEvent, PartsState> {
   PartsByVFamBloc(this._getPartsByVFamUseCase) : super(const PartsLoading()) {
     on<GetPartsByVFamEvent>(
       onGetPartsByVFam,
+      /// Apply the custom `EventTransformer` to the `EventHandler`.
       transformer: debounce(),
     );
   }
@@ -75,7 +94,7 @@ class PartsByVFamBloc extends Bloc<PartsEvent, PartsState> {
     final dataState = await _getPartsByVFamUseCase.call(params: event.vfam);
 
     if (dataState is DataSuccess && dataState.data!.isNotEmpty) {
-      emit(PartsDone<PartEntity>(dataState.data!));
+      emit(PartsDone<List<PartEntity>>(dataState.data!));
     }
 
     if (dataState is DataFailed) {
@@ -83,6 +102,22 @@ class PartsByVFamBloc extends Bloc<PartsEvent, PartsState> {
       // pass the data
       emit(PartsError(dataState.error!));
     }
+  }
+
+
+  /// For Debugging Purpose Only: observe all state changes [onChange]
+  @override
+  void onChange(Change<PartsState> change) {
+    super.onChange(change);
+    debugPrint("Parts-VFam-Bloc: ${change.currentState}\n\n");
+  }
+
+  /// For Debugging Purpose Only:
+  /// current state, the event, and the next state [onTransition]
+  @override
+  void onTransition(Transition<PartsEvent, PartsState> transition) {
+    super.onTransition(transition);
+    debugPrint("Parts-VFam-Bloc: $transition\n\n");
   }
 }
 
@@ -94,6 +129,7 @@ class PartsByMakeModelBloc extends Bloc<PartsEvent, PartsState> {
       : super(const PartsLoading()) {
     on<GetByMakeModelEvent>(
       onGetPartsByMakeModel,
+      /// Apply the custom `EventTransformer` to the `EventHandler`.
       transformer: debounce(),
     );
   }
@@ -103,7 +139,7 @@ class PartsByMakeModelBloc extends Bloc<PartsEvent, PartsState> {
     final dataState = await _getPartsByMakeModelUseCase.call(params: params);
 
     if (dataState is DataSuccess && dataState.data!.isNotEmpty) {
-      emit(PartsDone<PartEntity>(dataState.data!));
+      emit(PartsDone<List<PartEntity>>(dataState.data!));
     }
 
     if (dataState is DataFailed) {
@@ -111,6 +147,22 @@ class PartsByMakeModelBloc extends Bloc<PartsEvent, PartsState> {
       // pass the data
       emit(PartsError(dataState.error!));
     }
+  }
+
+
+  /// For Debugging Purpose Only: observe all state changes [onChange]
+  @override
+  void onChange(Change<PartsState> change) {
+    super.onChange(change);
+    debugPrint("Parts-MakeModel-Bloc: ${change.currentState}\n\n");
+  }
+
+  /// For Debugging Purpose Only:
+  /// current state, the event, and the next state [onTransition]
+  @override
+  void onTransition(Transition<PartsEvent, PartsState> transition) {
+    super.onTransition(transition);
+    debugPrint("Parts-MakeModel-Bloc: $transition\n\n");
   }
 }
 
@@ -122,6 +174,7 @@ class PartsYearsByMakeModelBloc extends Bloc<PartsEvent, PartsState> {
       : super(const PartsLoading()) {
     on<GetByMakeModelEvent>(
       onGetPartsYearsByMakeModel,
+      /// Apply the custom `EventTransformer` to the `EventHandler`.
       transformer: debounce(),
     );
   }
@@ -131,7 +184,7 @@ class PartsYearsByMakeModelBloc extends Bloc<PartsEvent, PartsState> {
     final dataState = await _getYearsByMakeModelUseCase.call(params: params);
 
     if (dataState is DataSuccess && dataState.data!.isNotEmpty) {
-      emit(PartsDone<int>(dataState.data!));
+      emit(PartsDone<List<int>>(dataState.data!));
     }
 
     if (dataState is DataFailed) {
@@ -139,5 +192,21 @@ class PartsYearsByMakeModelBloc extends Bloc<PartsEvent, PartsState> {
       // pass the data
       emit(PartsError(dataState.error!));
     }
+  }
+
+
+  /// For Debugging Purpose Only: observe all state changes [onChange]
+  @override
+  void onChange(Change<PartsState> change) {
+    super.onChange(change);
+    debugPrint("Parts-Years-Bloc: ${change.currentState}\n\n");
+  }
+
+  /// For Debugging Purpose Only:
+  /// current state, the event, and the next state [onTransition]
+  @override
+  void onTransition(Transition<PartsEvent, PartsState> transition) {
+    super.onTransition(transition);
+    debugPrint("Parts-Years-Bloc: $transition\n\n");
   }
 }

@@ -39,6 +39,15 @@ class VendorEntity extends Equatable {
     // required this.images
   });
 
+  /// Empty vendor which has no data.
+  static const empty = VendorEntity(vendor: '');
+
+  /// Convenience getter to determine whether the current vendor request is empty.
+  bool get isEmpty => this == VendorEntity.empty;
+
+  /// Convenience getter to determine whether the current vendor request is not empty.
+  bool get isNotEmpty => this != VendorEntity.empty;
+
   @override
   List<Object?> get props => [
     id,

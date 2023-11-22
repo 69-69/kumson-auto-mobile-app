@@ -1,14 +1,15 @@
 import 'dart:io';
 
+import 'package:automasters/core/constants/constants.dart';
 import 'package:automasters/core/resources/data_state.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/local/app_local_database.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_pem.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/remote/automobile_api_service.dart';
-import 'package:automasters/features/auto_mobile/domain/entities/hunter.dart';
+import 'package:automasters/features/auto_mobile/data/models/hunter.dart';
 import 'package:automasters/features/auto_mobile/domain/repositories/hunter_repository.dart';
 import 'package:dio/dio.dart';
 
-import '../../../../core/constants/constants.dart';
+import 'package:retrofit/dio.dart';
 
 class HunterRepositoryImpl implements HunterRepository {
   final AutomobileApiService _automobileApiService;
@@ -16,8 +17,13 @@ class HunterRepositoryImpl implements HunterRepository {
 
   HunterRepositoryImpl(this._automobileApiService);
 
+  /// Check for Valid Response [_responseValid]
+  bool _responseValid<T>(HttpResponse<T> httpRes) =>
+      httpRes.response.data != null &&
+      httpRes.response.statusCode == HttpStatus.ok;
+
   @override
-  Future<DataState<List<HunterEntity>>> getHunters() async {
+  Future<DataState<List<HunterModel>>> getHunters() async {
     try {
       // Get AccessToken from App localStorage
       final accessToken = _appLocalDatabase.readData(key: accessTokenKey);
@@ -31,7 +37,7 @@ class HunterRepositoryImpl implements HunterRepository {
         sort: "brand,$pagerOrder",
       );
 
-      if (httpResponse.response.statusCode == HttpStatus.ok) {
+      if (_responseValid<List<HunterModel>>(httpResponse)) {
         //print("httpResponse-> ${httpResponse.response.data}");
         return DataSuccess(httpResponse.data);
       } else {
@@ -49,7 +55,7 @@ class HunterRepositoryImpl implements HunterRepository {
   }
 
   @override
-  Future<DataState<List<HunterEntity>>> getHunterPartsByHunterNo(
+  Future<DataState<List<HunterModel>>> getHunterPartsByHunterNo(
     String hunterNo,
   ) async {
     try {
@@ -66,8 +72,8 @@ class HunterRepositoryImpl implements HunterRepository {
         sort: "brand,$pagerOrder",
       );
 
-      if (httpResponse.response.statusCode == HttpStatus.ok) {
-        //print("httpResponse-> ${httpResponse.response.data}");
+      if (_responseValid<List<HunterModel>>(httpResponse)) {
+        // print("getHunterPartsByHunterNo-Repo-> ${httpResponse.response.data}");
         return DataSuccess(httpResponse.data);
       } else {
         return DataFailed(
@@ -84,7 +90,7 @@ class HunterRepositoryImpl implements HunterRepository {
   }
 
   @override
-  Future<DataState<List<HunterEntity>>> getHunterPartsByPartNo(
+  Future<DataState<List<HunterModel>>> getHunterPartsByPartNo(
     String partNo,
   ) async {
     try {
@@ -101,7 +107,7 @@ class HunterRepositoryImpl implements HunterRepository {
         sort: "brand,$pagerOrder",
       );
 
-      if (httpResponse.response.statusCode == HttpStatus.ok) {
+      if (_responseValid<List<HunterModel>>(httpResponse)) {
         //print("httpResponse-> ${httpResponse.response.data}");
         return DataSuccess(httpResponse.data);
       } else {

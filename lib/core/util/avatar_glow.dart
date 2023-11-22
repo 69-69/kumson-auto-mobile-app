@@ -16,7 +16,7 @@ class AvatarGlow extends StatefulWidget {
   final Duration? startDelay;
 
   const AvatarGlow({
-    Key? key,
+    super.key,
     required this.child,
     required this.endRadius,
     this.shape = BoxShape.circle,
@@ -29,7 +29,7 @@ class AvatarGlow extends StatefulWidget {
     this.showTwoGlows = true,
     this.glowColor = Colors.white,
     this.startDelay,
-  }) : super(key: key);
+  });
 
   @override
   State<AvatarGlow> createState() => _AvatarGlowState();

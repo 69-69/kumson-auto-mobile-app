@@ -1,13 +1,14 @@
 import 'dart:io';
-
+import 'package:dio/dio.dart';
+import 'package:retrofit/dio.dart';
 import 'package:automasters/core/constants/constants.dart';
 import 'package:automasters/core/resources/data_state.dart';
+import 'package:automasters/features/auto_mobile/data/models/parts.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/local/app_local_database.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_pem.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/remote/automobile_api_service.dart';
-import 'package:automasters/features/auto_mobile/domain/entities/parts.dart';
 import 'package:automasters/features/auto_mobile/domain/repositories/parts_repository.dart';
-import 'package:dio/dio.dart';
+
 
 class PartsRepositoryImpl implements PartsRepository {
   final AutomobileApiService _automobileApiService;
@@ -15,8 +16,13 @@ class PartsRepositoryImpl implements PartsRepository {
 
   PartsRepositoryImpl(this._automobileApiService);
 
+  /// Check for Valid Response [_responseValid]
+  bool _responseValid<T>(HttpResponse<T> httpRes) =>
+      httpRes.response.data != null &&
+      httpRes.response.statusCode == HttpStatus.ok;
+
   @override
-  Future<DataState<List<PartEntity>>> getParts() async {
+  Future<DataState<List<PartModel>>> getParts() async {
     try {
       // Get AccessToken from App localStorage
       final accessToken = _appLocalDatabase.readData(key: accessTokenKey);
@@ -26,7 +32,7 @@ class PartsRepositoryImpl implements PartsRepository {
         authToken: "Bearer $accessToken",
       );
 
-      if (httpResponse.response.statusCode == HttpStatus.ok) {
+      if (_responseValid<List<PartModel>>(httpResponse)) {
         //print("httpResponse-> ${httpResponse.response.data}");
         return DataSuccess(httpResponse.data);
       } else {
@@ -44,7 +50,7 @@ class PartsRepositoryImpl implements PartsRepository {
   }
 
   @override
-  Future<DataState<PartEntity>> getPartByHunterNo(String hunterNo) async {
+  Future<DataState<PartModel>> getPartByHunterNo(String hunterNo) async {
     try {
       // Get AccessToken from App localStorage
       final accessToken = _appLocalDatabase.readData(key: accessTokenKey);
@@ -55,7 +61,7 @@ class PartsRepositoryImpl implements PartsRepository {
         hunterNo: hunterNo,
       );
 
-      if (httpResponse.response.statusCode == HttpStatus.ok) {
+      if (_responseValid<PartModel>(httpResponse)) {
         //print("httpResponse-> ${httpResponse.response.data}");
         return DataSuccess(httpResponse.data);
       } else {
@@ -73,7 +79,7 @@ class PartsRepositoryImpl implements PartsRepository {
   }
 
   @override
-  Future<DataState<List<PartEntity>>> getPartsByVFam(String vfam) async {
+  Future<DataState<List<PartModel>>> getPartsByVFam(String vfam) async {
     try {
       // Get AccessToken from App localStorage
       final accessToken = _appLocalDatabase.readData(key: accessTokenKey);
@@ -87,7 +93,7 @@ class PartsRepositoryImpl implements PartsRepository {
         sort: "part,$pagerOrder",
       );
 
-      if (httpResponse.response.statusCode == HttpStatus.ok) {
+      if (_responseValid<List<PartModel>>(httpResponse)) {
         //print("httpResponse-> ${httpResponse.response.data}");
         return DataSuccess(httpResponse.data);
       } else {
@@ -105,7 +111,7 @@ class PartsRepositoryImpl implements PartsRepository {
   }
 
   @override
-  Future<DataState<List<PartEntity>>> getPartsByVMakeModel(
+  Future<DataState<List<PartModel>>> getPartsByVMakeModel(
       String make, String model) async {
     try {
       // Get AccessToken from App localStorage
@@ -121,7 +127,7 @@ class PartsRepositoryImpl implements PartsRepository {
         sort: "part,$pagerOrder",
       );
 
-      if (httpResponse.response.statusCode == HttpStatus.ok) {
+      if (_responseValid<List<PartModel>>(httpResponse)) {
         //print("httpResponse-> ${httpResponse.response.data}");
         return DataSuccess(httpResponse.data);
       } else {
@@ -152,7 +158,7 @@ class PartsRepositoryImpl implements PartsRepository {
         model: model,
       );
 
-      if (httpResponse.response.statusCode == HttpStatus.ok) {
+      if (_responseValid<List<int>>(httpResponse)) {
         //print("httpResponse-> ${httpResponse.response.data}");
         return DataSuccess(httpResponse.data);
       } else {

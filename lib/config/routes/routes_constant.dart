@@ -3,7 +3,9 @@
 // we use the const Route String Name to access Named Routes
 
 const String appRootRoute = "/";
+const String splashScreenRoute = "splash_screen";
 const String autoHomeRoute = "auto_home";
+const String autoHomeWithAuthRoute = "auto_home_auth";
 const String vehicleDetailsRoute = "vehicle_details";
 const String partsByPartNoRoute = "parts_by_part_no";
 const String listAllParts = "list_all_parts";

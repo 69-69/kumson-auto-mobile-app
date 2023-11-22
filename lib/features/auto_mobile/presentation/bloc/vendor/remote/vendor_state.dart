@@ -1,16 +1,14 @@
-import 'package:automasters/features/auto_mobile/domain/entities/vendor.dart';
 import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 
-abstract class VendorsState<VendorEntity> extends Equatable {
-  final List<VendorEntity>? vendors;
-  final VendorEntity? vendor;
+abstract class VendorsState<T> extends Equatable {
+  final T? vendor;
   final DioException? error;
 
-  const VendorsState({this.vendors, this.vendor, this.error});
+  const VendorsState({this.vendor, this.error});
 
   @override
-  List<Object> get props => [vendors ?? [], vendor ?? [], error ?? []];
+  List<Object?> get props => [vendor, error];
 }
 
 class VendorsLoading extends VendorsState {
@@ -18,13 +16,8 @@ class VendorsLoading extends VendorsState {
 }
 
 /// Vendors Done
-class VendorsDone extends VendorsState {
-  const VendorsDone(List<VendorEntity> vendors) : super(vendors: vendors);
-}
-
-/// VendorByIdDone Done
-class VendorByIdDone extends VendorsState {
-  const VendorByIdDone(VendorEntity vendor) : super(vendor: vendor);
+class VendorsDone<T> extends VendorsState<T> {
+  const VendorsDone(T vendors) : super(vendor: vendors);
 }
 
 class VendorsError extends VendorsState {

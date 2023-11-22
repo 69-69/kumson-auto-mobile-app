@@ -1,7 +1,10 @@
-import 'package:automasters/core/util/keyboard.dart';
 import 'package:flutter/material.dart';
-import 'package:automasters/core/util/size_config.dart';
+
 import 'package:automasters/core/constants/constants.dart';
+import 'package:automasters/core/util/keyboard.dart';
+import 'package:automasters/core/util/size_config.dart';
+import 'package:automasters/features/auto_mobile/presentation/bloc/auth/auth_bloc.dart';
+import 'package:automasters/features/auto_mobile/presentation/pages/sideMenu/side_menu.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/local/app_local_database.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_pem.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/animation_switcher.dart';
@@ -10,12 +13,12 @@ import 'package:automasters/features/auto_mobile/presentation/widgets/outline_bt
 import 'package:automasters/features/auto_mobile/presentation/widgets/question_button.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/text_overflow.dart';
 import 'package:automasters/features/auto_mobile/presentation/pages/home/components/collapse_panel.dart';
-import 'package:automasters/features/auto_mobile/presentation/widgets/or_separator.dart';
-import 'package:automasters/features/auto_mobile/presentation/widgets/bottom_sheet/auth_modal.dart';
-import 'package:automasters/features/auto_mobile/data/data_sources/local/product_status_service.dart';
+import 'package:automasters/features/auto_mobile/presentation/pages/bottom_sheet/auth_modal.dart';
+import 'package:automasters/features/auto_mobile/data/data_sources/local/search_history_service.dart';
 import 'package:automasters/features/auto_mobile/data/models/animation_item.dart';
-import 'package:automasters/features/auto_mobile/presentation/widgets/bottom_sheet/search_history.dart';
-import 'package:automasters/features/auto_mobile/presentation/widgets/bottom_sheet/show_confirmation_dialog.dart';
+import 'package:automasters/features/auto_mobile/presentation/pages/bottom_sheet/search_history.dart';
+import 'package:automasters/features/auto_mobile/presentation/pages/bottom_sheet/show_confirmation_dialog.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AutoHome extends StatefulWidget {
   const AutoHome({super.key});
@@ -26,6 +29,8 @@ class AutoHome extends StatefulWidget {
 
 class _AutoHomeState extends State<AutoHome>
     with SingleTickerProviderStateMixin {
+  final scaffoldKey = GlobalKey<ScaffoldState>();
+
   // Animation setups
   late AnimationController animationController;
   late Animation animation;
@@ -70,7 +75,9 @@ class _AutoHomeState extends State<AutoHome>
     if (context.mounted) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         await Future.delayed(const Duration(seconds: 2), () {
-          ProductStatusService().getStatus().isEmpty ? displayDialog() : false;
+          SearchHistoryDB().getProductStatus().isEmpty
+              ? displayDialog()
+              : false;
         });
       });
     }
@@ -86,6 +93,7 @@ class _AutoHomeState extends State<AutoHome>
   Widget build(BuildContext context) {
     SizeConfig().init(context);
     final customTheme = Theme.of(context);
+
     final token =
         AppLocalDatabase().readData(key: accessTokenKey, defaultValue: "");
     if (token.isEmpty) {
@@ -95,17 +103,18 @@ class _AutoHomeState extends State<AutoHome>
           data:
               "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJkZXZtYWlsMDI2QGdtYWlsLmNvbSIsImlhdCI6MTY5OTY0MjU1MSwiZXhwIjoxNzMxMTc4NTUxfQ.3qYTmRe_fXy6Ef3DfOIuv2cl-T4LGw8OIPEEr5ses6o");
     }
-    // 19unc1b14hy000003 - 12434452011
-    // context.read<VehicleByVicBloc>().add(const GetModelsBy("12434452011"));
+
     /*void onRemoveArticle(BuildContext context, VehicleEntity v) {
       BlocProvider.of<LocalVehicleBloc>(context).add(RemoveSavedVehicle(v));
     }*/
 
-    // Lets restart the app so icons can load
     return Scaffold(
+      key: scaffoldKey,
       resizeToAvoidBottomInset: true,
-      backgroundColor: Colors.transparent, // const Color(0xFFF6EEF2),
+      backgroundColor: Colors.transparent,
+      // Color.fromRGBO(0,0,0,0.56),
       appBar: buildAppBar(context),
+      drawer: const SideMenu(),
       body: buildContainer(customTheme, context),
     );
   }
@@ -113,10 +122,11 @@ class _AutoHomeState extends State<AutoHome>
   AppBar buildAppBar(BuildContext context) {
     return AppBar(
       centerTitle: true,
-      leading: const SizedBox.shrink(),
       // backgroundColor: Theme.of(context).colorScheme.primary,
+      // iconTheme: IconThemeData(color: Colors.white,size: 30,),
+      leading: _menuButton(),
       title: const Text(
-        'Auto Masters',
+        appName,
         style: TextStyle(
           fontWeight: FontWeight.w600,
           fontSize: 32.0,
@@ -124,22 +134,45 @@ class _AutoHomeState extends State<AutoHome>
           height: 1.3,
         ),
       ),
-      bottom: PreferredSize(
-        preferredSize: const Size.fromHeight(5),
-        child: Container(
-          width: double.infinity,
-          color: Colors.black26,
-          padding: const EdgeInsets.all(1),
-          child: Text(
-            "Best Way to Buy Car Parts in Ghana",
-            textAlign: TextAlign.center,
-            style: Theme.of(context)
-                .textTheme
-                .bodyMedium!
-                .copyWith(fontWeight: FontWeight.bold, color: Colors.white),
-          ),
+      bottom: _bottomCard(context),
+    );
+  }
+
+  PreferredSize _bottomCard(BuildContext context) {
+    return PreferredSize(
+      preferredSize: const Size.fromHeight(5),
+      child: Container(
+        width: double.infinity,
+        color: Colors.black26,
+        padding: const EdgeInsets.all(1),
+        child: Text(
+          "Best Way to Buy Car Parts in Ghana",
+          textAlign: TextAlign.center,
+          style: Theme.of(context)
+              .textTheme
+              .bodyMedium!
+              .copyWith(fontWeight: FontWeight.bold, color: Colors.white),
         ),
       ),
+    );
+  }
+
+  IconButton _menuButton() {
+    return IconButton(
+      icon: const Icon(
+        Icons.menu,
+        size: 35,
+      ),
+      color: Colors.white,
+      onPressed: () {
+        if (scaffoldKey.currentState!.isDrawerOpen) {
+          scaffoldKey.currentState!.closeDrawer();
+          //close drawer, if drawer is open
+        } else {
+          scaffoldKey.currentState!.openDrawer();
+          //open drawer, if drawer is closed
+        }
+      },
     );
   }
 
@@ -194,7 +227,17 @@ class _AutoHomeState extends State<AutoHome>
           false,
           context,
           padding: const EdgeInsets.fromLTRB(20.0, 2.0, 20.0, 7.0),
-          child: buildAuthButton(context),
+          child: Builder(
+            builder: (context) {
+              final userId = context.select(
+                (AuthBloc bloc) => bloc.state.user.id,
+              );
+              return Text(
+                "UID->$userId",
+                style: const TextStyle(overflow: TextOverflow.ellipsis),
+              );
+            },
+          ),
         ),
       ],
     );
@@ -230,24 +273,6 @@ class _AutoHomeState extends State<AutoHome>
 
   Future<dynamic> buildAuthModal(BuildContext context, String authType) =>
       buildModal(context, AuthModal(authType: authType));
-
-  Column buildAuthButton(BuildContext context) {
-    return Column(
-      children: [
-        /// Or Section
-        orSeparator(),
-
-        /// Don't have an account
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            buildOutlinedButton(context, 'Sign Up'),
-            buildOutlinedButton(context, 'Log In'),
-          ],
-        ),
-      ],
-    );
-  }
 
   OutlinedButton buildOutlinedButton(BuildContext context, String label) {
     return buildOutlinedBtn(
@@ -292,7 +317,7 @@ class _AutoHomeState extends State<AutoHome>
       const Text("Search for New or Used Car Parts?"),
     );
     if (context.mounted && opt != "cancel") {
-      await ProductStatusService().saveStatus(opt);
+      await SearchHistoryDB().saveProductStatus(opt);
     }
   }
 
@@ -300,10 +325,10 @@ class _AutoHomeState extends State<AutoHome>
     KeyboardUtil.hide;
 
     return buildModal(
-        context,
-        const SearchHistory(),
-        bgColor: Colors.transparent,
-        barColor: const Color.fromRGBO(250, 249, 249, 0.3),
-      );
+      context,
+      const SearchHistory(),
+      bgColor: Colors.transparent,
+      barColor: const Color.fromRGBO(250, 249, 249, 0.3),
+    );
   }
 }

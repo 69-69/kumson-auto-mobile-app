@@ -39,6 +39,15 @@ class PartEntity extends Equatable {
     // required this.images
   });
 
+  /// Empty Part which has no data.
+  static const empty = PartEntity(part: '');
+
+  /// Convenience getter to determine whether the current Part request is empty.
+  bool get isEmpty => this == PartEntity.empty;
+
+  /// Convenience getter to determine whether the current Part request is not empty.
+  bool get isNotEmpty => this != PartEntity.empty;
+
   @override
   List<Object?> get props => [
     id,

@@ -2,40 +2,24 @@ import '../../domain/entities/vendor.dart';
 
 class VendorModel extends VendorEntity {
   const VendorModel({
-    int? id,
-    String? partNo,
-    String? brand,
-    String? brandCode,
-    String? brandType,
-    String? vendor,
-    String? vendorCode,
-    int? currentPrice,
-    String? stockStatus,
-    String? productAge,
-    String? opm,
-    String? transactionDatetime,
-    String? sources,
-    String? note,
-    String? personnel,
+    super.id,
+    super.partNo,
+    super.brand,
+    super.brandCode,
+    super.brandType,
+    super.vendor,
+    super.vendorCode,
+    super.currentPrice,
+    super.stockStatus,
+    super.productAge,
+    super.opm,
+    super.transactionDatetime,
+    super.sources,
+    super.note,
+    super.personnel,
 
     // required this.images
-  }) : super(
-          id: id,
-          partNo: partNo,
-          brand: brand,
-          brandCode: brandCode,
-          brandType: brandType,
-          vendor: vendor,
-          vendorCode: vendorCode,
-          currentPrice: currentPrice,
-          stockStatus: stockStatus,
-          productAge: productAge,
-          opm: opm,
-          transactionDatetime: transactionDatetime,
-          sources: sources,
-          note: note,
-          personnel: personnel,
-        );
+  });
 
   VendorModel copyWith({
     int? id,
@@ -72,6 +56,17 @@ class VendorModel extends VendorEntity {
       personnel: personnel ?? this.personnel,
     );
   }
+
+  /// Empty vendor which has no data.
+  static const empty = VendorModel(vendor: '');
+
+  /// Convenience getter to determine whether the current vendor request is empty.
+  @override
+  bool get isEmpty => this == VendorModel.empty;
+
+  /// Convenience getter to determine whether the current vendor request is not empty.
+  @override
+  bool get isNotEmpty => this != VendorModel.empty;
 
   factory VendorModel.fromJson(Map<String, dynamic> map) {
     return VendorModel(

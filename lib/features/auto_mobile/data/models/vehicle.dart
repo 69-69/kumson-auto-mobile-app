@@ -3,15 +3,15 @@ import 'package:automasters/features/auto_mobile/domain/entities/vehicle.dart';
 // @Entity(tableName: "vehicle_tbl", primaryKeys: ["id"])
 class VehicleModel extends VehicleEntity {
   const VehicleModel({
-    int? id,
-    String? vin,
-    String? vehicleCode,
-    String? vfam,
-    String? model,
-    String? make,
-    String? fuelType,
-    String? year,
-    String? category,
+    super.id,
+    super.vin,
+    super.vehicleCode,
+    super.vfam,
+    super.model,
+    super.make,
+    super.fuelType,
+    super.year,
+    super.category,
     // List<String>? vehicleImages,
 
     // int len,
@@ -27,32 +27,7 @@ class VehicleModel extends VehicleEntity {
     // int seats,
     // int doors,
     // String source,
-  }) : super(
-          id: id,
-          vin: vin,
-          vehicleCode: vehicleCode,
-          vfam: vfam,
-          model: model,
-          make: make,
-          fuelType: fuelType,
-          year: year,
-          category: category,
-          // vehicleImages: vehicleImages,
-
-          // required len,
-          // required modelRef,
-          // required makeRef,
-          // required body,
-          // required engine,
-          // required madeIn,
-          // required capacity,
-          // required yearTo,
-          // required yearFrom,
-          // required weight,
-          // required seats,
-          // required doors,
-          // required source,
-        );
+  });
 
   VehicleModel copyWith({
     int? id,
@@ -138,4 +113,14 @@ class VehicleModel extends VehicleEntity {
       data.map((dynamic i) => VehicleModel.fromJson(i as Map<String, dynamic>))
           .toList();
 
+  /// Empty user which represents an unauthenticated user.
+  static const empty = VehicleModel(vin: '');
+
+  /// Convenience getter to determine whether the current vehicle request is empty.
+  @override
+  bool get isEmpty => this == VehicleModel.empty;
+
+  /// Convenience getter to determine whether the current vehicle request is not empty.
+  @override
+  bool get isNotEmpty => this != VehicleModel.empty;
 }

@@ -21,6 +21,15 @@ class ModelEntity extends Equatable {
     // required this.images
   });
 
+  /// Empty Model which has no data.
+  static const empty = ModelEntity(model: '');
+
+  /// Convenience getter to determine whether the current Model request is empty.
+  bool get isEmpty => this == ModelEntity.empty;
+
+  /// Convenience getter to determine whether the current Model request is not empty.
+  bool get isNotEmpty => this != ModelEntity.empty;
+
   @override
   List<Object?> get props => [
     id,

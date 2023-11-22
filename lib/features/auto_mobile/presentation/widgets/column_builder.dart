@@ -10,7 +10,7 @@ class ColumnBuilder extends StatelessWidget {
   final int itemCount;
 
   const ColumnBuilder({
-    Key? key,
+    super.key,
     required this.itemBuilder,
     required this.itemCount,
     this.mainAxisAlignment = MainAxisAlignment.start,
@@ -18,7 +18,7 @@ class ColumnBuilder extends StatelessWidget {
     this.crossAxisAlignment = CrossAxisAlignment.center,
     this.textDirection,
     this.verticalDirection = VerticalDirection.down,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +45,7 @@ class RowBuilder extends StatelessWidget {
   final int itemCount;
 
   const RowBuilder({
-    Key? key,
+    super.key,
     required this.itemBuilder,
     required this.itemCount,
     this.textDirection,
@@ -53,7 +53,7 @@ class RowBuilder extends StatelessWidget {
     this.verticalDirection = VerticalDirection.down,
     this.mainAxisAlignment = MainAxisAlignment.start,
     this.crossAxisAlignment = CrossAxisAlignment.center,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

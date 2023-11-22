@@ -121,7 +121,7 @@ class _CustomDropdownState<T> extends State<CustomDropdown<T>> {
     return TextFieldConfiguration(
       focusNode: _focusNode,
       controller: _typeAheadController,
-      style: DefaultTextStyle.of(context).style.copyWith(fontSize: 12),
+      style: DefaultTextStyle.of(context).style.copyWith(fontSize: 13),
       decoration: InputDecoration(
         isDense: true,
         filled: true,

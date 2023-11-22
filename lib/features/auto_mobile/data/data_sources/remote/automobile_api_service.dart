@@ -1,13 +1,13 @@
+import 'package:dio/dio.dart';
+import 'package:retrofit/retrofit.dart';
+import 'package:automasters/core/constants/constants.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/remote/auth_interceptor.dart';
 import 'package:automasters/features/auto_mobile/data/models/model.dart';
 import 'package:automasters/features/auto_mobile/data/models/hunter.dart';
 import 'package:automasters/features/auto_mobile/data/models/make.dart';
 import 'package:automasters/features/auto_mobile/data/models/parts.dart';
 import 'package:automasters/features/auto_mobile/data/models/vehicle.dart';
-import 'package:automasters/core/constants/constants.dart';
 import 'package:automasters/features/auto_mobile/data/models/vendor.dart';
-import 'package:dio/dio.dart';
-import 'package:retrofit/retrofit.dart';
 
 part 'automobile_api_service.g.dart';
 

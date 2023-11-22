@@ -1,6 +1,10 @@
-import 'package:automasters/features/auto_mobile/presentation/widgets/outline_btn.dart';
+import 'package:automasters/features/auto_mobile/domain/repositories/auth_repository.dart';
+import 'package:automasters/features/auto_mobile/presentation/bloc/login/login_bloc.dart';
+import 'package:automasters/features/auto_mobile/presentation/pages/login/login_form.dart';
 import 'package:flutter/material.dart';
 import 'package:automasters/core/util/size_config.dart';
+import 'package:automasters/features/auto_mobile/presentation/widgets/elevated_btn.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AuthModal extends StatefulWidget {
   final String authType;
@@ -12,8 +16,8 @@ class AuthModal extends StatefulWidget {
 }
 
 class _AuthModalState extends State<AuthModal> {
-  String username ="";
-  String password ="";
+  String username = "";
+  String password = "";
   bool _secureText = true;
   bool textEditing = false;
   FocusNode inputFocus = FocusNode();
@@ -56,15 +60,26 @@ class _AuthModalState extends State<AuthModal> {
           padding: EdgeInsets.only(
             left: getProportionateScreenWidth(30),
             right: getProportionateScreenWidth(30),
-            bottom: getProportionateScreenWidth(
-                30), // MediaQuery.of(context).viewInsets.bottom,
+            bottom: getProportionateScreenWidth(30), // MediaQuery.of(context).viewInsets.bottom,
           ),
-          child: Form(
-            key: formKey,
-            child: isAuth ? buildAuthForm(context) : buildRegForm(context),
-          ),
+          child: _buildBody(isAuth, context),
         ),
       ),
+    );
+  }
+
+  BlocProvider<LoginBloc> _buildBody(bool isAuth, BuildContext context) {
+    return BlocProvider(
+      create: (context) {
+        return LoginBloc(
+          authRepository: RepositoryProvider.of<AuthRepository>(context),
+        );
+      },
+      child: isAuth ? const LoginForm() : buildRegForm(context),
+      /*Form(
+        key: formKey,
+        child: isAuth ? buildAuthForm(context) : buildRegForm(context),
+      ),*/
     );
   }
 
@@ -102,60 +117,60 @@ class _AuthModalState extends State<AuthModal> {
 
   TextFormField _buildPasswordFormField(BuildContext context) {
     return TextFormField(
-        obscureText: _secureText,
-        maxLength: 10,
-        keyboardType: TextInputType.visiblePassword,
-        // onFieldSubmitted: bloc.onChangeEmail,
-        // onChanged: bloc.onChangeEmail,
-        onTap: () => setState(() => textEditing = true),
-        onChanged: (v) => setState(() => password = v),
-        onEditingComplete: () {
-          FocusScope.of(context).requestFocus(FocusNode());
-          buttonController?.update(MaterialState.pressed, false);
-        },
-        validator: (v)=> v!.length<4 ? "Enter valid password" : null,
-        decoration: InputDecoration(
-          filled: true,
-          hintText: "Enter Password",
-          // errorText: snapshot.hasError ? snapshot.error.toString() : "",
-          fillColor: Theme.of(context).colorScheme.primary.withOpacity(0.04),
-          contentPadding:
-              const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
+      obscureText: _secureText,
+      maxLength: 10,
+      keyboardType: TextInputType.visiblePassword,
+      // onFieldSubmitted: bloc.onChangeEmail,
+      // onChanged: bloc.onChangeEmail,
+      onTap: () => setState(() => textEditing = true),
+      onChanged: (v) => setState(() => password = v),
+      onEditingComplete: () {
+        FocusScope.of(context).requestFocus(FocusNode());
+        buttonController?.update(MaterialState.pressed, false);
+      },
+      validator: (v) => v!.length < 4 ? "Enter valid password" : null,
+      decoration: InputDecoration(
+        filled: true,
+        hintText: "Enter Password",
+        // errorText: snapshot.hasError ? snapshot.error.toString() : "",
+        fillColor: Theme.of(context).colorScheme.primary.withOpacity(0.04),
+        contentPadding:
+            const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
 
-          alignLabelWithHint: true,
-          suffixIcon: IconButton(
-            onPressed: showHide,
-            icon: Icon(_secureText ? Icons.visibility_off : Icons.visibility,
-                color: _secureText ? Colors.grey : const Color(0xFF757575)),
-          ),
-          /*border: OutlineInputBorder(
+        alignLabelWithHint: true,
+        suffixIcon: IconButton(
+          onPressed: showHide,
+          icon: Icon(_secureText ? Icons.visibility_off : Icons.visibility,
+              color: _secureText ? Colors.grey : const Color(0xFF757575)),
+        ),
+        /*border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(5),
               ),*/
-        ),
-      );
+      ),
+    );
   }
 
   TextFormField _buildEmailFormField(BuildContext context) {
     return TextFormField(
-        controller: emailController,
-        keyboardType: TextInputType.emailAddress,
-        // onFieldSubmitted: bloc.onChangeEmail,
-        // onChanged: bloc.onChangeEmail,
-        onTap: () => setState(() => textEditing = true),
-        onChanged: (v) => setState(() => username = v),
-        decoration: InputDecoration(
-          filled: true,
-          hintText: "Enter Email",
-          // errorText: snapshot.hasError ? snapshot.error.toString() : "",
-          fillColor: Theme.of(context).colorScheme.primary.withOpacity(0.04),
-          contentPadding:
-              const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
-          alignLabelWithHint: true,
-          /*border: OutlineInputBorder(
+      controller: emailController,
+      keyboardType: TextInputType.emailAddress,
+      // onFieldSubmitted: bloc.onChangeEmail,
+      // onChanged: bloc.onChangeEmail,
+      onTap: () => setState(() => textEditing = true),
+      onChanged: (v) => setState(() => username = v),
+      decoration: InputDecoration(
+        filled: true,
+        hintText: "Enter Email",
+        // errorText: snapshot.hasError ? snapshot.error.toString() : "",
+        fillColor: Theme.of(context).colorScheme.primary.withOpacity(0.04),
+        contentPadding:
+            const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
+        alignLabelWithHint: true,
+        /*border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(5),
               ),*/
-        ),
-      );
+      ),
+    );
   }
 
   buildOutlinedButton(
@@ -166,7 +181,7 @@ class _AuthModalState extends State<AuthModal> {
   }) =>
       SizedBox(
         width: SizeConfig.screenWidth,
-        child: buildOutlinedBtn(
+        child: buildElevatedBtn(
           context,
           label: label,
           onPress: onPress,

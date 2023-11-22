@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 
 class DeveloperInfo extends StatelessWidget {
   const DeveloperInfo({
-    Key? key,
+    super.key,
     this.padding,
     this.margin,
     this.fontSize,
-  }) : super(key: key);
+  });
 
   final double? fontSize;
   final EdgeInsets? padding, margin;

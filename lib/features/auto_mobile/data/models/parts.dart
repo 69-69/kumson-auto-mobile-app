@@ -2,40 +2,24 @@ import '../../domain/entities/parts.dart';
 
 class PartModel extends PartEntity {
   const PartModel({
-    int? id,
-    String? vin,
-    String? vfam,
-    String? part,
-    String? partCode,
-    String? model,
-    String? modelCode,
-    String? make,
-    String? makeCode,
-    String? description,
-    String? engine,
-    String? engineType,
-    String? hunter,
-    String? note,
-    String? personnel,
+    super.id,
+    super.vin,
+    super.vfam,
+    super.part,
+    super.partCode,
+    super.model,
+    super.modelCode,
+    super.make,
+    super.makeCode,
+    super.description,
+    super.engine,
+    super.engineType,
+    super.hunter,
+    super.note,
+    super.personnel,
 
     // required this.images
-  }) : super(
-          id: id,
-          vin: vin,
-          vfam: vfam,
-          part: part,
-          partCode: partCode,
-          model: model,
-          modelCode: modelCode,
-          make: make,
-          makeCode: makeCode,
-          description: description,
-          engine: engine,
-          engineType: engineType,
-          hunter: hunter,
-          note: note,
-          personnel: personnel,
-        );
+  });
 
   PartModel copyWith({
     int? id,
@@ -72,6 +56,17 @@ class PartModel extends PartEntity {
       personnel: personnel ?? this.personnel,
     );
   }
+
+  /// Empty Part which has no data.
+  static const empty = PartModel(part: '');
+
+  /// Convenience getter to determine whether the current Part request is empty.
+  @override
+  bool get isEmpty => this == PartModel.empty;
+
+  /// Convenience getter to determine whether the current Part request is not empty.
+  @override
+  bool get isNotEmpty => this != PartModel.empty;
 
   factory PartModel.fromJson(Map<String, dynamic> map) {
     return PartModel(

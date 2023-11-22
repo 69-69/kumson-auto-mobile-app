@@ -1,11 +1,11 @@
 import 'dart:convert';
 
+import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
+import 'package:automasters/core/constants/endpoints.dart';
+import 'package:automasters/features/auto_mobile/data/models/jwt.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/local/app_local_database.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_pem.dart';
-import 'package:automasters/features/auto_mobile/data/models/jwt.dart';
-import 'package:dio/dio.dart';
-import 'package:automasters/core/constants/constants.dart';
-import 'package:flutter/foundation.dart';
 
 class AuthInterceptor {
   // AuthInterceptor();
@@ -19,14 +19,7 @@ class AuthInterceptor {
   }
 
   // WhiteList:: list of the endpoints where you don't need to pass a token.
-  static final listOfPaths = <String>[
-    "$authPath/login",
-    "$authPath/register",
-    "$authPath/user_exist",
-    "$authPath/refresh/token",
-    "$authPath/register/confirm_email",
-    "$authPath/resend_confirm_email",
-  ];
+  static final listOfPaths = EndPoints.whiteList;
 
   static Dio createDioInstance() {
     var dio = Dio();
@@ -111,7 +104,7 @@ class AuthInterceptor {
 
     var dio = Dio();
     final Uri apiUrl =
-        Uri.parse("$automobileAPIBaseURL/api/v1/auth/refresh/token");
+        Uri.parse(EndPoints.refreshTokenUrl);
     var refreshToken = repository.readData(key: refreshTokenKey);
     dio.options.headers["Authorization"] = "Bearer $refreshToken";
 
@@ -128,7 +121,8 @@ class AuthInterceptor {
         debugPrint("logout:$response"); //TODO: logout
       }
     } catch (e) {
-      debugPrint("logout2: $e"); //TODO: logout
+      throw Exception(e);
+      // debugPrint("logout2: $e"); //TODO: logout
     }
   }
 }

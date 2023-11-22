@@ -1,17 +1,16 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:automasters/features/auto_mobile/data/data_sources/local/product_status_service.dart';
-import 'package:automasters/features/auto_mobile/data/data_sources/local/search_history_service.dart';
-import 'package:automasters/config/routes/routes_constant.dart';
 import 'package:automasters/core/util/keyboard.dart';
+import 'package:automasters/config/routes/routes_constant.dart';
+import 'package:automasters/features/auto_mobile/data/data_sources/local/search_history_service.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_pem.dart';
 import 'package:automasters/features/auto_mobile/data/repositories/home_repository_impl.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/async_progress_dialog.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/page_navigator.dart';
 import 'package:automasters/features/auto_mobile/presentation/pages/home/components/_outline_btn_for_search.dart';
 import 'package:automasters/features/auto_mobile/data/models/hunter.dart';
-import 'package:automasters/features/auto_mobile/presentation/widgets/bottom_sheet/make_a_request_modal.dart';
+import 'package:automasters/features/auto_mobile/presentation/pages/bottom_sheet/make_a_request_modal.dart';
 
 class PartNoTextField extends StatefulWidget {
   const PartNoTextField({super.key});
@@ -88,27 +87,32 @@ class _PartNoTextFieldState extends State<PartNoTextField> {
       final getData = HomeRepositoryImpl().getHunterPartsByPartNo(searchText);
 
       // Show progressBar dialog/modal
-      await showProgressDialog(context, getData);
-
-      getData.then((List<HunterModel>? hunters) async {
+      await showProgressDialog(context, request: getData,
+          onSuccess: (List<HunterModel>? hunters) async {
         if (hunters != null && hunters.isNotEmpty) {
           //Save VIN as recent searches.
           await SearchHistoryDB()
-              .saveTo(searchText, key: partNoSearchHistoryKey)
+              .saveHistory(searchText, key: partNoSearchHistoryKey)
               .whenComplete(() {
             _navigating(context, hunters);
           });
         } else {
-
-          await ProductStatusService()
-              .saveReadOnly(searchText, key: readOnlyPartNoKey)
-              .then((_) {
-            _resetState();
-            showRequestModal(context, partNoRequest);
-          });
+          await _saveReadOnlyPartNo();
         }
+      }, onError: () async {
+        await _saveReadOnlyPartNo();
       });
     }
+  }
+
+  // Save this PartNo for reference in Make-Request-Form
+  Future<void> _saveReadOnlyPartNo() async {
+    await SearchHistoryDB()
+        .saveReadOnly(searchText, key: readOnlyPartNoKey)
+        .then((_) {
+      _resetState();
+      showRequestModal(context, partNoRequest);
+    });
   }
 
   _navigating(BuildContext context, List<HunterModel> hunters) {

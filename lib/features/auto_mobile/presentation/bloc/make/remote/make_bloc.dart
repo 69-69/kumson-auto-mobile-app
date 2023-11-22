@@ -1,4 +1,5 @@
 import 'package:automasters/core/resources/data_state.dart';
+import 'package:automasters/features/auto_mobile/domain/entities/make.dart';
 import 'package:automasters/features/auto_mobile/domain/usecases/get_make.dart';
 import 'package:automasters/features/auto_mobile/presentation/bloc/make/remote/make_state.dart';
 import 'package:automasters/features/auto_mobile/presentation/bloc/make/remote/make_event.dart';
@@ -16,7 +17,7 @@ class MakesBloc extends Bloc<MakesEvent, MakesState> {
     final dataState = await _getVehicleUseCase();
 
     if (dataState is DataSuccess && dataState.data!.isNotEmpty) {
-      emit(MakesDone(dataState.data!));
+      emit(MakesDone<List<MakeEntity>>(dataState.data!));
     }
 
     if (dataState is DataFailed) {

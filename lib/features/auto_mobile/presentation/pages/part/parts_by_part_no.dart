@@ -3,7 +3,7 @@ import 'package:automasters/config/routes/routes_constant.dart';
 import 'package:automasters/core/constants/constants.dart';
 import 'package:automasters/core/util/size_config.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_pem.dart';
-import 'package:automasters/features/auto_mobile/data/data_sources/local/product_status_service.dart';
+import 'package:automasters/features/auto_mobile/data/data_sources/local/search_history_service.dart';
 import 'package:automasters/features/auto_mobile/data/models/custom_appbar.dart';
 import 'package:automasters/features/auto_mobile/data/models/vehicle.dart';
 import 'package:automasters/features/auto_mobile/data/models/vendor.dart';
@@ -14,8 +14,8 @@ import 'package:automasters/features/auto_mobile/presentation/widgets/custom_app
 import 'package:automasters/features/auto_mobile/presentation/widgets/async_progress_dialog.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/column_builder.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/custom_line.dart';
-import 'package:automasters/features/auto_mobile/presentation/widgets/bottom_sheet/make_a_request_modal.dart';
-import 'package:automasters/features/auto_mobile/presentation/widgets/bottom_sheet/show_confirmation_dialog.dart';
+import 'package:automasters/features/auto_mobile/presentation/pages/bottom_sheet/make_a_request_modal.dart';
+import 'package:automasters/features/auto_mobile/presentation/pages/bottom_sheet/show_confirmation_dialog.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/page_navigator.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/question_button.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/widgetery.dart';
@@ -47,7 +47,7 @@ class _PartsByPartNoState extends State<PartsByPartNo> {
     SizeConfig().init(context);
     final hunters = widget.hunters;
 
-    productAge = ProductStatusService().getStatus();
+    productAge = SearchHistoryDB().getProductStatus();
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -79,8 +79,8 @@ class _PartsByPartNoState extends State<PartsByPartNo> {
 
   String _buildSubTitle() {
     return vehicle.make == null
-            ? ""
-            : "${vehicle.year} ${vehicle.make} ${vehicle.model}";
+        ? ""
+        : "${vehicle.year} ${vehicle.make} ${vehicle.model}";
   }
 
   _buildBody(BuildContext context, List<HunterModel> hunters) {
@@ -136,7 +136,7 @@ class _PartsByPartNoState extends State<PartsByPartNo> {
               padding: const EdgeInsets.symmetric(vertical: 2.0),
               child: Card(
                 elevation: 2.0,
-                child: blocBuilder(huntPart),
+                child: _vendorPartsBloc(huntPart),
               ),
             ),
           );
@@ -145,9 +145,11 @@ class _PartsByPartNoState extends State<PartsByPartNo> {
     );
   }
 
-  /// Get Prices From Vendors [blocBuilder]
-  blocBuilder(HunterModel huntPart) {
-    context.read<PartByHunterNoBloc>().add(GetPartByHunterNoEvent(huntPart.hunter!));
+  /// Get Prices From Vendors [_vendorPartsBloc]
+  Builder _vendorPartsBloc(HunterModel huntPart) {
+    context
+        .read<PartByHunterNoBloc>()
+        .add(GetPartByHunterNoEvent(huntPart.hunter!));
 
     context
         .read<VendorPartsByBrandPartNoBloc>()
@@ -157,41 +159,39 @@ class _PartsByPartNoState extends State<PartsByPartNo> {
       final pState = context.watch<PartByHunterNoBloc>().state;
       final cState = context.watch<VehicleByVinBloc>().state;
       final state = context.watch<VendorPartsByBrandPartNoBloc>().state;
-      final loader = showCircularProgress();
-      final refreshBtn = buildRefreshApp(context);
 
       if (pState is PartsError) {
-        return refreshBtn;
+        return buildRefreshApp(context);
       }
 
       if (pState is PartsLoading) {
-        return loader;
+        return _loadSpinner();
       }
 
-      if (pState is PartByDone) {
+      if (pState is PartsDone) {
         context
             .read<VehicleByVinBloc>()
             .add(GetVehicleByVinEvent(pState.part!.vin ?? ""));
       }
 
       if (cState is VehiclesLoading) {
-        return loader;
+        return _loadSpinner();
       }
 
-      if ((cState is VehicleByDone) && (state is VendorsDone)) {
+      if ((cState is VehiclesDone) && (state is VendorsDone)) {
         final car = cState.vehicle! as VehicleModel;
         SchedulerBinding.instance.addPostFrameCallback(
           (_) => setState(() => vehicle = car),
         );
 
-        final vendors = state.vendors as List<VendorModel>;
-        return buildPriceWrapper(vendors, car);
+        final vendors = state.vendor as List<VendorModel>;
+        return _buildShowPrice(vendors, car);
       }
       return showMakeRequestButton(context, "partRequest");
     });
   }
 
-  Column buildPriceWrapper(List<VendorModel> vendor, VehicleModel vehicleData) {
+  Column _buildShowPrice(List<VendorModel> vendor, VehicleModel vehicleData) {
     if (context.mounted) {
       // Future.delayed(const Duration(seconds: 1));
       SchedulerBinding.instance
@@ -218,12 +218,56 @@ class _PartsByPartNoState extends State<PartsByPartNo> {
       }
     }
 
+    return _minPriceCard(minPriceWithoutOPM, minPriceWithOPM);
+  }
+
+  Column _minPriceCard(
+    VendorModel withoutOPM,
+    VendorModel withOPM,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (withoutOPM.stockStatus == "instock" &&
+            withoutOPM.opm == "no" &&
+            withoutOPM.productAge == productAge) ...{
+          buildTag(context, withoutOPM),
+          Row(
+            children: [
+              buildContainerImage(child: Image.asset(kDefaultPartImage)),
+              buildProductInfo(withoutOPM.partNo!.toUpperCase(),
+                  "$ghCediSign ${withoutOPM.currentPrice}"),
+            ],
+          ),
+        },
+        if (withOPM.stockStatus == "instock" &&
+            withOPM.opm == "yes" &&
+            withoutOPM.productAge == productAge) ...{
+          const Divider(height: 1.0),
+          buildTag(context, withOPM, isRadius: false),
+          Row(
+            children: [
+              buildContainerImage(child: Image.asset(kDefaultPartImage)),
+              buildProductInfo(withOPM.partNo!.toUpperCase(),
+                  "$ghCediSign ${withOPM.currentPrice}"),
+            ],
+          ),
+        }
+      ],
+    );
+  }
+
+  Column buildColumn(
+    VendorModel minPriceWithoutOPM,
+    BuildContext context,
+    VendorModel minPriceWithOPM,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (minPriceWithoutOPM.opm == "no" &&
             minPriceWithoutOPM.productAge == productAge) ...{
-          buildBadge(context, minPriceWithoutOPM),
+          buildTag(context, minPriceWithoutOPM),
           Row(
             children: [
               buildContainerImage(child: Image.asset(kDefaultPartImage)),
@@ -236,7 +280,7 @@ class _PartsByPartNoState extends State<PartsByPartNo> {
             minPriceWithOPM.opm == "yes" &&
             minPriceWithoutOPM.productAge == productAge) ...{
           const Divider(height: 1.0),
-          buildBadge(context, minPriceWithOPM, isRadius: false),
+          buildTag(context, minPriceWithOPM, isRadius: false),
           Row(
             children: [
               buildContainerImage(child: Image.asset(kDefaultPartImage)),
@@ -249,54 +293,24 @@ class _PartsByPartNoState extends State<PartsByPartNo> {
     );
   }
 
-  Column buildColumn(VendorModel minPriceWithoutOPM, BuildContext context,
-      VendorModel minPriceWithOPM) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (minPriceWithoutOPM.opm == "no" &&
-            minPriceWithoutOPM.productAge == productAge) ...{
-          buildBadge(context, minPriceWithoutOPM),
-          Row(
-            children: [
-              buildContainerImage(child: Image.asset(kDefaultPartImage)),
-              buildProductInfo(minPriceWithoutOPM.partNo!.toUpperCase(),
-                  "$ghCediSign ${minPriceWithoutOPM.currentPrice}"),
-            ],
-          ),
-        },
-        if (minPriceWithOPM.stockStatus == "instock" &&
-            minPriceWithOPM.opm == "yes" &&
-            minPriceWithoutOPM.productAge == productAge) ...{
-          const Divider(height: 1.0),
-          buildBadge(context, minPriceWithOPM, isRadius: false),
-          Row(
-            children: [
-              buildContainerImage(child: Image.asset(kDefaultPartImage)),
-              buildProductInfo(minPriceWithOPM.partNo!.toUpperCase(),
-                  "$ghCediSign ${minPriceWithOPM.currentPrice}"),
-            ],
-          ),
-        }
-      ],
-    );
-  }
-
-  Row buildBadge(BuildContext context, VendorModel vendor,
-      {bool isRadius = true}) {
+  Row buildTag(
+    BuildContext context,
+    VendorModel vendor, {
+    bool isRadius = true,
+  }) {
     String opmCheck(String opm) => opm == "yes" ? "OPEN MARKET " : "";
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        buildBadgeBg(
-          child: buildBadgeLabel(
+        tagCard(
+          child: tagLabel(
               "${vendor.brand} ${opmCheck(vendor.opm!)}${vendor.brandType}",
               color: Theme.of(context).colorScheme.onInverseSurface),
           isRadius: isRadius,
         ),
-        buildBadgeBg(
-          child: buildBadgeLabel(vendor.productAge!),
+        tagCard(
+          child: tagLabel(vendor.productAge!),
           isRadius: false,
           radiusRight: true,
         ),
@@ -304,7 +318,7 @@ class _PartsByPartNoState extends State<PartsByPartNo> {
     );
   }
 
-  Text buildBadgeLabel(String label, {Color? color}) {
+  Text tagLabel(String label, {Color? color}) {
     return Text(
       label.toUpperCase(),
       maxLines: 1,
@@ -317,8 +331,11 @@ class _PartsByPartNoState extends State<PartsByPartNo> {
     );
   }
 
-  Container buildBadgeBg(
-      {required Text child, bool isRadius = true, bool radiusRight = false}) {
+  Container tagCard({
+    required Text child,
+    bool isRadius = true,
+    bool radiusRight = false,
+  }) {
     Radius r = const Radius.circular(8.0);
     ColorScheme theme = Theme.of(context).colorScheme;
 
@@ -335,6 +352,13 @@ class _PartsByPartNoState extends State<PartsByPartNo> {
     );
   }
 
+  Padding _loadSpinner() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: showCircularProgress(strokeWidth: 3, width: 20, height: 20),
+    );
+  }
+
   displayDialog(BuildContext context) async {
     final opt = await showConfirmationDialog(
       context,
@@ -345,7 +369,7 @@ class _PartsByPartNoState extends State<PartsByPartNo> {
       const Text("...for New or Used Car Parts?"),
     );
     if (context.mounted && opt != "cancel") {
-      await ProductStatusService().saveStatus(opt);
+      await SearchHistoryDB().saveProductStatus(opt);
 
       // Refresh Screen after Dialog Changes
       Future.delayed(

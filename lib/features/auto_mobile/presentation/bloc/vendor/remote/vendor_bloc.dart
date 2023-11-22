@@ -4,22 +4,24 @@ import 'package:automasters/features/auto_mobile/domain/entities/vendor.dart';
 import 'package:automasters/features/auto_mobile/domain/usecases/get_vendor.dart';
 import 'package:automasters/features/auto_mobile/presentation/bloc/vendor/remote/vendor_event.dart';
 import 'package:automasters/features/auto_mobile/presentation/bloc/vendor/remote/vendor_state.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+// Bloc Ref: https://github.com/mahdinazmi/Flutter-News-App-Clean-Architecture/blob/main/lib/features/daily_news/presentation/bloc/article/remote/remote_article_bloc.dart
 
 /// Vendors Bloc
 class VendorsBloc extends Bloc<VendorsEvent, VendorsState> {
   final GetVendorsUseCase _getVendorsUseCase;
 
   VendorsBloc(this._getVendorsUseCase) : super(const VendorsLoading()) {
-    on<GetVendors>(
-      onGetVendors,transformer: debounce(),);
+    on<GetVendors>(onGetVendors);
   }
 
   void onGetVendors(GetVendors event, Emitter<VendorsState> emit) async {
     final dataState = await _getVendorsUseCase.call();
 
     if (dataState is DataSuccess && dataState.data!.isNotEmpty) {
-      emit(VendorsDone(dataState.data!));
+      emit(VendorsDone<List<VendorEntity>>(dataState.data!));
     }
 
     if (dataState is DataFailed) {
@@ -34,17 +36,20 @@ class VendorsBloc extends Bloc<VendorsEvent, VendorsState> {
 class VendorByIdBloc extends Bloc<VendorsEvent, VendorsState> {
   final GetVendorByIdUseCase _getVendorByIdUseCase;
 
-  VendorByIdBloc(this._getVendorByIdUseCase)
-      : super(const VendorsLoading()) {
+  VendorByIdBloc(this._getVendorByIdUseCase) : super(const VendorsLoading()) {
     on<GetVendorById>(
-      onGetVendorById,transformer: debounce(),);
+      onGetVendorById,
+
+      /// Apply the custom `EventTransformer` to the `EventHandler`.
+      transformer: debounce(),
+    );
   }
 
   void onGetVendorById(GetVendorById event, Emitter<VendorsState> emit) async {
     final dataState = await _getVendorByIdUseCase.call(params: event.id);
 
-    if (dataState is DataSuccess && dataState.data!.partNo!.isNotEmpty) {
-      emit(VendorByIdDone(dataState.data!));
+    if (dataState is DataSuccess && dataState.data!.isNotEmpty) {
+      emit(VendorsDone<VendorEntity>(dataState.data!));
     }
 
     if (dataState is DataFailed) {
@@ -62,18 +67,23 @@ class VendorPartsByBrandPartNoBloc extends Bloc<VendorsEvent, VendorsState> {
   VendorPartsByBrandPartNoBloc(this._getVendorPartsByBrandPartNoUseCase)
       : super(const VendorsLoading()) {
     on<GetVendorPartsByBrandPartNo>(
-      onGetVendorPartsByBrandPartNo,transformer: debounce(),);
+      onGetVendorPartsByBrandPartNo,
+
+      /// Apply the custom `EventTransformer` to the `EventHandler`.
+      transformer: debounce(),
+    );
   }
 
   void onGetVendorPartsByBrandPartNo(
       GetVendorPartsByBrandPartNo event, Emitter<VendorsState> emit) async {
-    VendorEntity params = VendorEntity(brand: event.brand, partNo: event.partNo);
+    VendorEntity params =
+        VendorEntity(brand: event.brand, partNo: event.partNo);
     final dataState = await _getVendorPartsByBrandPartNoUseCase.call(
       params: params,
     );
 
     if (dataState is DataSuccess && dataState.data!.isNotEmpty) {
-      emit(VendorsDone(dataState.data!));
+      emit(VendorsDone<List<VendorEntity>>(dataState.data!));
     }
 
     if (dataState is DataFailed) {
@@ -81,5 +91,20 @@ class VendorPartsByBrandPartNoBloc extends Bloc<VendorsEvent, VendorsState> {
       // pass the error
       emit(VendorsError(dataState.error!));
     }
+  }
+
+  /// For Debugging Purpose Only: observe all state changes [onChange]
+  @override
+  void onChange(Change<VendorsState> change) {
+    super.onChange(change);
+    debugPrint("Vendor-Bloc: ${change.currentState}\n\n");
+  }
+
+  /// For Debugging Purpose Only:
+  /// current state, the event, and the next state [onTransition]
+  @override
+  void onTransition(Transition<VendorsEvent, VendorsState> transition) {
+    super.onTransition(transition);
+    debugPrint("Vendor-Bloc: $transition\n\n");
   }
 }

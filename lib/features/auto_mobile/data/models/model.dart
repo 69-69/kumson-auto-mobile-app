@@ -3,22 +3,15 @@ import 'package:automasters/features/auto_mobile/domain/entities/model.dart';
 
 class Model extends ModelEntity {
   const Model({
-    int? id,
-    String? model,
-    String? modelRef,
-    String? makeRef,
-    String? note,
-    String? personnel,
+    super.id,
+    super.model,
+    super.modelRef,
+    super.makeRef,
+    super.note,
+    super.personnel,
 
     // required this.images
-  }) : super(
-    id: id,
-    model: model,
-    modelRef: modelRef,
-    makeRef: makeRef,
-    note: note,
-    personnel: personnel,
-  );
+  });
 
   Model copyWith({
     int? id,
@@ -62,6 +55,17 @@ class Model extends ModelEntity {
   static List<Model> fromJsonList(List data) =>
       data.map((dynamic i) => Model.fromJson(i as Map<String, dynamic>))
           .toList();
+
+  /// Empty Model which has no data.
+  static const empty = Model(model: '');
+
+  /// Convenience getter to determine whether the current Model request is empty.
+  @override
+  bool get isEmpty => this == Model.empty;
+
+  /// Convenience getter to determine whether the current Model request is not empty.
+  @override
+  bool get isNotEmpty => this != Model.empty;
 
   ///custom comparing function to check if two models are equal
   bool isEqual(Model model) {

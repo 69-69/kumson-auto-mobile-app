@@ -2,7 +2,7 @@ import 'package:automasters/features/auto_mobile/data/models/panel.dart';
 import 'package:automasters/features/auto_mobile/presentation/pages/home/components/part_no_textfield.dart';
 import 'package:automasters/features/auto_mobile/presentation/pages/home/components/vin_textfield.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/build_modal.dart';
-import 'package:automasters/features/auto_mobile/presentation/widgets/bottom_sheet/model_make_modal.dart';
+import 'package:automasters/features/auto_mobile/presentation/pages/bottom_sheet/manual_modal.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/outline_btn.dart';
 
 import 'package:flutter/material.dart';
@@ -55,7 +55,7 @@ class CollapsePanel extends StatelessWidget {
     return buildOutlinedBtn(
       context,
       label: "Make | Model | Year",
-      onPress: () => showMakeModal(context),
+      onPress: () => showManualModal(context),
     );
   }
 

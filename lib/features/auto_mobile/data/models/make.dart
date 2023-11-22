@@ -2,20 +2,14 @@ import 'package:automasters/features/auto_mobile/domain/entities/make.dart';
 
 class MakeModel extends MakeEntity {
   const MakeModel({
-    int? id,
-    String? make,
-    String? makeRef,
-    String? note,
-    String? personnel,
+    super.id,
+    super.make,
+    super.makeRef,
+    super.note,
+    super.personnel,
 
     // required this.images
-  }) : super(
-          id: id,
-          make: make,
-          makeRef: makeRef,
-          note: note,
-          personnel: personnel,
-        );
+  });
 
   MakeModel copyWith({
     int? id,
@@ -62,6 +56,17 @@ class MakeModel extends MakeEntity {
 
   // Convert List of Map<String, dynamic> to List of String
   static List<String> fromMapList(List data) => List<String>.from(data);
+
+  /// Empty Make which has no data.
+  static const empty = MakeModel(make: '');
+
+  /// Convenience getter to determine whether the current Make request is empty.
+  @override
+  bool get isEmpty => this == MakeModel.empty;
+
+  /// Convenience getter to determine whether the current Make request is not empty.
+  @override
+  bool get isNotEmpty => this != MakeModel.empty;
 
   ///custom comparing function to check if two models are equal
   bool isEqual(MakeModel model) {

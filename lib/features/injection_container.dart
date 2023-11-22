@@ -1,3 +1,4 @@
+import 'package:automasters/features/auto_mobile/data/data_sources/local/app_local_database.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/remote/automobile_api_service.dart';
 import 'package:automasters/features/auto_mobile/data/repositories/vehicle_repository_impl.dart';
 import 'package:automasters/features/auto_mobile/domain/repositories/make_repository.dart';
@@ -33,6 +34,8 @@ final sl = GetIt.instance;
 // SINGLETON: GET IT -> SAME INSTANCE
 /// Dependencies Injection
 Future<void> initializeDependencies() async {
+  await AppLocalDatabase.initFlutterHive();
+
   /// Dio:
   sl.registerSingleton<Dio>(Dio());
 

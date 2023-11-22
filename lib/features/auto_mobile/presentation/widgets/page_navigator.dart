@@ -1,13 +1,21 @@
 import 'package:automasters/core/util/size_config.dart';
 import 'package:flutter/material.dart';
 
-pageNavigator(BuildContext context, {String? routeName, Object? arguments}) {
+// clearStack: clear previous navigation from stack
+pageNavigator(BuildContext context,
+    {String? routeName, Object? arguments, bool clearStack = false}) {
   routeName != null
-      ? Navigator.pushNamed(
-          context,
-          routeName,
-          arguments: arguments,
-        )
+      ? (clearStack
+          ? Navigator.pushReplacementNamed(
+              context,
+              routeName,
+              arguments: arguments,
+            )
+          : Navigator.pushNamed(
+              context,
+              routeName,
+              arguments: arguments,
+            ))
       : Navigator.of(context).pop();
 }
 

@@ -7,12 +7,14 @@ class ProductStatusService extends AppLocalDatabase with ChangeNotifier {
 
   _getData(String key) => readData(key: key);
 
-  saveStatus(bool i, {String? key}) async {
+  // Save product status
+  saveProductStatus(bool i, {String? key}) async {
     String s = i ? "new" : "used";
     await writeData(key: key ?? partOldOrNewKey, data: s);
     // notifyListeners();
   }
 
+  // Save VIN / PartNo
   Future saveReadOnly(String vin, {String? key}) async {
     if (vin.isEmpty) return; //Should not be null
 
@@ -20,5 +22,6 @@ class ProductStatusService extends AppLocalDatabase with ChangeNotifier {
     // notifyListeners();
   }
 
-  getStatus({String? key}) => _getData(key ?? partOldOrNewKey) ?? "";
+  // Get product status
+  getProductStatus({String? key}) => _getData(key ?? partOldOrNewKey) ?? "";
 }

@@ -56,18 +56,16 @@ CustomDropdown buildProductsDropdown({
   TextEditingController? controller,
   required Function(dynamic) onChanged,
 }) {
-  return CustomDropdown<Product>(
+  return CustomDropdown<ProductModel>(
     controller: controller,
     value: controller?.text,
     hintText: 'Product Name',
     onChanged: onChanged,
     asyncItems: (String query) async {
-      final v = await _getData(query,
-          "car_products?page=0&size=300&sort=techName,desc");
-      v.add({'techName': 'Others: specify', 'partCode': 'others'});
-      List<Product> matches = Product.fromJsonList(v);
+      final v = await _getData(query, "car_products");
+      List<ProductModel> matches = ProductModel.fromJsonList(v);
 
-      filterResults<Product>(matches, query);
+      filterResults<ProductModel>(matches, query);
       return matches;
     },
   );

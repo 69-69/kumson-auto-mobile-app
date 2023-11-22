@@ -11,7 +11,7 @@ final List<String> alphabets =
 
 class AlphabeticalScrollView extends StatefulWidget {
   const AlphabeticalScrollView({
-    Key? key,
+    super.key,
     required this.list,
     this.alignment = LetterAlignment.right,
     this.isAlphabetsFiltered = true,
@@ -21,7 +21,7 @@ class AlphabeticalScrollView extends StatefulWidget {
     this.itemExtent = 40,
     this.listPadding,
     required this.itemBuilder,
-  }) : super(key: key);
+  });
 
   /// List of Items should be non Empty
   /// and you must map your

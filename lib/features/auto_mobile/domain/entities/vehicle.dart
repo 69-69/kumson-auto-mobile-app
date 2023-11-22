@@ -54,6 +54,16 @@ class VehicleEntity extends Equatable {
     // required this.source,
   });
 
+
+  /// Empty user which represents an unauthenticated user.
+  static const empty = VehicleEntity(vin: '');
+
+  /// Convenience getter to determine whether the current vehicle request is empty.
+  bool get isEmpty => this == VehicleEntity.empty;
+
+  /// Convenience getter to determine whether the current vehicle request is not empty.
+  bool get isNotEmpty => this != VehicleEntity.empty;
+
   @override
   List<Object?> get props => [
         id,

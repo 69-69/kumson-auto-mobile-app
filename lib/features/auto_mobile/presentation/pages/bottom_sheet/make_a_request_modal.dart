@@ -1,3 +1,4 @@
+import 'package:automasters/features/auto_mobile/presentation/widgets/elevated_btn.dart';
 import 'package:flutter/material.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_pem.dart';
 import 'package:automasters/features/auto_mobile/presentation/pages/by_cross_ref/cross_ref_request_form.dart';
@@ -10,7 +11,7 @@ import 'package:automasters/core/util/size_config.dart';
 import 'package:automasters/features/auto_mobile/presentation/pages/home/components/manual_request_form.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/build_modal.dart';
 
-/// Show Modal-dialog by user's click [showMakeRequestButton]
+/// Show by user's click Modal-dialog-Button [showMakeRequestButton]
 showMakeRequestButton(
   BuildContext context,
   String reqType, {
@@ -73,12 +74,11 @@ class _MakeARequestModalState extends State<MakeARequestModal> {
             EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
         child: SingleChildScrollView(
           primary: true,
+          padding: EdgeInsets.zero,
           scrollDirection: Axis.vertical,
           physics: const BouncingScrollPhysics(),
-          padding: EdgeInsets.symmetric(
-            horizontal: getProportionateScreenWidth(20),
-          ),
           child: isClick || widget.reqType == "manualRequest"
+            || widget.reqType == "priceRequest"
               ? buildMakeRequestForm(widget.reqType)
               : _notFoundOrMakeRequest(context),
         ),
@@ -109,7 +109,7 @@ class _MakeARequestModalState extends State<MakeARequestModal> {
       case partRequest:
         return const PartRequestForm();
       // If crossRef fails
-      case crossRefRequest:
+      case crossRefRequest || priceRequest:
         return const CrossRefRequestForm();
       default:
         // If make/model/year/enginType fails
@@ -131,10 +131,11 @@ class _MakeARequestModalState extends State<MakeARequestModal> {
 
           /// Or Section
           orSeparator(lineColor: color, textColor: color, text: "You can"),
-          buildOutlinedBtn(
+          const SizedBox(height: 10),
+          buildElevatedBtn(
             context,
             label: "Make Request",
-            borderColor: Colors.transparent,
+            // borderColor: Colors.transparent,
             onPress: () => setState(() => isClick = true),
           ),
         ],

@@ -39,6 +39,15 @@ class HunterEntity extends Equatable {
     // required this.images
   });
 
+  /// Empty hunter which has no data.
+  static const empty = HunterEntity(product: '');
+
+  /// Convenience getter to determine whether the current hunter request is empty.
+  bool get isEmpty => this == HunterEntity.empty;
+
+  /// Convenience getter to determine whether the current hunter request is not empty.
+  bool get isNotEmpty => this != HunterEntity.empty;
+
   @override
   List<Object?> get props => [
         id,

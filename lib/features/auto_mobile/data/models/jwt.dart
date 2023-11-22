@@ -2,18 +2,13 @@ import 'package:automasters/features/auto_mobile/domain/entities/jwt.dart';
 
 class JWTModel extends JWTEntity {
   const JWTModel({
-    String? accessToken,
-    String? expiresIn,
-    String? refreshExpiresIn,
-    String? refreshToken,
+    super.accessToken,
+    super.expiresIn,
+    super.refreshExpiresIn,
+    super.refreshToken,
 
     // required this.images
-  }) : super(
-    accessToken: accessToken,
-    expiresIn: expiresIn,
-    refreshExpiresIn: refreshExpiresIn,
-    refreshToken: refreshToken,
-  );
+  });
 
   JWTModel copyWith({
     String? accessToken,
