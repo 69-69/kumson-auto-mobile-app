@@ -1,8 +1,9 @@
-import 'package:automasters/features/auto_mobile/presentation/widgets/custom_stepper.dart';
+import 'package:country_codes/country_codes.dart';
 import 'package:flutter/material.dart';
 import 'package:automasters/core/util/size_config.dart';
+import 'package:automasters/features/auto_mobile/presentation/widgets/custom_stepper.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/custom_snackbar.dart';
-import 'package:automasters/features/auto_mobile/presentation/widgets/make_model_dropdown.dart';
+import 'package:automasters/features/auto_mobile/presentation/widgets/items_dropdown.dart';
 
 class ManualRequestForm extends StatefulWidget {
   const ManualRequestForm({super.key});
@@ -15,11 +16,13 @@ class _ManualRequestFormState extends State<ManualRequestForm> {
   TextEditingController makeController = TextEditingController();
   TextEditingController modelController = TextEditingController();
   TextEditingController productController = TextEditingController();
+  ProductsDropdown productsDropdown = ProductsDropdown();
   MaterialStatesController? buttonController;
   final _formKey = GlobalKey<FormState>();
   Map<String, dynamic> formData = {};
-  String productName = "";
-  String makeRef = "";
+  String _productName = "";
+  String _makeRef = "";
+  String _modelRef = "";
 
   void _processData() {
     makeController.clear();
@@ -28,7 +31,8 @@ class _ManualRequestFormState extends State<ManualRequestForm> {
     // Process your data and upload to server
     _formKey.currentState?.reset();
 
-    customSnackBar(context, msg: "Your request is under review by our team");
+    customSnackBar(context,
+        content: "Your request is under review by our team");
   }
 
   @override
@@ -43,7 +47,7 @@ class _ManualRequestFormState extends State<ManualRequestForm> {
       child: CustomStepper(
         titles: const ['Vehicle', 'Personal'],
         subTitle: const ['Helps data collection', 'Helps to contact you'],
-        stepperContents: [
+        contents: [
           _vehicleInfo(context),
           _personalInfo(context),
         ],
@@ -116,23 +120,26 @@ class _ManualRequestFormState extends State<ManualRequestForm> {
 
   SizedBox _gaps() => SizedBox(height: getProportionateScreenHeight(7));
 
-  IconButton _swapFieldsButton({bool isProduct = false}) => IconButton(
+  IconButton _swapFieldsButton({String field = ''}) => IconButton(
         icon: const Icon(Icons.swap_horiz),
         onPressed: () {
           setState(() {
-            isProduct ? (productName = "") : (makeRef = "");
+            field == 'make'
+                ? (_makeRef = "")
+                : (field == 'model' ? (_modelRef = "") : (_productName = ""));
           });
         },
       );
 
   _buildMakeFormField() {
-    return makeRef.toLowerCase() != "others"
-        ? buildMakesDropdown(
+    //debugPrint(suggestionsCallback("").toString());
+    return _makeRef.toLowerCase() != "others"
+        ? productsDropdown.buildMakesDropdown(
             controller: makeController,
             onChanged: (v) {
-              // Check if 'v' is a String or Model Object
+              // Check if 'v' is a String or Make Object
               var ref = (v.runtimeType == String) ? v : v.makeRef;
-              setState(() => makeRef = ref);
+              setState(() => _makeRef = ref);
 
               debugPrint("make-1 $ref");
             },
@@ -141,25 +148,28 @@ class _ManualRequestFormState extends State<ManualRequestForm> {
   }
 
   _buildModelFormField() {
-    return makeRef.toLowerCase() != "others"
-        ? buildModelsDropdown(
-            makeRef,
+    return [_makeRef, _modelRef].any((e) => e.contains("others"))
+        ? _otherModelFormField(context)
+        : productsDropdown.buildModelsDropdown(
+            _makeRef,
             controller: modelController,
             onChanged: (v) {
+              // Check if 'v' is a String or Model Object
+              var ref = (v.runtimeType == String) ? v : v.modelRef;
+              setState(() => _modelRef = ref.toString());
               debugPrint("model-1 $v");
             },
-          )
-        : _otherModelFormField(context);
+          );
   }
 
   _buildProductNameFormField() {
-    return productName.toLowerCase() != "others"
-        ? buildProductsDropdown(
+    return _productName.toLowerCase() != "others"
+        ? productsDropdown.buildProductsDropdown(
             controller: productController,
             onChanged: (v) {
               // Check if 'v' is a String or Model Object
               var name = (v.runtimeType == String) ? v : v.locPartName;
-              setState(() => productName = name);
+              setState(() => _productName = name);
 
               debugPrint("product-1 $name");
             },
@@ -180,7 +190,7 @@ class _ManualRequestFormState extends State<ManualRequestForm> {
         fillColor: Theme.of(context).colorScheme.primary.withOpacity(0.04),
         contentPadding:
             const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
-        suffixIcon: _swapFieldsButton(),
+        suffixIcon: _swapFieldsButton(field: 'make'),
         alignLabelWithHint: true,
         /*border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(5),
@@ -202,7 +212,7 @@ class _ManualRequestFormState extends State<ManualRequestForm> {
         fillColor: Theme.of(context).colorScheme.primary.withOpacity(0.04),
         contentPadding:
             const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
-        suffixIcon: _swapFieldsButton(),
+        suffixIcon: _swapFieldsButton(field: 'model'),
         alignLabelWithHint: true,
         /*border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(5),
@@ -224,7 +234,7 @@ class _ManualRequestFormState extends State<ManualRequestForm> {
         fillColor: Theme.of(context).colorScheme.primary.withOpacity(0.04),
         contentPadding:
             const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
-        suffixIcon: _swapFieldsButton(isProduct: true),
+        suffixIcon: _swapFieldsButton(field: 'product'),
         alignLabelWithHint: true,
         /*border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(5),
@@ -300,13 +310,13 @@ class _ManualRequestFormState extends State<ManualRequestForm> {
 
   TextFormField _buildPhoneFormField(BuildContext context) {
     return TextFormField(
+      maxLength: 16,
       keyboardType: TextInputType.phone,
-      // onFieldSubmitted: bloc.onChangeEmail,
-      // onChanged: bloc.onChangeEmail,
+      inputFormatters: [DialCodeFormatter()],
       decoration: InputDecoration(
         filled: true,
-        hintText: "Phone Number",
-        labelText: "Phone Number",
+        hintText: "Mobile Number",
+        labelText: "Mobile Number",
         // errorText: snapshot.hasError ? snapshot.error.toString() : "",
         fillColor: Theme.of(context).colorScheme.primary.withOpacity(0.04),
         contentPadding:

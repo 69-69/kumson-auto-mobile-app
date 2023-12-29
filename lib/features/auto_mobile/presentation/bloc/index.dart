@@ -1,4 +1,4 @@
-export 'package:automasters/features/auto_mobile/presentation/bloc/auth/auth_bloc.dart';
+export 'package:automasters/features/auto_mobile/presentation/bloc/auth/remote/auth_bloc.dart';
 export 'package:automasters/features/auto_mobile/presentation/bloc/make/remote/make_bloc.dart';
 export 'package:automasters/features/auto_mobile/presentation/bloc/parts/remote/part_bloc.dart';
 export 'package:automasters/features/auto_mobile/presentation/bloc/hunter/remote/hunter_bloc.dart';
@@ -6,3 +6,5 @@ export 'package:automasters/features/auto_mobile/presentation/bloc/make/remote/m
 export 'package:automasters/features/auto_mobile/presentation/bloc/model/remote/model_bloc.dart';
 export 'package:automasters/features/auto_mobile/presentation/bloc/vehicle/remote/vehicle_bloc.dart';
 export 'package:automasters/features/auto_mobile/presentation/bloc/vendor/remote/vendor_bloc.dart';
+export 'package:automasters/features/auto_mobile/presentation/bloc/home_search/search_bloc.dart';
+export 'package:automasters/features/auto_mobile/presentation/bloc/otp/remote/otp_bloc.dart';

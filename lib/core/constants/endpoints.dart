@@ -1,56 +1,82 @@
+// PART-No: BKR5ES
+// VIN: 19unc1b14hy000003 - 19unc1b04hy000002
+
+// Pagination Request
+const pagerPage = 0;
+const pagerSize = 300;
+const orderAsc = "asc";
+const orderDesc = "desc";
+
 class EndPoints {
-  bool prod;
-
-  EndPoints({this.prod = false});
-
-  // _getBasePath() => prod ? prodPath : devPath;
-
-  // _getBaseUrl() => prod ? awsBaseUrl : automobileAPIBaseURL;
-
-  static const String automobileAPIBaseURL = "http://localhost:8080";
-  static const String awsBaseUrl =
-      "http://ec2-18-188-42-121.us-east-2.compute.amazonaws.com";
-
-  // PRODUCTION PURPOSES ONLY
-  static const String autoProdPath = "/api/v1/auto";
+  // "http://localhost:8080";
+  static const String apiBaseUrl = "http://ec2-18-188-42-121.us-east-2.compute.amazonaws.com";
 
   // AUTH-PRODUCTION PURPOSES ONLY
   static const String authPath = "/api/v1/auth";
 
-  // DEVELOPMENT PURPOSES ONLY
-  static const String autoDevPath = "/test/runner/2023/k1";
+  // PRODUCTION PURPOSES ONLY
+  static const String autoProdPath = "/api/v1/auto";
 
-  // AUTH-PATHS
-  static const String login = '/login';
-  static const String register = '/register';
-  static const String userEmail = '/user_exist';
-  static const String refreshToken = '/refresh/token';
-  static const String confirmEmail = '/register/confirm_email';
-  static const String resendConfirmEmail = '/resend_confirm_email';
+  // DEVELOPMENT/TESTING PURPOSES ONLY
+  static const String autoTestPath = "/test/runner/2023/k1";
 
-  // PRODUCTS-PATHS
-  static const String vehicle = '/vehicles';
-  static const String part = '/parts';
-  static const String hunter = '/hunting';
-  static const String make = '/make';
-  static const String model = '/model';
-  static const String vendor = '/vendor';
+  // AUTH-PATHS: Don't need ACCESS_TOKEN
+  static const String login = '$apiBaseUrl$authPath/login';
+  static const String register = '$apiBaseUrl$authPath/register';
+  static const String userExist = '$apiBaseUrl$authPath/user_exist';
+  static const String forgotPassword = '$apiBaseUrl$authPath/forgot_password';
+  static const String confirmViaEmail = '$apiBaseUrl$authPath/register/confirm_email';
+  static const String confirmViaSMS = '$apiBaseUrl$authPath/register/confirm_phone';
+  static const String resendConfirmEmail = '$apiBaseUrl$authPath/resend_confirm_email';
 
-  static const String refreshTokenUrl =
-      "$awsBaseUrl$authPath$refreshToken";
+  // Restricted/Protected Endpoints: needs ACCESS TOKEN as Bearer-Token
+  static const String logout = '$apiBaseUrl$authPath/logout';
+  // Restricted/Protected Endpoints: needs REFRESH TOKEN as Bearer-Token
+  static const String refreshTokenUrl = '$apiBaseUrl$authPath/refresh/token';
 
+  // WhiteList AUTH-PATHS (UnSecured): Not Restricted by JWT-Token
   static final whiteList = <String>[
-    "$authPath$login",
-    "$authPath$register",
-    "$authPath$userEmail",
-    "$authPath$refreshToken",
-    "$authPath$confirmEmail",
-    "$authPath$resendConfirmEmail",
+    login,
+    register,
+    userExist,
+    confirmViaSMS,
+    confirmViaEmail,
+    resendConfirmEmail,
   ];
 
-  static const Map<String, String> customHeaders = {
-    "Content-Type": "application/json; charset=UTF-8",
-    "Authorization":
-        "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJkZXZtYWlsMDI2QGdtYWlsLmNvbSIsImlhdCI6MTY5OTY0MjU1MSwiZXhwIjoxNzMxMTc4NTUxfQ.3qYTmRe_fXy6Ef3DfOIuv2cl-T4LGw8OIPEEr5ses6o",
+  // USER-PATHS (Secured by JWT): needs ACCESS TOKEN as Bearer-Token
+  static const String user = '$apiBaseUrl$autoTestPath/auto_users'; // '/user';
+  static const String getLoggedInUser = '$user/loggedInUser'; // '/user';
+  static const String smsConfig = '$user/sms_config';
+
+  // AUTO-PRODUCTS-PATHS (Secured by JWT): needs ACCESS TOKEN as Bearer-Token
+  static const String vehicle = '$autoTestPath/auto_cars'; //Prod-Path:: '/vehicles';
+  static const String vehicleByVic = '$vehicle/v_code';
+
+  static const String product = '$autoTestPath/car_products'; //Prod-Path:: '/parts';
+
+  static const String part = '$autoTestPath/car_parts'; //Prod-Path:: '/parts';
+  static const String partsByHunterNo = '$part/hunter';
+  static const String partsYearsByMakeAndModel = '$part/year_range';
+
+  static const String hunter = '$autoTestPath/parts_hunter'; //Prod-Path:: '/hunting';
+  static const String huntersByPartNo = '$hunter/part_no';
+
+  static const String make = '$autoTestPath/car_makes'; //Prod-Path:: '/make';
+
+  static const String model = '$autoTestPath/car_models'; //Prod-Path:: '/model';
+    static const String modelsByMakeRef = '$model/make_ref';
+
+  static const String vendor = '$autoTestPath/vendors_parts'; //Prod-Path:: '/vendor';
+  static const String vendorsByBrandAndPartNo = '$vendor/lowest_price';
+
+  static const Map<String, String> headers = {
+    "Content-Type": "application/json; charset=UTF-8"
   };
+  static const Map<String, bool> forceDioHttpRefresh = {'refresh': true};
+
+  // NALO SMS Auth-Info
+  static const naloSmsSenderID = "AUTOMASTERS";
+  static const naloUrl = "https://sms.nalosolutions.com/smsbackend/Resl_Nalo/send-message/";
+  static const naloSMSApiKey = "q9tg0kd#y((xg07sf7(mzwunp(1ur1d6_qiev7p4bv3hc49953xzz3(s04gu(mkt";
 }

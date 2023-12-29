@@ -1,9 +1,10 @@
+import 'package:country_codes/country_codes.dart';
 import 'package:flutter/material.dart';
 import 'package:automasters/core/util/size_config.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/custom_stepper.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_pem.dart';
-import 'package:automasters/features/auto_mobile/data/data_sources/local/search_history_service.dart';
-import 'package:automasters/features/auto_mobile/presentation/widgets/make_model_dropdown.dart';
+import 'package:automasters/features/auto_mobile/data/data_sources/local/app_local_service.dart';
+import 'package:automasters/features/auto_mobile/presentation/widgets/items_dropdown.dart';
 
 class PartNoRequestForm extends StatefulWidget {
   const PartNoRequestForm({super.key});
@@ -16,11 +17,13 @@ class _PartNoRequestFormState extends State<PartNoRequestForm> {
   TextEditingController makeController = TextEditingController();
   TextEditingController modelController = TextEditingController();
   TextEditingController productController = TextEditingController();
+  ProductsDropdown productsDropdown = ProductsDropdown();
   MaterialStatesController? buttonController;
   final _formKey = GlobalKey<FormState>();
   Map<String, dynamic> formData = {};
-  String productName = "";
-  String makeRef = "";
+  String _productName = "";
+  String _makeRef = "";
+  String _modelRef = "";
 
   void _processData() {
     makeController.clear();
@@ -42,7 +45,7 @@ class _PartNoRequestFormState extends State<PartNoRequestForm> {
       child: CustomStepper(
         titles: const ['Vehicle', 'Personal'],
         subTitle: const ['Helps data collection', 'Helps to contact you'],
-        stepperContents: [
+        contents: [
           _partInfo(context),
           _personalInfo(context),
         ],
@@ -99,18 +102,20 @@ class _PartNoRequestFormState extends State<PartNoRequestForm> {
 
   SizedBox _gaps() => SizedBox(height: getProportionateScreenHeight(7));
 
-  IconButton _swapFieldsButton({bool isProduct = false}) => IconButton(
+  IconButton _swapFieldsButton({String field = ''}) => IconButton(
     icon: const Icon(Icons.swap_horiz),
     onPressed: () {
       setState(() {
-        isProduct ? (productName = "") : (makeRef = "");
+        field == 'make'
+            ? (_makeRef = "")
+            : (field == 'model' ? (_modelRef = "") : (_productName = ""));
       });
     },
   );
 
   TextFormField _buildPartNoFormField(BuildContext context) {
     String readOnlyPartNo =
-        SearchHistoryDB().getProductStatus(key: readOnlyPartNoKey);
+        AppLocalService().getProductStatus(key: readOnlyPartNoCacheKey);
     Color color = Theme.of(context).colorScheme.primary;
     const textStyle = TextStyle(color: Colors.white, fontSize: 12);
 
@@ -141,13 +146,13 @@ class _PartNoRequestFormState extends State<PartNoRequestForm> {
   }
 
   _buildMakeFormField() {
-    return makeRef.toLowerCase() != "others"
-        ? buildMakesDropdown(
+    return _makeRef.toLowerCase() != "others"
+        ? productsDropdown.buildMakesDropdown(
       controller: makeController,
       onChanged: (v) {
         // Check if 'v' is a String or Model Object
         var ref = (v.runtimeType == String) ? v : v.makeRef;
-        setState(() => makeRef = ref);
+        setState(() => _makeRef = ref);
 
         debugPrint("make-1 $ref");
       },
@@ -156,25 +161,28 @@ class _PartNoRequestFormState extends State<PartNoRequestForm> {
   }
 
   _buildModelFormField() {
-    return makeRef.toLowerCase() != "others"
-        ? buildModelsDropdown(
-      makeRef,
+    return [_makeRef, _modelRef].any((e) => e.contains("others"))
+        ? _otherModelFormField(context)
+        : productsDropdown.buildModelsDropdown(
+      _makeRef,
       controller: modelController,
       onChanged: (v) {
+        // Check if 'v' is a String or Model Object
+        var ref = (v.runtimeType == String) ? v : v.modelRef;
+        setState(() => _modelRef = ref.toString());
         debugPrint("model-1 $v");
       },
-    )
-        : _otherModelFormField(context);
+    );
   }
 
   _buildProductNameFormField() {
-    return productName.toLowerCase() != "others"
-        ? buildProductsDropdown(
+    return _productName.toLowerCase() != "others"
+        ? productsDropdown.buildProductsDropdown(
       controller: productController,
       onChanged: (v) {
         // Check if 'v' is a String or Model Object
         var name = (v.runtimeType == String) ? v : v.locPartName;
-        setState(() => productName = name);
+        setState(() => _productName = name);
 
         debugPrint("product-1 $name");
       },
@@ -195,7 +203,7 @@ class _PartNoRequestFormState extends State<PartNoRequestForm> {
         fillColor: Theme.of(context).colorScheme.primary.withOpacity(0.04),
         contentPadding:
         const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
-        suffixIcon: _swapFieldsButton(),
+        suffixIcon: _swapFieldsButton(field: 'make'),
         alignLabelWithHint: true,
         /*border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(5),
@@ -239,7 +247,7 @@ class _PartNoRequestFormState extends State<PartNoRequestForm> {
         fillColor: Theme.of(context).colorScheme.primary.withOpacity(0.04),
         contentPadding:
         const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
-        suffixIcon: _swapFieldsButton(isProduct: true),
+        suffixIcon: _swapFieldsButton(field: 'product'),
         alignLabelWithHint: true,
         /*border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(5),
@@ -316,13 +324,13 @@ class _PartNoRequestFormState extends State<PartNoRequestForm> {
 
   TextFormField _buildPhoneFormField(BuildContext context) {
     return TextFormField(
+      maxLength: 16,
       keyboardType: TextInputType.phone,
-      // onFieldSubmitted: bloc.onChangeEmail,
-      // onChanged: bloc.onChangeEmail,
+      inputFormatters: [DialCodeFormatter()],
       decoration: InputDecoration(
         filled: true,
-        hintText: "Phone Number",
-        labelText: "Phone Number",
+        hintText: "Mobile Number",
+        labelText: "Mobile Number",
         // errorText: snapshot.hasError ? snapshot.error.toString() : "",
         fillColor: Theme.of(context).colorScheme.primary.withOpacity(0.04),
         contentPadding:

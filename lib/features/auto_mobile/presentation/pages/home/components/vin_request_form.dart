@@ -1,9 +1,10 @@
 import 'package:automasters/features/auto_mobile/presentation/widgets/custom_stepper.dart';
+import 'package:country_codes/country_codes.dart';
 import 'package:flutter/material.dart';
 import 'package:automasters/core/util/size_config.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_pem.dart';
-import 'package:automasters/features/auto_mobile/data/data_sources/local/search_history_service.dart';
-import 'package:automasters/features/auto_mobile/presentation/widgets/make_model_dropdown.dart';
+import 'package:automasters/features/auto_mobile/data/data_sources/local/app_local_service.dart';
+import 'package:automasters/features/auto_mobile/presentation/widgets/items_dropdown.dart';
 
 class VinRequestForm extends StatefulWidget {
   const VinRequestForm({super.key});
@@ -16,11 +17,13 @@ class _VinRequestFormState extends State<VinRequestForm> {
   TextEditingController makeController = TextEditingController();
   TextEditingController modelController = TextEditingController();
   TextEditingController productController = TextEditingController();
+  ProductsDropdown productsDropdown = ProductsDropdown();
   MaterialStatesController? buttonController;
   final _formKey = GlobalKey<FormState>();
   Map<String, dynamic> formData = {};
-  String productName = "";
-  String makeRef = "";
+  String _productName = "";
+  String _makeRef = "";
+  String _modelRef = "";
 
   void _processData() {
     makeController.clear();
@@ -42,7 +45,7 @@ class _VinRequestFormState extends State<VinRequestForm> {
       child: CustomStepper(
         titles: const ['Vehicle', 'Personal'],
         subTitle: const ['Helps data collection', 'Helps to contact you'],
-        stepperContents: [
+        contents: [
           _vehicleInfo(context),
           _personalInfo(context),
         ],
@@ -75,7 +78,6 @@ class _VinRequestFormState extends State<VinRequestForm> {
     );
   }
 
-
   Padding _personalInfo(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(top: 10.0, bottom: 25.0),
@@ -104,54 +106,59 @@ class _VinRequestFormState extends State<VinRequestForm> {
 
   SizedBox _gaps() => SizedBox(height: getProportionateScreenHeight(7));
 
-  IconButton _swapFieldsButton({bool isProduct = false}) => IconButton(
-    icon: const Icon(Icons.swap_horiz),
-    onPressed: () {
-      setState(() {
-        isProduct ? (productName = "") : (makeRef = "");
-      });
-    },
-  );
+  IconButton _swapFieldsButton({String field = ''}) => IconButton(
+        icon: const Icon(Icons.swap_horiz),
+        onPressed: () {
+          setState(() {
+            field == 'make'
+                ? (_makeRef = "")
+                : (field == 'model' ? (_modelRef = "") : (_productName = ""));
+          });
+        },
+      );
 
   _buildMakeFormField() {
-    return makeRef.toLowerCase() != "others"
-        ? buildMakesDropdown(
-      controller: makeController,
-      onChanged: (v) {
-        // Check if 'v' is a String or Model Object
-        var ref = (v.runtimeType == String) ? v : v.makeRef;
-        setState(() => makeRef = ref);
+    return _makeRef.toLowerCase() != "others"
+        ? productsDropdown.buildMakesDropdown(
+            controller: makeController,
+            onChanged: (v) {
+              // Check if 'v' is a String or Make Object
+              var ref = (v.runtimeType == String) ? v : v.makeRef;
+              setState(() => _makeRef = ref);
 
-        debugPrint("make-1 $ref");
-      },
-    )
+              debugPrint("make-1 $ref");
+            },
+          )
         : _otherMakeFormField(context);
   }
 
   _buildModelFormField() {
-    return makeRef.toLowerCase() != "others"
-        ? buildModelsDropdown(
-      makeRef,
-      controller: modelController,
-      onChanged: (v) {
-        debugPrint("model-1 $v");
-      },
-    )
-        : _otherModelFormField(context);
+    return [_makeRef, _modelRef].any((e) => e.contains("others"))
+        ? _otherModelFormField(context)
+        : productsDropdown.buildModelsDropdown(
+            _makeRef,
+            controller: modelController,
+            onChanged: (v) {
+              // Check if 'v' is a String or Model Object
+              var ref = (v.runtimeType == String) ? v : v.modelRef;
+              setState(() => _modelRef = ref.toString());
+              debugPrint("model-1 $v");
+            },
+          );
   }
 
   _buildProductNameFormField() {
-    return productName.toLowerCase() != "others"
-        ? buildProductsDropdown(
-      controller: productController,
-      onChanged: (v) {
-        // Check if 'v' is a String or Model Object
-        var name = (v.runtimeType == String) ? v : v.locPartName;
-        setState(() => productName = name);
+    return _productName != "others"
+        ? productsDropdown.buildProductsDropdown(
+            controller: productController,
+            onChanged: (v) {
+              // Check if 'v' is a String or Model Object
+              var name = (v.runtimeType == String) ? v : v.locPartName;
+              setState(() => _productName = name);
 
-        debugPrint("product-1 $name");
-      },
-    )
+              debugPrint("product-1 $name");
+            },
+          )
         : _otherProductNameFormField(context);
   }
 
@@ -167,8 +174,8 @@ class _VinRequestFormState extends State<VinRequestForm> {
         // errorText: snapshot.hasError ? snapshot.error.toString() : "",
         fillColor: Theme.of(context).colorScheme.primary.withOpacity(0.04),
         contentPadding:
-        const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
-        suffixIcon: _swapFieldsButton(),
+            const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
+        suffixIcon: _swapFieldsButton(field: 'make'),
         alignLabelWithHint: true,
         /*border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(5),
@@ -189,8 +196,8 @@ class _VinRequestFormState extends State<VinRequestForm> {
         // errorText: snapshot.hasError ? snapshot.error.toString() : "",
         fillColor: Theme.of(context).colorScheme.primary.withOpacity(0.04),
         contentPadding:
-        const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
-        suffixIcon: _swapFieldsButton(),
+            const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
+        suffixIcon: _swapFieldsButton(field: 'model'),
         alignLabelWithHint: true,
         /*border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(5),
@@ -211,8 +218,8 @@ class _VinRequestFormState extends State<VinRequestForm> {
         // errorText: snapshot.hasError ? snapshot.error.toString() : "",
         fillColor: Theme.of(context).colorScheme.primary.withOpacity(0.04),
         contentPadding:
-        const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
-        suffixIcon: _swapFieldsButton(isProduct: true),
+            const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
+        suffixIcon: _swapFieldsButton(field: 'product'),
         alignLabelWithHint: true,
         /*border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(5),
@@ -222,7 +229,8 @@ class _VinRequestFormState extends State<VinRequestForm> {
   }
 
   TextFormField _buildVinFormField(BuildContext context) {
-    String readOnlyVin = SearchHistoryDB().getProductStatus(key: readOnlyVinKey);
+    String readOnlyVin =
+        AppLocalService().getProductStatus(key: readOnlyVinCacheKey);
     Color color = Theme.of(context).colorScheme.primary;
     const textStyle = TextStyle(color: Colors.white, fontSize: 12);
 
@@ -320,13 +328,13 @@ class _VinRequestFormState extends State<VinRequestForm> {
 
   TextFormField _buildPhoneFormField(BuildContext context) {
     return TextFormField(
+      maxLength: 16,
       keyboardType: TextInputType.phone,
-      // onFieldSubmitted: bloc.onChangeEmail,
-      // onChanged: bloc.onChangeEmail,
+      inputFormatters: [DialCodeFormatter()],
       decoration: InputDecoration(
         filled: true,
-        hintText: "Phone Number",
-        labelText: "Phone Number",
+        hintText: "Mobile Number",
+        labelText: "Mobile Number",
         // errorText: snapshot.hasError ? snapshot.error.toString() : "",
         fillColor: Theme.of(context).colorScheme.primary.withOpacity(0.04),
         contentPadding:

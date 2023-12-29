@@ -1,7 +1,7 @@
 import 'dart:io';
+import 'package:automasters/core/constants/endpoints.dart';
 import 'package:dio/dio.dart';
 import 'package:retrofit/dio.dart';
-import 'package:automasters/core/constants/constants.dart';
 import 'package:automasters/core/resources/data_state.dart';
 import 'package:automasters/features/auto_mobile/data/models/parts.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/local/app_local_database.dart';
@@ -25,10 +25,10 @@ class PartsRepositoryImpl implements PartsRepository {
   Future<DataState<List<PartModel>>> getParts() async {
     try {
       // Get AccessToken from App localStorage
-      final accessToken = _appLocalDatabase.readData(key: accessTokenKey);
+      final accessToken = _appLocalDatabase.readCache(key: accessTokenCacheKey);
 
       final httpResponse = await _automobileApiService.getParts(
-        contentType: customHeaders["Content-Type"],
+        contentType: EndPoints.headers["Content-Type"],
         authToken: "Bearer $accessToken",
       );
 
@@ -53,10 +53,10 @@ class PartsRepositoryImpl implements PartsRepository {
   Future<DataState<PartModel>> getPartByHunterNo(String hunterNo) async {
     try {
       // Get AccessToken from App localStorage
-      final accessToken = _appLocalDatabase.readData(key: accessTokenKey);
+      final accessToken = _appLocalDatabase.readCache(key: accessTokenCacheKey);
 
       final httpResponse = await _automobileApiService.getPartByHunterNo(
-        contentType: customHeaders["Content-Type"],
+        contentType: EndPoints.headers["Content-Type"],
         authToken: "Bearer $accessToken",
         hunterNo: hunterNo,
       );
@@ -82,15 +82,15 @@ class PartsRepositoryImpl implements PartsRepository {
   Future<DataState<List<PartModel>>> getPartsByVFam(String vfam) async {
     try {
       // Get AccessToken from App localStorage
-      final accessToken = _appLocalDatabase.readData(key: accessTokenKey);
+      final accessToken = _appLocalDatabase.readCache(key: accessTokenCacheKey);
 
       final httpResponse = await _automobileApiService.getPartsByVFam(
-        contentType: customHeaders["Content-Type"],
+        contentType: EndPoints.headers["Content-Type"],
         authToken: "Bearer $accessToken",
         vfam: vfam,
         page: pagerPage,
         size: pagerSize,
-        sort: "part,$pagerOrder",
+        sort: "part,$orderAsc",
       );
 
       if (_responseValid<List<PartModel>>(httpResponse)) {
@@ -115,16 +115,16 @@ class PartsRepositoryImpl implements PartsRepository {
       String make, String model) async {
     try {
       // Get AccessToken from App localStorage
-      final accessToken = _appLocalDatabase.readData(key: accessTokenKey);
+      final accessToken = _appLocalDatabase.readCache(key: accessTokenCacheKey);
 
       final httpResponse = await _automobileApiService.getPartsByVMakeModel(
-        contentType: customHeaders["Content-Type"],
+        contentType: EndPoints.headers["Content-Type"],
         authToken: "Bearer $accessToken",
         make: make,
         model: model,
         page: pagerPage,
         size: pagerSize,
-        sort: "part,$pagerOrder",
+        sort: "part,$orderAsc",
       );
 
       if (_responseValid<List<PartModel>>(httpResponse)) {
@@ -149,10 +149,10 @@ class PartsRepositoryImpl implements PartsRepository {
       String make, String model) async {
     try {
       // Get AccessToken from App localStorage
-      final accessToken = _appLocalDatabase.readData(key: accessTokenKey);
+      final accessToken = _appLocalDatabase.readCache(key: accessTokenCacheKey);
 
       final httpResponse = await _automobileApiService.getPartsYearsByMakeModel(
-        contentType: customHeaders["Content-Type"],
+        contentType: EndPoints.headers["Content-Type"],
         authToken: "Bearer $accessToken",
         make: make,
         model: model,

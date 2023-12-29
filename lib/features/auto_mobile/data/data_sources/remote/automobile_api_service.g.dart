@@ -14,7 +14,7 @@ class _AutomobileApiService implements AutomobileApiService {
     // ignore: unused_element
     this.baseUrl,
   }) {
-    baseUrl ??= automobileAPIBaseURL;
+    baseUrl ??= EndPoints.apiBaseUrl;
   }
 
   Dio _dio;
@@ -28,9 +28,9 @@ class _AutomobileApiService implements AutomobileApiService {
     int? size,
     String? sort,
   }) async {
-    _dio = AuthInterceptor.getInstance();
+    _dio = DioUtil.getInstance();
 
-    const _extra = <String, dynamic>{};
+    const _extra = EndPoints.forceDioHttpRefresh;
     final queryParameters = <String, dynamic>{
       r'page': page,
       r'size': size,
@@ -79,9 +79,9 @@ class _AutomobileApiService implements AutomobileApiService {
     int? size,
     String? sort,
   }) async {
-    _dio = AuthInterceptor.getInstance();
+    _dio = DioUtil.getInstance();
 
-    const _extra = <String, dynamic>{};
+    const _extra = EndPoints.forceDioHttpRefresh;
     final queryParameters = <String, dynamic>{
       r'page': page,
       r'size': size,
@@ -132,9 +132,9 @@ class _AutomobileApiService implements AutomobileApiService {
     int? size,
     String? sort,
   }) async {
-    _dio = AuthInterceptor.getInstance();
+    _dio = DioUtil.getInstance();
 
-    const _extra = <String, dynamic>{};
+    const _extra = EndPoints.forceDioHttpRefresh;
     final queryParameters = <String, dynamic>{
       r'page': page,
       r'size': size,
@@ -149,19 +149,19 @@ class _AutomobileApiService implements AutomobileApiService {
     const Map<String, dynamic>? _data = null;
     final _result = await _dio.fetch<Map<String, dynamic>>(
         _setStreamType<HttpResponse<List<Model>>>(Options(
-          method: 'GET',
-          headers: _headers,
-          extra: _extra,
-          contentType: contentType,
-        )
+      method: 'GET',
+      headers: _headers,
+      extra: _extra,
+      contentType: contentType,
+    )
             .compose(
-          _dio.options,
-          '/test/runner/2023/k1/car_models/make_ref/${makeRef}',
-          queryParameters: queryParameters,
-          data: _data,
-        )
+              _dio.options,
+              '/test/runner/2023/k1/car_models/make_ref/${makeRef}',
+              queryParameters: queryParameters,
+              data: _data,
+            )
             .copyWith(
-            baseUrl: _combineBaseUrls(
+                baseUrl: _combineBaseUrls(
               _dio.options.baseUrl,
               baseUrl,
             ))));
@@ -184,9 +184,9 @@ class _AutomobileApiService implements AutomobileApiService {
     int? size,
     String? sort,
   }) async {
-    _dio = AuthInterceptor.getInstance();
+    _dio = DioUtil.getInstance();
 
-    const _extra = <String, dynamic>{};
+    const _extra = EndPoints.forceDioHttpRefresh;
     final queryParameters = <String, dynamic>{
       r'page': page,
       r'size': size,
@@ -238,9 +238,9 @@ class _AutomobileApiService implements AutomobileApiService {
     int? size,
     String? sort,
   }) async {
-    _dio = AuthInterceptor.getInstance();
+    _dio = DioUtil.getInstance();
 
-    const _extra = <String, dynamic>{};
+    const _extra = EndPoints.forceDioHttpRefresh;
     final queryParameters = <String, dynamic>{
       r'page': page,
       r'size': size,
@@ -283,9 +283,9 @@ class _AutomobileApiService implements AutomobileApiService {
     String? authToken,
     String? vehicleCode,
   }) async {
-    _dio = AuthInterceptor.getInstance();
+    _dio = DioUtil.getInstance();
 
-    const _extra = <String, dynamic>{};
+    const _extra = EndPoints.forceDioHttpRefresh;
     final queryParameters = <String, dynamic>{};
     queryParameters.removeWhere((k, v) => v == null);
     final _headers = <String, dynamic>{
@@ -325,9 +325,9 @@ class _AutomobileApiService implements AutomobileApiService {
     int? size,
     String? sort,
   }) async {
-    _dio = AuthInterceptor.getInstance();
+    _dio = DioUtil.getInstance();
 
-    const _extra = <String, dynamic>{};
+    const _extra = EndPoints.forceDioHttpRefresh;
     final queryParameters = <String, dynamic>{
       r'page': page,
       r'size': size,
@@ -381,9 +381,9 @@ class _AutomobileApiService implements AutomobileApiService {
     int? size,
     String? sort,
   }) async {
-    _dio = AuthInterceptor.getInstance();
+    _dio = DioUtil.getInstance();
 
-    const _extra = <String, dynamic>{};
+    const _extra = EndPoints.forceDioHttpRefresh;
     final queryParameters = <String, dynamic>{
       r'page': page,
       r'size': size,
@@ -430,9 +430,9 @@ class _AutomobileApiService implements AutomobileApiService {
     String? authToken,
     String? hunterNo,
   }) async {
-    _dio = AuthInterceptor.getInstance();
+    _dio = DioUtil.getInstance();
 
-    const _extra = <String, dynamic>{};
+    const _extra = EndPoints.forceDioHttpRefresh;
     final queryParameters = <String, dynamic>{};
     queryParameters.removeWhere((k, v) => v == null);
     final _headers = <String, dynamic>{
@@ -474,9 +474,9 @@ class _AutomobileApiService implements AutomobileApiService {
     int? size,
     String? sort,
   }) async {
-    _dio = AuthInterceptor.getInstance();
+    _dio = DioUtil.getInstance();
 
-    const _extra = <String, dynamic>{};
+    const _extra = EndPoints.forceDioHttpRefresh;
     final queryParameters = <String, dynamic>{
       r'page': page,
       r'size': size,
@@ -524,9 +524,9 @@ class _AutomobileApiService implements AutomobileApiService {
     String? make,
     String? model,
   }) async {
-    _dio = AuthInterceptor.getInstance();
+    _dio = DioUtil.getInstance();
 
-    const _extra = <String, dynamic>{};
+    const _extra = EndPoints.forceDioHttpRefresh;
     final queryParameters = <String, dynamic>{};
     queryParameters.removeWhere((k, v) => v == null);
     final _headers = <String, dynamic>{
@@ -566,9 +566,9 @@ class _AutomobileApiService implements AutomobileApiService {
     int? size,
     String? sort,
   }) async {
-    _dio = AuthInterceptor.getInstance();
+    _dio = DioUtil.getInstance();
 
-    const _extra = <String, dynamic>{};
+    const _extra = EndPoints.forceDioHttpRefresh;
     final queryParameters = <String, dynamic>{
       r'page': page,
       r'size': size,
@@ -619,9 +619,9 @@ class _AutomobileApiService implements AutomobileApiService {
     int? size,
     String? sort,
   }) async {
-    _dio = AuthInterceptor.getInstance();
+    _dio = DioUtil.getInstance();
 
-    const _extra = <String, dynamic>{};
+    const _extra = EndPoints.forceDioHttpRefresh;
     final queryParameters = <String, dynamic>{
       r'page': page,
       r'size': size,
@@ -673,9 +673,9 @@ class _AutomobileApiService implements AutomobileApiService {
     int? size,
     String? sort,
   }) async {
-    _dio = AuthInterceptor.getInstance();
+    _dio = DioUtil.getInstance();
 
-    const _extra = <String, dynamic>{};
+    const _extra = EndPoints.forceDioHttpRefresh;
     final queryParameters = <String, dynamic>{
       r'page': page,
       r'size': size,
@@ -726,9 +726,9 @@ class _AutomobileApiService implements AutomobileApiService {
     int? size,
     String? sort,
   }) async {
-    _dio = AuthInterceptor.getInstance();
+    _dio = DioUtil.getInstance();
 
-    const _extra = <String, dynamic>{};
+    const _extra = EndPoints.forceDioHttpRefresh;
     final queryParameters = <String, dynamic>{
       r'page': page,
       r'size': size,
@@ -776,9 +776,9 @@ class _AutomobileApiService implements AutomobileApiService {
     String? authToken,
     int? id,
   }) async {
-    _dio = AuthInterceptor.getInstance();
+    _dio = DioUtil.getInstance();
 
-    const _extra = <String, dynamic>{};
+    const _extra = EndPoints.forceDioHttpRefresh;
     final queryParameters = <String, dynamic>{};
     queryParameters.removeWhere((k, v) => v == null);
     final _headers = <String, dynamic>{
@@ -820,9 +820,9 @@ class _AutomobileApiService implements AutomobileApiService {
     int? size,
     String? sort,
   }) async {
-    _dio = AuthInterceptor.getInstance();
+    _dio = DioUtil.getInstance();
 
-    const _extra = <String, dynamic>{};
+    const _extra = EndPoints.forceDioHttpRefresh;
     final queryParameters = <String, dynamic>{
       r'page': page,
       r'size': size,

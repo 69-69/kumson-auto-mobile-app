@@ -1,4 +1,4 @@
-import 'package:automasters/auto_mobile_app.dart';
+import 'package:automasters/app.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:automasters/features/injection_container.dart';
@@ -20,7 +20,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDependencies();
 
-  runApp(const AutoMobileApp());
+  runApp(const App());
 
   // Disable screen orientation to PORTRAIT-UP ONLY
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);

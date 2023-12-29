@@ -1,11 +1,11 @@
-import 'package:automasters/features/auto_mobile/data/models/vehicle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:automasters/core/util/size_config.dart';
 import 'package:automasters/core/util/get_distinct_by.dart';
 import 'package:automasters/config/routes/routes_constant.dart';
-import 'package:automasters/features/auto_mobile/presentation/widgets/or_separator.dart';
-import 'package:automasters/features/auto_mobile/presentation/pages/bottom_sheet/make_a_request_modal.dart';
+import 'package:automasters/features/auto_mobile/presentation/pages/bottom_sheet/send_a_request_modal.dart';
+import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_pem.dart';
+import 'package:automasters/features/auto_mobile/data/models/vehicle.dart';
 
 import 'package:automasters/features/auto_mobile/presentation/bloc/vehicle/remote/index.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/build_modal.dart';
@@ -38,10 +38,7 @@ class ManualModal extends StatefulWidget {
 
 class _ManualModalState extends State<ManualModal> {
   late Future<List<MakeModel>> getVehicleMake;
-  String getMakeRef = "",
-      getMakeName = "",
-      getModelName = "",
-      getCarYear = "";
+  String getMakeRef = "", getMakeName = "", getModelName = "", getCarYear = "";
   bool isMakeSelected = false, isModelSelected = false, isYearSelected = false;
 
   int isMakeSelectedIndex = 0,
@@ -59,29 +56,14 @@ class _ManualModalState extends State<ManualModal> {
   Icon iconRight =
       const Icon(Icons.chevron_right, color: Colors.black26, size: 13);
 
-  showMakeRequestModalButton(BuildContext context, String label) {
-    final color = Theme.of(context).colorScheme.primary;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      child: Column(
-        children: [
-          /// Or Section
-          orSeparator(lineColor: color, textColor: color),
-          showMakeRequestButton(
-            context,
-            "manualRequest",
-            borderColor: Colors.transparent,
-          ),
-        ],
-      ),
-    );
-  }
-
   SizedBox _buildBody(BuildContext context) {
+    double appBarHeight = AppBar().preferredSize.height * 2;
+    final height = SizeConfig.screenHeight! - appBarHeight;
+
     return SizedBox(
-      height: SizeConfig.screenHeight! * 0.85,
+      height: height,
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           buildPagerHead(context),
           const Divider(thickness: 1, height: 0.0),
@@ -96,7 +78,7 @@ class _ManualModalState extends State<ManualModal> {
                         ? _carYearsBloc(context)
                         : _engineTypeBloc(context)),
           ),
-          showMakeRequestModalButton(context, "Your Request"),
+          sendARequest(),
           SizedBox(height: getProportionateScreenHeight(15)),
         ],
       ),
@@ -201,7 +183,7 @@ class _ManualModalState extends State<ManualModal> {
           setState(() {
             isYearSelected = false;
             isModelSelected = true;
-            getCarYear ="";
+            getCarYear = "";
           });
         }
       },
@@ -223,7 +205,6 @@ class _ManualModalState extends State<ManualModal> {
     BuildContext context, {
     bool isActive = true,
   }) {
-
     return customLine(
       title.capitalizeEach(),
       context,
@@ -236,18 +217,18 @@ class _ManualModalState extends State<ManualModal> {
   }
 
   /// BlocBuilder
-  BlocBuilder<MakesBloc, MakesState> _carMakeBloc() {
-    return BlocBuilder<MakesBloc, MakesState>(
+  BlocBuilder<MakesBloc, MakeState> _carMakeBloc() {
+    return BlocBuilder<MakesBloc, MakeState>(
       builder: (context, state) {
-        if (state is MakesLoading) {
+        if (state is MakeLoading) {
           return _loadSpinner();
         }
 
-        if (state is MakesError) {
+        if (state is MakeError) {
           return buildRefreshApp(context);
         }
 
-        if (state is MakesDone) {
+        if (state is MakeDone) {
           return listCarMakeCard(state);
         }
         return const SizedBox();
@@ -256,7 +237,7 @@ class _ManualModalState extends State<ManualModal> {
   }
 
   /// Grid view display[listCarMakeCard]
-  AlphabeticalScrollView listCarMakeCard(MakesDone state) {
+  AlphabeticalScrollView listCarMakeCard(MakeDone state) {
     final List<MakeModel> result = state.make as List<MakeModel>;
 
     return buildAlphabeticalScrollView(
@@ -284,22 +265,22 @@ class _ManualModalState extends State<ManualModal> {
     context.read<ModelsByMakeRefBloc>().add(GetModelsByEvent(getMakeRef));
   }
 
-  BlocBuilder<ModelsByMakeRefBloc, ModelsState> _carModelBloc(
+  BlocBuilder<ModelsByMakeRefBloc, ModelState> _carModelBloc(
       BuildContext context2) {
     _getCarModels();
 
-    return BlocBuilder<ModelsByMakeRefBloc, ModelsState>(
+    return BlocBuilder<ModelsByMakeRefBloc, ModelState>(
       builder: (context, state) {
-        if (state is ModelsLoading) {
+        if (state is ModelLoading) {
           // return Text("content");
           return _loadSpinner();
         }
 
-        if (state is ModelsError) {
+        if (state is ModelError) {
           return buildRefreshApp(context);
         }
 
-        if (state is ModelsDone) {
+        if (state is ModelDone) {
           return listCarModelCard(state);
         }
 
@@ -309,7 +290,7 @@ class _ManualModalState extends State<ManualModal> {
   }
 
   /// Grid view display[listCarModelCard]
-  AlphabeticalScrollView listCarModelCard(ModelsDone state) {
+  AlphabeticalScrollView listCarModelCard(ModelDone state) {
     final List<Model> result = state.model as List<Model>;
 
     return buildAlphabeticalScrollView(
@@ -332,13 +313,13 @@ class _ManualModalState extends State<ManualModal> {
         });
   }
 
-  BlocBuilder<PartsYearsByMakeModelBloc, PartsState> _carYearsBloc(
+  BlocBuilder<PartsYearsByMakeModelBloc, PartState> _carYearsBloc(
       BuildContext context) {
     _getCarYears(context);
 
-    return BlocBuilder<PartsYearsByMakeModelBloc, PartsState>(
+    return BlocBuilder<PartsYearsByMakeModelBloc, PartState>(
       builder: (context, state) {
-        if (state is PartsLoading) {
+        if (state is PartLoading) {
           return _loadSpinner();
         }
 
@@ -346,7 +327,7 @@ class _ManualModalState extends State<ManualModal> {
           return buildRefreshApp(context);
         }*/
 
-        if (state is PartsDone) {
+        if (state is PartDone) {
           return listCarYearsCard(state);
         }
 
@@ -362,7 +343,7 @@ class _ManualModalState extends State<ManualModal> {
   }
 
   /// Grid view display[listCarYearsCard]
-  AlphabeticalScrollView listCarYearsCard(PartsDone state) {
+  AlphabeticalScrollView listCarYearsCard(PartDone state) {
     final List<dynamic> result = state.part as List<dynamic>;
 
     return buildAlphabeticalScrollView(
@@ -384,23 +365,23 @@ class _ManualModalState extends State<ManualModal> {
         });
   }
 
-  BlocBuilder<PartsByMakeModelBloc, PartsState> _engineTypeBloc(
+  BlocBuilder<PartsByMakeModelBloc, PartState> _engineTypeBloc(
       BuildContext context) {
     context
         .read<PartsByMakeModelBloc>()
         .add(GetByMakeModelEvent(getMakeName, getModelName));
 
-    return BlocBuilder<PartsByMakeModelBloc, PartsState>(
+    return BlocBuilder<PartsByMakeModelBloc, PartState>(
       builder: (context, state) {
-        if (state is PartsLoading) {
+        if (state is PartLoading) {
           return _loadSpinner();
         }
 
-        if (state is PartsError) {
+        if (state is PartError) {
           return buildRefreshApp(context);
         }
 
-        if (state is PartsDone) {
+        if (state is PartDone) {
           return listEngineTypeCard(state);
         }
 
@@ -414,7 +395,7 @@ class _ManualModalState extends State<ManualModal> {
       .toList();
 
   /// List view display[listEngineTypeCard]
-  AlphabeticalScrollView listEngineTypeCard(PartsDone state) {
+  AlphabeticalScrollView listEngineTypeCard(PartDone state) {
     List<PartModel> result = state.part as List<PartModel>;
     List<PartModel> eTypes = _removeDuplicate(result, false);
 
@@ -422,7 +403,6 @@ class _ManualModalState extends State<ManualModal> {
         list: eTypes.map((PartModel e) => AlphaModel(e.engineType)).toList(),
         itemBuilder: (_, index, value) {
           PartModel part = eTypes[index];
-          // _onPressedGetRouteData(part);
 
           return part.engineType != "0"
               ? _getRouteDataBloc(result, value, part)
@@ -437,29 +417,34 @@ class _ManualModalState extends State<ManualModal> {
   ) {
     _onPressedGetRouteData(part);
 
-    return BlocConsumer<VehicleByVinBloc, VehiclesState>(
+    return BlocConsumer<VehicleByVinBloc, VehicleState>(
       // If listenWhen returns true, listener will be called with new state
-      // listenWhen: (previousState, currentState) => currentState != previousState,
-      // buildWhen: (context, state) => state is VehicleByDone || state is VehiclesLoading,
+      // listenWhen: (curState, curState) => curState != curState,
+      // buildWhen: (preState, curState) => curState != curState,
       listener: (_, state) {
-        if(state is VehiclesLoading){
-         _loadSpinner();
+        if (state is VehicleLoading) {
+          _loadSpinner();
         }
       },
-      builder: (_, state) =>_buildListCard(
-        value,
-        false,
-        onTap: () {
-          VehicleModel dat = state.vehicle as VehicleModel;
-          Map<String, dynamic> data = {
-            "vehicle": dat,
-            "parts": _removeDuplicate(result, true)
-          };
+      builder: (_, state) {
+        return _buildListCard(
+          value,
+          false,
+          onTap: () {
+            if (state.vehicle != null) {
+              final v = state.vehicle as VehicleModel;
+              Map<String, dynamic> data = {
+                "data": v,
+                "parts": _removeDuplicate(result, true)
+              };
 
-          pageNavigator(_,
-            routeName: vehicleDetailsRoute, arguments: data);
-        },
-      ),
+              pageNavigator(_, routeName: vehicleDetailsRoute, arguments: data);
+            } else {
+              showRequestModal(context, manualRequest);
+            }
+          },
+        );
+      },
     );
   }
 
@@ -487,35 +472,35 @@ class _ManualModalState extends State<ManualModal> {
 
   AlphabeticalScrollView buildAlphabeticalScrollView(
       {bool isSelected = false,
-        required List<AlphaModel> list,
-        required Widget Function(BuildContext, int, String) itemBuilder}) {
+      required List<AlphaModel> list,
+      required Widget Function(BuildContext, int, String) itemBuilder}) {
     ColorScheme tColor = Theme.of(context).colorScheme;
 
     Container buildOverlayWidget(String value) => Container(
-      height: 35,
-      width: 35,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: Theme.of(context).colorScheme.primary.withOpacity(0.6),
-      ),
-      alignment: Alignment.center,
-      child: Text(
-        value.toUpperCase(),
-        style: const TextStyle(color: Colors.white),
-      ),
-    );
+          height: 35,
+          width: 35,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Theme.of(context).colorScheme.primary.withOpacity(0.6),
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            value.toUpperCase(),
+            style: const TextStyle(color: Colors.white),
+          ),
+        );
 
     TextStyle buildSelectedTextStyle(ColorScheme tColor) => TextStyle(
-      fontWeight: FontWeight.bold,
-      color: tColor.primary,
-      overflow: TextOverflow.ellipsis,
-    );
+          fontWeight: FontWeight.bold,
+          color: tColor.primary,
+          overflow: TextOverflow.ellipsis,
+        );
 
     TextStyle buildUnSelectedTextStyle(ColorScheme tColor) => TextStyle(
-      fontWeight: FontWeight.normal,
-      color: tColor.onSurface,
-      overflow: TextOverflow.ellipsis,
-    );
+          fontWeight: FontWeight.normal,
+          color: tColor.onSurface,
+          overflow: TextOverflow.ellipsis,
+        );
 
     return AlphabeticalScrollView(
       list: list,
@@ -532,14 +517,12 @@ class _ManualModalState extends State<ManualModal> {
 
   GestureDetector _buildListCard(String value, bool isClicked,
       {void Function()? onTap}) {
-    final themeColor=Theme.of(context).colorScheme;
+    final themeColor = Theme.of(context).colorScheme;
 
     return GestureDetector(
       onTap: onTap,
       child: customCard(
-        color: isClicked
-            ? themeColor.primaryContainer
-            : themeColor.background,
+        color: isClicked ? themeColor.primaryContainer : themeColor.background,
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Row(
@@ -547,7 +530,7 @@ class _ManualModalState extends State<ManualModal> {
             children: [
               SelectionArea(
                 child: Text(
-                  value,
+                  value.capitalizeEach(),
                   style: const TextStyle(
                     fontWeight: FontWeight.normal,
                   ),
@@ -561,6 +544,20 @@ class _ManualModalState extends State<ManualModal> {
     );
   }
 
+  sendARequest() {
+    String msg = isMakeSelected
+        ? "Model"
+        : isModelSelected
+            ? "Year"
+            : isYearSelected
+                ? "Engine"
+                : "Make";
+
+    return InlineRequestButton(
+      reqType: manualRequest,
+      notFoundMsg: "Car $msg not found!",
+    );
+  }
 }
 
 /*return ColumnBuilder(

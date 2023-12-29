@@ -58,15 +58,15 @@ class HunterModel extends HunterEntity {
   }
 
   /// Empty hunter which has no data.
-  static const empty = HunterModel(product: '');
+  // static const empty = HunterModel(product: '');
 
   /// Convenience getter to determine whether the current hunter request is empty.
-  @override
-  bool get isEmpty => this == HunterModel.empty;
+  // @override
+  // bool get isEmpty => this == HunterModel.empty;
 
   /// Convenience getter to determine whether the current hunter request is not empty.
-  @override
-  bool get isNotEmpty => this != HunterModel.empty;
+  // @override
+  // bool get isNotEmpty => this != HunterModel.empty;
 
   factory HunterModel.fromJson(Map<String, dynamic> map) {
     return HunterModel(

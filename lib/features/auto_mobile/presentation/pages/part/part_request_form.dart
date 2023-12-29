@@ -1,6 +1,7 @@
+import 'package:country_codes/country_codes.dart';
 import 'package:flutter/material.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/custom_stepper.dart';
-import 'package:automasters/features/auto_mobile/presentation/widgets/make_model_dropdown.dart';
+import 'package:automasters/features/auto_mobile/presentation/widgets/items_dropdown.dart';
 import 'package:automasters/core/util/size_config.dart';
 
 class PartRequestForm extends StatefulWidget {
@@ -12,8 +13,9 @@ class PartRequestForm extends StatefulWidget {
 
 class _PartRequestFormState extends State<PartRequestForm> {
   TextEditingController productController = TextEditingController();
+  ProductsDropdown productsDropdown = ProductsDropdown();
   final _formKey = GlobalKey<FormState>();
-  String productName = "";
+  String _productName = "";
 
   void _processData() {
     productController.clear();
@@ -33,7 +35,7 @@ class _PartRequestFormState extends State<PartRequestForm> {
       child: CustomStepper(
         titles: const ['Part', 'Personal'],
         subTitle: const ['Helps data collection', 'Helps to contact you'],
-        stepperContents: [
+        contents: [
           _vehicleInfo(context),
           _personalInfo(context),
         ],
@@ -84,18 +86,18 @@ class _PartRequestFormState extends State<PartRequestForm> {
   IconButton _swapFieldsButton() => IconButton(
     icon: const Icon(Icons.swap_horiz),
     onPressed: () {
-      setState(() => productName = "");
+      setState(() => _productName = "");
     },
   );
 
   _buildProductNameFormField() {
-    return productName.toLowerCase() != "others"
-        ? buildProductsDropdown(
+    return _productName.toLowerCase() != "others"
+        ? productsDropdown.buildProductsDropdown(
       controller: productController,
       onChanged: (v) {
         // Check if 'v' is a String or Model Object
         var name = (v.runtimeType == String) ? v : v.locPartName;
-        setState(() => productName = name);
+        setState(() => _productName = name);
 
         debugPrint("product-1 $name");
       },
@@ -171,13 +173,13 @@ class _PartRequestFormState extends State<PartRequestForm> {
 
   TextFormField _buildPhoneFormField(BuildContext context) {
     return TextFormField(
+      maxLength: 16,
       keyboardType: TextInputType.phone,
-      // onFieldSubmitted: bloc.onChangeEmail,
-      // onChanged: bloc.onChangeEmail,
+      inputFormatters: [DialCodeFormatter()],
       decoration: InputDecoration(
         filled: true,
-        hintText: "Phone Number",
-        labelText: "Phone Number",
+        hintText: "Mobile Number",
+        labelText: "Mobile Number",
         // errorText: snapshot.hasError ? snapshot.error.toString() : "",
         fillColor: Theme.of(context).colorScheme.primary.withOpacity(0.04),
         contentPadding:

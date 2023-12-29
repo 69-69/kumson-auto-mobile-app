@@ -5,6 +5,7 @@ buildQuestionButton(
   void Function()? onPress,
   Color? bgColor,
   Color? color,
+  Color? brColor,
   IconData? icon,
 }) {
   ColorScheme theme = Theme.of(context).colorScheme;
@@ -17,7 +18,7 @@ buildQuestionButton(
         backgroundColor: bgColor ?? theme.onInverseSurface,
         padding: EdgeInsets.zero,
         shape: CircleBorder(
-          side: BorderSide(color: color ?? theme.surfaceTint),
+          side: BorderSide(color: brColor ?? color ?? theme.surfaceTint),
         ),
       ),
       onPressed: onPress,

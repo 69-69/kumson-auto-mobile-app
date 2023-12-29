@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 
 OutlinedButton outlinedBtnForSearch(
   BuildContext context, {
-  bool isSearching = false,
+  Key? key,
+  bool isPressed = false,
   required void Function()? onPress,
-      MaterialStatesController? buttonController,
+  MaterialStatesController? buttonController,
 }) {
   return OutlinedButton(
+    key: key,
     onPressed: onPress,
     statesController: buttonController,
     style: OutlinedButton.styleFrom(
@@ -21,7 +23,7 @@ OutlinedButton outlinedBtnForSearch(
         ),
       ),
     ),
-    child: isSearching
+    child: isPressed
         ? showCircularProgress(
             height: 13, width: 13, strokeWidth: 2, color: Colors.white)
         : const Icon(Icons.search, color: Colors.white, size: 25),

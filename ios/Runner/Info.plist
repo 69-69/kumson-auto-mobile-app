@@ -47,8 +47,11 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
-    <!-- Permission options for the `photos` group -->
-    <key>NSPhotoLibraryUsageDescription</key>
-	<string>Permission options for Photo by AutoMasters App</string>
+
+    <!-- Permission options for the `Location` group -->
+	<key>NSLocationWhenInUseUsageDescription</key>
+    <string>AutoMasters App needs access to Location when open</string>
+    <key>NSLocationAlwaysUsageDescription</key>
+    <string>AutoMasters App needs access to Location when in the background</string>
 </dict>
 </plist>

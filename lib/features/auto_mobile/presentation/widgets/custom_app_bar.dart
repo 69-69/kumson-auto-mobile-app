@@ -1,12 +1,12 @@
-import 'package:automasters/features/auto_mobile/presentation/widgets/appbar_video_player.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:automasters/features/auto_mobile/presentation/pages/bottom_sheet/make_a_request_modal.dart';
+import 'package:automasters/features/auto_mobile/data/models/custom_appbar.dart';
+import 'package:automasters/features/auto_mobile/presentation/widgets/appbar_video_player.dart';
+import 'package:automasters/features/auto_mobile/presentation/pages/bottom_sheet/send_a_request_modal.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/question_button.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/animation_switcher.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/fade_slide.dart';
 import 'package:automasters/features/auto_mobile/data/models/animation_item.dart';
-import 'package:automasters/features/auto_mobile/data/models/custom_appbar.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/page_navigator.dart';
 import 'package:string_capitalize/string_capitalize.dart';
 
@@ -88,7 +88,8 @@ class _CustomSliverAppBarState extends State<CustomSliverAppBar>
             buildQuestionButton(
               context,
               color: Colors.white,
-              bgColor: Colors.transparent,
+              brColor: Colors.transparent,
+              bgColor: const Color.fromRGBO(10, 0, 0, 0.7),
               onPress: () => showRequestModal(context, model.currentScreen),
             ),
           ],

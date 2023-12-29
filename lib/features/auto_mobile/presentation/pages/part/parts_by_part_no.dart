@@ -3,7 +3,7 @@ import 'package:automasters/config/routes/routes_constant.dart';
 import 'package:automasters/core/constants/constants.dart';
 import 'package:automasters/core/util/size_config.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_pem.dart';
-import 'package:automasters/features/auto_mobile/data/data_sources/local/search_history_service.dart';
+import 'package:automasters/features/auto_mobile/data/data_sources/local/app_local_service.dart';
 import 'package:automasters/features/auto_mobile/data/models/custom_appbar.dart';
 import 'package:automasters/features/auto_mobile/data/models/vehicle.dart';
 import 'package:automasters/features/auto_mobile/data/models/vendor.dart';
@@ -14,7 +14,7 @@ import 'package:automasters/features/auto_mobile/presentation/widgets/custom_app
 import 'package:automasters/features/auto_mobile/presentation/widgets/async_progress_dialog.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/column_builder.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/custom_line.dart';
-import 'package:automasters/features/auto_mobile/presentation/pages/bottom_sheet/make_a_request_modal.dart';
+import 'package:automasters/features/auto_mobile/presentation/pages/bottom_sheet/send_a_request_modal.dart';
 import 'package:automasters/features/auto_mobile/presentation/pages/bottom_sheet/show_confirmation_dialog.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/page_navigator.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/question_button.dart';
@@ -26,12 +26,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../widgets/refresh_button.dart';
 
 class PartsByPartNo extends StatefulWidget {
-  // static const String routeName = "/parts_by_part_no";
-  final List<HunterModel> hunters;
+  final Map<String, dynamic> map;
 
   const PartsByPartNo({
     super.key,
-    required this.hunters,
+    required this.map,
   });
 
   @override
@@ -45,9 +44,9 @@ class _PartsByPartNoState extends State<PartsByPartNo> {
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
-    final hunters = widget.hunters;
+    final List<HunterModel> hunters = widget.map['data'] as List<HunterModel>;
 
-    productAge = SearchHistoryDB().getProductStatus();
+    productAge = AppLocalService().getProductStatus();
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -66,7 +65,7 @@ class _PartsByPartNoState extends State<PartsByPartNo> {
           subTitle: _buildSubTitle(),
           subMiniTitle: "${hunters[0].product}s",
           expandedHeight: getProportionateScreenHeight(250),
-          currentScreen: partNoRequest,
+          currentScreen: partRequest,
           imageUrl: kDefaultCarImage,
           videoUrl: 'https://youtu.be/EgF01aSQyno?si=HBUGAORJ-DPVH0CY',
         );
@@ -109,7 +108,7 @@ class _PartsByPartNoState extends State<PartsByPartNo> {
     );
   }
 
-  /// List view display[buildListView]
+  /// List view display[_buildListView]
   _buildListView(result) {
     return SingleChildScrollView(
       padding: EdgeInsets.zero,
@@ -160,25 +159,25 @@ class _PartsByPartNoState extends State<PartsByPartNo> {
       final cState = context.watch<VehicleByVinBloc>().state;
       final state = context.watch<VendorPartsByBrandPartNoBloc>().state;
 
-      if (pState is PartsError) {
+      if (pState is PartError) {
         return buildRefreshApp(context);
       }
 
-      if (pState is PartsLoading) {
+      if (pState is PartLoading) {
         return _loadSpinner();
       }
 
-      if (pState is PartsDone) {
+      if (pState is PartDone) {
         context
             .read<VehicleByVinBloc>()
             .add(GetVehicleByVinEvent(pState.part!.vin ?? ""));
       }
 
-      if (cState is VehiclesLoading) {
+      if (cState is VehicleLoading) {
         return _loadSpinner();
       }
 
-      if ((cState is VehiclesDone) && (state is VendorsDone)) {
+      if ((cState is VehicleDone) && (state is VendorDone)) {
         final car = cState.vehicle! as VehicleModel;
         SchedulerBinding.instance.addPostFrameCallback(
           (_) => setState(() => vehicle = car),
@@ -187,7 +186,7 @@ class _PartsByPartNoState extends State<PartsByPartNo> {
         final vendors = state.vendor as List<VendorModel>;
         return _buildShowPrice(vendors, car);
       }
-      return showMakeRequestButton(context, "partRequest");
+      return const InlineRequestButton(reqType: partRequest);
     });
   }
 
@@ -369,7 +368,7 @@ class _PartsByPartNoState extends State<PartsByPartNo> {
       const Text("...for New or Used Car Parts?"),
     );
     if (context.mounted && opt != "cancel") {
-      await SearchHistoryDB().saveProductStatus(opt);
+      await AppLocalService().saveProductStatus(opt);
 
       // Refresh Screen after Dialog Changes
       Future.delayed(

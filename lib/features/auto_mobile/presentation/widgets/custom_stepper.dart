@@ -1,22 +1,35 @@
+import 'package:flutter/material.dart';
+import 'package:collection/collection.dart';
 import 'package:automasters/core/util/size_config.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/elevated_btn.dart';
-import 'package:collection/collection.dart';
-import 'package:flutter/material.dart';
+import 'package:automasters/features/auto_mobile/presentation/widgets/outline_btn.dart';
 
 // Ref: https://medium.flutterdevs.com/stepper-widget-in-flutter-37ce5b45575b
 
 class CustomStepper extends StatefulWidget {
-  final List<Widget> stepperContents;
+  final List<Widget> contents;
   final Function(int) onSubmit;
   final List<String> titles;
+  final List<String> labels;
   final List<String> subTitle;
+  final String? doneLabel;
+  final Widget? doneBtn;
+  final double elevation;
+  final GlobalKey<FormState>? formFieldKey;
+  final StepperType? stepperType;
 
   const CustomStepper({
     super.key,
-    required this.stepperContents,
+    this.stepperType,
+    required this.contents,
     required this.onSubmit,
-    required this.titles,
-    required this.subTitle,
+    this.labels = const [],
+    this.titles = const [],
+    this.subTitle = const [],
+    this.elevation = 1.0,
+    this.doneLabel,
+    this.formFieldKey,
+    this.doneBtn,
   });
 
   @override
@@ -25,7 +38,6 @@ class CustomStepper extends StatefulWidget {
 
 class _CustomStepperState extends State<CustomStepper> {
   int _currentStep = 0;
-  StepperType stepperType = StepperType.vertical;
   static const textStyle = TextStyle(
     fontSize: 10,
     overflow: TextOverflow.ellipsis,
@@ -33,63 +45,93 @@ class _CustomStepperState extends State<CustomStepper> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: SizeConfig.screenHeight,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Expanded(
-            child: buildStepper(),
-          ),
-        ],
+    final appBarHeight = AppBar().preferredSize.height * 2;
+
+    return IntrinsicHeight(
+      child: SizedBox(
+        height: SizeConfig.screenHeight! - appBarHeight,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Expanded(
+              child: buildStepper(),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Stepper buildStepper() {
     return Stepper(
-      type: stepperType,
+      type: widget.stepperType ?? StepperType.horizontal,
+      elevation: widget.elevation,
       physics: const ScrollPhysics(),
       currentStep: _currentStep,
       onStepTapped: (step) => tapped(step),
       onStepContinue: continued,
       onStepCancel: cancel,
-      steps: widget.stepperContents
-          .mapIndexed((index, e) => buildStepOne(e, index))
+      steps: widget.contents
+          .mapIndexed((index, e) => buildStep(e, index))
           .toList(),
       controlsBuilder: (BuildContext context, ControlsDetails details) {
-        final isLastStep = _currentStep == widget.stepperContents.length - 1;
+        final isLastStep = _currentStep == widget.contents.length - 1;
         return buildControls(context, details, isLastStep);
       },
     );
   }
 
-  Container buildControls(
+  buildControls(
       BuildContext context, ControlsDetails details, bool isLastStep) {
-    return Container(
-      margin: const EdgeInsets.only(top: 2),
+    return Padding(
+      padding: const EdgeInsets.only(top: 10.0),
       child: Row(
         children: [
-          Expanded(
-            child: buildElevatedBtn(context,
-                onPress: details.onStepContinue,
-                label: isLastStep ? 'Send' : 'Next'),
-          ),
-          const SizedBox(width: 12),
-          if (_currentStep != 0)
-            Expanded(
-              child: buildElevatedBtn(context,
+          if (_currentStep != 0) ...{
+            FittedBox(
+              child: buildOutlinedBtn(context,
                   onPress: details.onStepCancel, label: 'Back'),
-            )
+            ),
+          },
+          if (_currentStep > 0) ...{
+            const SizedBox(width: 12),
+          },
+          isLastStep
+              ? Expanded(
+                  child: widget.doneBtn ??
+                      _onStepContinueBtn(
+                        context,
+                        details,
+                        widget.doneLabel ?? 'Submit',
+                      ),
+                )
+              : Expanded(
+                  child: _onStepContinueBtn(context, details, 'Next'),
+                ),
         ],
       ),
     );
   }
 
-  Step buildStepOne(Widget content, int index) {
+  ElevatedButton _onStepContinueBtn(
+      BuildContext context, ControlsDetails details, String label) {
+    return buildElevatedBtn(
+      context,
+      onPress: details.onStepContinue,
+      label: label,
+    );
+  }
+
+  Step buildStep(Widget content, int index) {
+    final labels = widget.labels;
+    final titles = widget.titles;
+    final subTitles = widget.subTitle;
     return Step(
-      title: Text('${widget.titles[index]} Info'),
-      subtitle: Text(widget.subTitle[index], style: textStyle),
+      label: labels.isNotEmpty ? Text(labels[index]) : null,
+      title: titles.isNotEmpty ? Text(titles[index]) : const SizedBox.shrink(),
+      subtitle: subTitles.isNotEmpty
+          ? Text(subTitles[index], style: textStyle)
+          : null,
       content: content,
       isActive: _currentStep >= 0,
       state: _currentStep >= index ? StepState.complete : StepState.disabled,
@@ -111,9 +153,17 @@ class _CustomStepperState extends State<CustomStepper> {
   }
 
   continued() {
-    debugPrint("stepper $_currentStep");
+    if (widget.formFieldKey == null) {
+      debugPrint("stepper $_currentStep");
+      _onPressContinued();
+    } else {
+      if (widget.formFieldKey!.currentState!.validate()) _onPressContinued();
+    }
+  }
+
+  _onPressContinued() {
     widget.onSubmit(_currentStep);
-    int totalStepper = widget.stepperContents.length - 1;
+    int totalStepper = widget.contents.length - 1;
     _currentStep < totalStepper ? setState(() => _currentStep += 1) : null;
   }
 

@@ -19,15 +19,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:string_capitalize/string_capitalize.dart';
 
 class ListAllParts extends StatelessWidget {
-  final Map<String, dynamic> data;
+  final Map<String, dynamic> map;
 
-  const ListAllParts({super.key, required this.data});
+  const ListAllParts({super.key, required this.map});
 
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
-    List<PartModel> carParts = data['parts'] as List<PartModel>;
-    VehicleModel vehicle = data['vehicle'] as VehicleModel;
+    List<PartModel> carParts = map['parts'] as List<PartModel>;
+    VehicleModel vehicle = map['vehicle'] as VehicleModel;
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -80,17 +80,16 @@ class ListAllParts extends StatelessWidget {
       physics: const NeverScrollableScrollPhysics(),
       child: ColumnBuilder(
         itemCount: carParts.length,
-        itemBuilder: (context, index) {
+        itemBuilder: (columnContext, index) {
           PartModel carPart = carParts[index];
           bool isLastIndex = index == carParts.length - 1;
 
           return carPart.part! != "0"
               ? _hunterPartsBloc(
-                  context,
+            columnContext,
                   carPart,
                   vehicle,
                   isLastIndex,
-                  index,
                 )
               : const SizedBox.shrink();
         },
@@ -98,23 +97,27 @@ class ListAllParts extends StatelessWidget {
     );
   }
 
-  _hunterPartsBloc(
+  /*_hunterPartsBloc(
     BuildContext context,
     PartModel carPart,
     VehicleModel vehicle,
     bool isLastIndex,
-    int index,
   ) {
     _getHunterParts(context, carPart.hunter!);
+
     final state =
-        context.select((HunterPartsByHunterNoBloc v) => v.state);
+        context.select<HunterPartsByHunterNoBloc, HuntersState>((HunterPartsByHunterNoBloc v) => v.state);
+
     if (state is HuntersLoading) {
       return _loadSpinner();
     }
-    final hunterParts = state.hunter as List<HunterModel>;
-    return _buildListView(
-        context, carPart, vehicle, hunterParts, isLastIndex, index);
-  }
+
+    if (state is HuntersDone && state.hunter != null) {
+      final hunterParts = state.hunter as List<HunterModel>;
+      return _buildListView(carPart, vehicle, hunterParts, isLastIndex);
+    }
+    return SizedBox.shrink();
+  }*/
 
   void _getHunterParts(BuildContext context, String hunterNo) {
     context
@@ -122,88 +125,95 @@ class ListAllParts extends StatelessWidget {
         .add(GetHunterPartsByHunterNoEvent(hunterNo));
   }
 
-  /*BlocBuilder<HunterPartsByHunterNoBloc, HuntersState> _hunterPartsBlocW(
+  BlocBuilder<HunterPartsByHunterNoBloc, HunterState> _hunterPartsBloc(
     BuildContext context2,
     PartModel carPart,
     VehicleModel vehicle,
     bool isLastIndex,
-    int index,
   ) {
-    _getHunterParts(context, carPart.hunter!);
+    _getHunterParts(context2, carPart.hunter!);
 
-    return BlocBuilder<HunterPartsByHunterNoBloc, HuntersState>(
+    return BlocBuilder<HunterPartsByHunterNoBloc, HunterState>(
         builder: (context, state) {
-      if (state is HuntersLoading) {
+      if (state is HunterLoading) {
         return _loadSpinner();
       }
 
-      if (state is HuntersDone) {
-        final hunterParts = state.hunters! as List<HunterModel>;
+      /*if (state is HuntersError) {
+        return const Text("context");
+      }*/
+
+      if (state is HunterDone) {
+        final hunterParts = state.hunter! as List<HunterModel>;
 
         return _buildListView(
-            context, carPart, vehicle, hunterParts, isLastIndex, index);
-      }
-
-      if (state is HuntersError) {
-        return buildRefreshApp(context);
+            carPart, vehicle, hunterParts, isLastIndex);
       }
 
       return const SizedBox();
     });
-  }*/
+  }
 
-  InkWell _buildListView(
-    BuildContext context,
+  _buildListView(
     PartModel carPart,
     VehicleModel vehicle,
     List<HunterModel> hunterParts,
     bool isLastIndex,
-    int index,
   ) {
-    return InkWell(
-      onTap: () {
-        Map<String, dynamic> data = {
-          'hunter': hunterParts[index],
-          'vehicle': vehicle
-        };
 
-        pageNavigator(
-          context,
-          routeName: partDetailsCheckout,
-          arguments: data,
-        );
-      },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 2.0),
-        child: _buildCard(carPart, isLastIndex),
-      ),
+    return ColumnBuilder(
+        itemCount: hunterParts.length,
+        itemBuilder: (hunterContext, index) {
+          HunterModel hunterPart = hunterParts[index];
+
+
+          return InkWell(
+            onTap: () {
+              Map<String, dynamic> data = {
+                'hunter': hunterPart,
+                'vehicle': vehicle
+              };
+
+              pageNavigator(
+                hunterContext,
+                routeName: partDetailsCheckout,
+                arguments: data,
+              );
+            },
+            child: _buildCard(carPart, isLastIndex),
+          );
+        },
     );
+
   }
 
   /// Card [_buildCard]
-  Card _buildCard(PartModel carPart, bool isLastIndex) {
-    return customCard(
-      shape: isLastIndex
-          ? const ContinuousRectangleBorder(
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(80),
-                bottomRight: Radius.circular(80),
-              ),
-            )
-          : null,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              buildContainerImage(child: Image.asset(kDefaultPartImage)),
-              buildProductInfo(
-                carPart.part!.capitalizeEach(),
-                carPart.model!.capitalize(),
-              ),
-            ],
-          ),
-        ],
+  _buildCard(PartModel carPart, bool isLastIndex) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2.0),
+      child: customCard(
+        shape: isLastIndex
+            ? const ContinuousRectangleBorder(
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(80),
+                  bottomRight: Radius.circular(80),
+                ),
+              )
+            : null,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                buildContainerImage(child: Image.asset(kDefaultPartImage)),
+                buildProductInfo(
+                  carPart.part!.capitalizeEach(),
+                  carPart.model!.capitalize(),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

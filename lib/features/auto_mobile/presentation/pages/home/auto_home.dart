@@ -1,24 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:automasters/features/auto_mobile/presentation/pages/home/components/home_app_bar.dart';
+import 'package:automasters/features/auto_mobile/presentation/widgets/parent_background.dart';
+import 'package:automasters/features/auto_mobile/presentation/pages/home/index.dart';
+import 'package:automasters/features/auto_mobile/presentation/widgets/fancy_bottom_navigation/fancy_bottom_navigation.dart';
 
-import 'package:automasters/core/constants/constants.dart';
-import 'package:automasters/core/util/keyboard.dart';
-import 'package:automasters/core/util/size_config.dart';
-import 'package:automasters/features/auto_mobile/presentation/bloc/auth/auth_bloc.dart';
-import 'package:automasters/features/auto_mobile/presentation/pages/sideMenu/side_menu.dart';
-import 'package:automasters/features/auto_mobile/data/data_sources/local/app_local_database.dart';
-import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_pem.dart';
-import 'package:automasters/features/auto_mobile/presentation/widgets/animation_switcher.dart';
-import 'package:automasters/features/auto_mobile/presentation/widgets/build_modal.dart';
-import 'package:automasters/features/auto_mobile/presentation/widgets/outline_btn.dart';
-import 'package:automasters/features/auto_mobile/presentation/widgets/question_button.dart';
-import 'package:automasters/features/auto_mobile/presentation/widgets/text_overflow.dart';
-import 'package:automasters/features/auto_mobile/presentation/pages/home/components/collapse_panel.dart';
-import 'package:automasters/features/auto_mobile/presentation/pages/bottom_sheet/auth_modal.dart';
-import 'package:automasters/features/auto_mobile/data/data_sources/local/search_history_service.dart';
-import 'package:automasters/features/auto_mobile/data/models/animation_item.dart';
-import 'package:automasters/features/auto_mobile/presentation/pages/bottom_sheet/search_history.dart';
-import 'package:automasters/features/auto_mobile/presentation/pages/bottom_sheet/show_confirmation_dialog.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'components/user_current_location.dart';
 
 class AutoHome extends StatefulWidget {
   const AutoHome({super.key});
@@ -29,6 +15,11 @@ class AutoHome extends StatefulWidget {
 
 class _AutoHomeState extends State<AutoHome>
     with SingleTickerProviderStateMixin {
+  bool isManual = false;
+  bool isPartNo = false;
+  bool isVin = false;
+  int _currentIndex = 0;
+  List<Widget> _bottomScreens = [];
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
   // Animation setups
@@ -41,8 +32,23 @@ class _AutoHomeState extends State<AutoHome>
     createAnimation();
 
     onLaunchShowDialog();
+    _userLocation();
 
+    _initializeBottomMenus();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    animationController.dispose();
+    _bottomScreens.clear();
+    super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    _initializeBottomMenus();
+    super.didChangeDependencies();
   }
 
   void createAnimation() {
@@ -75,7 +81,7 @@ class _AutoHomeState extends State<AutoHome>
     if (context.mounted) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         await Future.delayed(const Duration(seconds: 2), () {
-          SearchHistoryDB().getProductStatus().isEmpty
+          AppLocalService().getProductStatus().isEmpty
               ? displayDialog()
               : false;
         });
@@ -83,10 +89,26 @@ class _AutoHomeState extends State<AutoHome>
     }
   }
 
-  @override
-  void dispose() {
-    animationController.dispose();
-    super.dispose();
+  void _userLocation() {
+    UserCurrentLocation(context, asyncLocation: (place) {
+      // debugPrint('${place.street}, ${place.subLocality}, ${place.subAdministrativeArea}, ${place.postalCode}');
+      // return Text('${place.street}, ${place.subLocality}, ${place.subAdministrativeArea}, ${place.postalCode}');
+    })
+        .getCurrentPosition();
+  }
+
+  void updateMenu(int index) => setState(() => _currentIndex = index);
+
+// List of screens
+  void _initializeBottomMenus() {
+    _bottomScreens = [
+      const Text('Shop for All Parts here!'),
+      const Text('Shop for All Parts here!'),
+      const Text('My Favorite Parts here!'),
+      const Text('Chat with Company Rep here!'),
+      const Text('Logged In user Profile Here!'),
+    ];
+    setState(() {});
   }
 
   @override
@@ -94,129 +116,60 @@ class _AutoHomeState extends State<AutoHome>
     SizeConfig().init(context);
     final customTheme = Theme.of(context);
 
-    final token =
-        AppLocalDatabase().readData(key: accessTokenKey, defaultValue: "");
-    if (token.isEmpty) {
-      // print("form $token");
-      AppLocalDatabase().writeData(
-          key: accessTokenKey,
-          data:
-              "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJkZXZtYWlsMDI2QGdtYWlsLmNvbSIsImlhdCI6MTY5OTY0MjU1MSwiZXhwIjoxNzMxMTc4NTUxfQ.3qYTmRe_fXy6Ef3DfOIuv2cl-T4LGw8OIPEEr5ses6o");
-    }
-
-    /*void onRemoveArticle(BuildContext context, VehicleEntity v) {
-      BlocProvider.of<LocalVehicleBloc>(context).add(RemoveSavedVehicle(v));
-    }*/
-
+    // Lets restart the app so icons can load
     return Scaffold(
       key: scaffoldKey,
       resizeToAvoidBottomInset: true,
-      backgroundColor: Colors.transparent,
-      // Color.fromRGBO(0,0,0,0.56),
-      appBar: buildAppBar(context),
-      drawer: const SideMenu(),
-      body: buildContainer(customTheme, context),
-    );
-  }
-
-  AppBar buildAppBar(BuildContext context) {
-    return AppBar(
-      centerTitle: true,
-      // backgroundColor: Theme.of(context).colorScheme.primary,
-      // iconTheme: IconThemeData(color: Colors.white,size: 30,),
-      leading: _menuButton(),
-      title: const Text(
-        appName,
-        style: TextStyle(
-          fontWeight: FontWeight.w600,
-          fontSize: 32.0,
-          color: Color(0xFFD3AFAE),
-          height: 1.3,
-        ),
-      ),
-      bottom: _bottomCard(context),
-    );
-  }
-
-  PreferredSize _bottomCard(BuildContext context) {
-    return PreferredSize(
-      preferredSize: const Size.fromHeight(5),
-      child: Container(
-        width: double.infinity,
-        color: Colors.black26,
-        padding: const EdgeInsets.all(1),
-        child: Text(
-          "Best Way to Buy Car Parts in Ghana",
-          textAlign: TextAlign.center,
-          style: Theme.of(context)
-              .textTheme
-              .bodyMedium!
-              .copyWith(fontWeight: FontWeight.bold, color: Colors.white),
-        ),
-      ),
-    );
-  }
-
-  IconButton _menuButton() {
-    return IconButton(
-      icon: const Icon(
-        Icons.menu,
-        size: 35,
-      ),
-      color: Colors.white,
-      onPressed: () {
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      // const Color(0xFFF6EEF2),
+      appBar: HomeAppBar(onPress: () {
         if (scaffoldKey.currentState!.isDrawerOpen) {
-          scaffoldKey.currentState!.closeDrawer();
           //close drawer, if drawer is open
+          scaffoldKey.currentState!.closeDrawer();
         } else {
-          scaffoldKey.currentState!.openDrawer();
           //open drawer, if drawer is closed
+          scaffoldKey.currentState!.openDrawer();
         }
+      }),
+      // your drawer
+      drawer: const SideMenu(),
+      body: ParentBackground(
+        child: buildAnimatedSwitcher(
+          _currentIndex > 0
+              ? _bottomScreens[_currentIndex]
+              : _buildBody(customTheme, context),
+          animationItems,
+        ),
+      ),
+      bottomNavigationBar: buildFancyBottomNavigation(bottomNavLabels(3)),
+    );
+  }
+
+  /*HomeTemplate _buildBody2() {
+    return HomeTemplate(
+      bottomNavigation: buildFancyBottomNavigation(bottomNavLabels(3)),
+      bottomWidget: SizedBox(width: SizeConfig.screenWidth),
+      // hideAppBar: _currentIndex == 0 ? true : false,
+      // child: _bottomScreens[_currentIndex],
+      *//* bottomWidget: Builder(
+      builder: (context) {
+        final userId = context.select(
+          (AuthBloc bloc) => bloc.state.loggedInUser.role,
+        );
+        return Text(
+          "Role: $userId",
+          style: const TextStyle(overflow: TextOverflow.ellipsis,color: Colors.white),
+        );
       },
+    ),*//*
     );
-  }
+  }*/
 
-  Container buildContainer(ThemeData customTheme, BuildContext context) {
-    return Container(
-      margin: EdgeInsets.zero,
-      decoration: const BoxDecoration(
-        image: DecorationImage(
-          // all-car-parts.jpg
-          image: AssetImage(kHomeBg),
-          fit: BoxFit.cover,
-        ),
-      ),
-      height: SizeConfig.screenHeight!,
-      width: SizeConfig.screenWidth!,
-      child: SingleChildScrollView(
-        primary: true,
-        scrollDirection: Axis.vertical,
-        physics: const BouncingScrollPhysics(),
-        child: Container(
-          decoration: const BoxDecoration(
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black12,
-                offset: Offset(0, -1),
-                blurRadius: 8,
-              )
-            ],
-          ),
-          margin: EdgeInsets.symmetric(
-            horizontal: 12,
-            vertical: SizeConfig.screenHeight! / 4,
-          ),
-          child: buildAnimatedSwitcher(
-              buildBody(customTheme, context), animationItems),
-        ),
-      ),
-    );
-  }
-
-  buildBody(ThemeData customTheme, BuildContext context) {
+  Column _buildBody(ThemeData customTheme, BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
+        _subDesc(),
         buildColoredBorder(
           true,
           context,
@@ -227,19 +180,52 @@ class _AutoHomeState extends State<AutoHome>
           false,
           context,
           padding: const EdgeInsets.fromLTRB(20.0, 2.0, 20.0, 7.0),
-          child: Builder(
-            builder: (context) {
-              final userId = context.select(
-                (AuthBloc bloc) => bloc.state.user.id,
-              );
-              return Text(
-                "UID->$userId",
-                style: const TextStyle(overflow: TextOverflow.ellipsis),
-              );
-            },
-          ),
+          child: SizedBox(width: SizeConfig.screenWidth),
         ),
       ],
+    );
+  }
+
+  Padding _subDesc() {
+    final tColor = Theme.of(context).colorScheme;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(1.0, 0.0, 1.0, 40.0),
+      child: Text.rich(
+        textAlign: TextAlign.center,
+        TextSpan(
+          text: 'Car Parts\n& Accessories\n',
+          style: TextStyle(
+            height: 1.2,
+            fontSize: 28.0,
+            fontWeight: FontWeight.w600,
+            overflow: TextOverflow.ellipsis,
+            color: tColor.primary,
+          ),
+          children: [
+            TextSpan(
+              text:
+                  'Search Genuine Parts & Accessories\nfor your vehicle. Search by...',
+              style: TextStyle(
+                height: 1.5,
+                fontSize: 15.0,
+                fontWeight: FontWeight.w500,
+                overflow: TextOverflow.ellipsis,
+                color: tColor.onBackground.withOpacity(0.8),
+              ),
+              children: [
+                TextSpan(
+                  text: 'VIN, PART-NO., MAKE or MODEL',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: tColor.onBackground.withOpacity(0.5),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -271,24 +257,30 @@ class _AutoHomeState extends State<AutoHome>
           color: customTheme.colorScheme.primary,
           onPress: onPress);
 
-  Future<dynamic> buildAuthModal(BuildContext context, String authType) =>
-      buildModal(context, AuthModal(authType: authType));
-
-  OutlinedButton buildOutlinedButton(BuildContext context, String label) {
-    return buildOutlinedBtn(
-      context,
-      label: label,
-      color: Colors.white,
-      onPress: () => buildAuthModal(context, label),
-    );
-  }
-
-  Container buildColoredBorder(bool isTop, BuildContext context,
+  buildColoredBorder(bool isTop, BuildContext context,
       {Widget? child, EdgeInsets? padding}) {
     Radius rdZero = Radius.zero;
     Radius rd = const Radius.circular(22);
 
-    return Container(
+    return Card(
+      margin: EdgeInsets.zero,
+      color: Theme.of(context).colorScheme.primary,
+      //.withOpacity(0.6),
+      shape: ContinuousRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topRight: isTop ? rd : rdZero,
+          topLeft: isTop ? rd : rdZero,
+          bottomLeft: isTop ? rdZero : rd,
+          bottomRight: isTop ? rdZero : rd,
+        ),
+      ),
+      child: Padding(
+        padding: padding ?? const EdgeInsets.all(7.0),
+        child: child,
+      ),
+    );
+
+    /*return Container(
       width: SizeConfig.screenWidth!,
       margin: EdgeInsets.zero,
       padding: padding ?? const EdgeInsets.all(7.0),
@@ -302,7 +294,34 @@ class _AutoHomeState extends State<AutoHome>
         ),
       ),
       child: child,
+    );*/
+  }
+
+  FancyBottomNavigation buildFancyBottomNavigation(
+      List<Map<String, dynamic>> barItems) {
+    return FancyBottomNavigation(
+      tabs: List.generate(
+        barItems.length,
+        (i) => TabData(
+          title: barItems[i]["label"],
+          iconData: barItems[i]["icon"],
+          badges: barItems[i]['badge'],
+        ),
+      ),
+      onTabChangedListener: updateMenu,
+      /*(position){setState(() => _currentIndex = position);},*/
     );
+  }
+
+  bottomNavLabels(int chatBadge) {
+    final List<Map<String, dynamic>> barItems = [
+      {"label": "Home", "icon": Icons.home, 'badge': 0},
+      {"label": "Shop", "icon": Icons.shop_2, 'badge': 0},
+      {"label": "Favorite", "icon": Icons.favorite, 'badge': 2},
+      {"label": "Chats", "icon": Icons.message, 'badge': chatBadge},
+      {"label": "Profile", "icon": Icons.person, 'badge': 0},
+    ];
+    return barItems;
   }
 
   displayDialog() async {
@@ -317,7 +336,7 @@ class _AutoHomeState extends State<AutoHome>
       const Text("Search for New or Used Car Parts?"),
     );
     if (context.mounted && opt != "cancel") {
-      await SearchHistoryDB().saveProductStatus(opt);
+      await AppLocalService().saveProductStatus(opt);
     }
   }
 

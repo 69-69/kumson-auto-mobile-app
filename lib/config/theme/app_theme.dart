@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 ThemeData buildThemeData(BuildContext context, {required ColorScheme cs}) {
+  double radius = 30.0;
+
   return ThemeData(
     useMaterial3: true,
     colorScheme: cs,
@@ -24,16 +26,16 @@ ThemeData buildThemeData(BuildContext context, {required ColorScheme cs}) {
 
     inputDecorationTheme: InputDecorationTheme(
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(radius),
         borderSide: const BorderSide(color: Colors.black26),
       ),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(radius),
         borderSide: const BorderSide(color: Colors.black26),
       ),
       focusedBorder: OutlineInputBorder(
         borderSide: const BorderSide(color: Color(0xFFBA1A1A)),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(radius),
       ),
       // focusColor:  Color(0xFFBA1A1A)
     ),
@@ -41,15 +43,15 @@ ThemeData buildThemeData(BuildContext context, {required ColorScheme cs}) {
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         side: const BorderSide(width: 1.0),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(10)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(radius)),
         ),
       ),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(10)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(radius)),
         ),
       ),
     ),

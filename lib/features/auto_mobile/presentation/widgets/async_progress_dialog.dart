@@ -26,20 +26,22 @@ Align showCircularProgress({
 /// Show Async ProgressDialog loading Data
 Future<void> showProgressDialog(
   BuildContext context, {
-  Future<dynamic>? request,
   Function? onSuccess,
   Function? onError,
-  String label = 'Searching...',
-}) async =>
-    await showDialog(
-      context: context,
-      builder: (context) => AsyncProgressDialog(
-        request,
-        message: Text(label),
-        onError: onError,
-        onSuccess: onSuccess,
-      ),
-    );
+  Widget? child,
+  Future<dynamic>? request,
+}) async {
+  await showDialog(
+    context: context,
+    barrierDismissible: true,
+    builder: (_) => AsyncProgressDialog(
+      request,
+      message: child ?? const Text('Searching...'),
+      onError: onError,
+      onSuccess: onSuccess,
+    ),
+  );
+}
 
 /// This code is an extension to the package flutter_progress_dialog (https://pub.dev/packages/future_progress_dialog)
 /// Async ProgressDialog [AsyncProgressDialog]

@@ -3,14 +3,14 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:automasters/core/util/keyboard.dart';
 import 'package:automasters/config/routes/routes_constant.dart';
-import 'package:automasters/features/auto_mobile/data/data_sources/local/search_history_service.dart';
+import 'package:automasters/features/auto_mobile/data/data_sources/local/app_local_service.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_pem.dart';
-import 'package:automasters/features/auto_mobile/data/repositories/home_repository_impl.dart';
+import 'package:automasters/features/auto_mobile/data/repositories/search_repository_impl.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/async_progress_dialog.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/page_navigator.dart';
 import 'package:automasters/features/auto_mobile/presentation/pages/home/components/_outline_btn_for_search.dart';
 import 'package:automasters/features/auto_mobile/data/models/hunter.dart';
-import 'package:automasters/features/auto_mobile/presentation/pages/bottom_sheet/make_a_request_modal.dart';
+import 'package:automasters/features/auto_mobile/presentation/pages/bottom_sheet/send_a_request_modal.dart';
 
 class PartNoTextField extends StatefulWidget {
   const PartNoTextField({super.key});
@@ -74,7 +74,7 @@ class _PartNoTextFieldState extends State<PartNoTextField> {
   OutlinedButton outlinedButton(BuildContext context) {
     return outlinedBtnForSearch(
       context,
-      isSearching: isSearching,
+      isPressed: isSearching,
       onPress: () {
         setState(() => isSearching = true);
         _onPartNoSearchFun();
@@ -84,15 +84,15 @@ class _PartNoTextFieldState extends State<PartNoTextField> {
 
   Future<void> _onPartNoSearchFun() async {
     if (searchText.isNotEmpty) {
-      final getData = HomeRepositoryImpl().getHunterPartsByPartNo(searchText);
+      final getData = SearchRepositoryImpl().getHunterPartsByPartNo(searchText);
 
       // Show progressBar dialog/modal
       await showProgressDialog(context, request: getData,
           onSuccess: (List<HunterModel>? hunters) async {
         if (hunters != null && hunters.isNotEmpty) {
           //Save VIN as recent searches.
-          await SearchHistoryDB()
-              .saveHistory(searchText, key: partNoSearchHistoryKey)
+          await AppLocalService()
+              .saveHistory(searchText, key: partNoSearchHistoryCacheKey)
               .whenComplete(() {
             _navigating(context, hunters);
           });
@@ -107,15 +107,17 @@ class _PartNoTextFieldState extends State<PartNoTextField> {
 
   // Save this PartNo for reference in Make-Request-Form
   Future<void> _saveReadOnlyPartNo() async {
-    await SearchHistoryDB()
-        .saveReadOnly(searchText, key: readOnlyPartNoKey)
+    await AppLocalService()
+        .saveReadOnly(searchText, key: readOnlyPartNoCacheKey)
         .then((_) {
       _resetState();
       showRequestModal(context, partNoRequest);
     });
   }
 
-  _navigating(BuildContext context, List<HunterModel> hunters) {
+  _navigating(BuildContext context, List<HunterModel> data) {
+    Map<String, dynamic> hunters = {"data": data};
+
     pageNavigator(
       context,
       routeName: partsByPartNoRoute,

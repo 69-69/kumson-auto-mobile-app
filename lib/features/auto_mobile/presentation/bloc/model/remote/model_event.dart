@@ -1,12 +1,12 @@
-abstract class ModelsEvent {
-  const ModelsEvent();
+abstract class ModelEvent {
+  const ModelEvent();
 }
 
-class GetModelsEvent extends ModelsEvent {
+class GetModelsEvent extends ModelEvent {
   const GetModelsEvent();
 }
 
-class GetModelsByEvent extends ModelsEvent {
+class GetModelsByEvent extends ModelEvent {
   final String makeRef;
 
   const GetModelsByEvent(this.makeRef);

@@ -10,63 +10,62 @@ import 'hunter_event.dart';
 import 'hunter_state.dart';
 
 /// Hunters Bloc
-class HuntersBloc extends Bloc<HuntersEvent, HuntersState> {
+class HuntersBloc extends Bloc<HunterEvent, HunterState> {
   final GetHuntersUseCase _getHunterUseCase;
 
-  HuntersBloc(this._getHunterUseCase) : super(const HuntersLoading()) {
-    on<GetHuntersEvent>(onGetHunters);
+  HuntersBloc(this._getHunterUseCase) : super(const HunterLoading()) {
+    on<GetHuntersEvent>(_onGetHunters);
   }
 
-  void onGetHunters(GetHuntersEvent event, Emitter<HuntersState> emit) async {
+  void _onGetHunters(GetHuntersEvent event, Emitter<HunterState> emit) async {
     final dataState = await _getHunterUseCase();
 
     if (dataState is DataSuccess && dataState.data!.isNotEmpty) {
-      emit(HuntersDone<List<HunterEntity>>(dataState.data!));
+      emit(HunterDone<List<HunterEntity>>(dataState.data!));
     }
 
     if (dataState is DataFailed) {
       // debugPrint("DataFailed-> ${dataState.error!.message}");
       // pass the data
-      emit(HuntersError(dataState.error!));
+      emit(HunterError(dataState.error!));
     }
   }
 }
 
 /// HunterPartsByHunterNo Bloc
-class HunterPartsByHunterNoBloc extends Bloc<HuntersEvent, HuntersState> {
+class HunterPartsByHunterNoBloc extends Bloc<HunterEvent, HunterState> {
   final GetHunterPartsByHunterNoUseCase _getHunterPartsByHunterNoUseCase;
 
   HunterPartsByHunterNoBloc(this._getHunterPartsByHunterNoUseCase)
-      : super(const HuntersLoading()) {
+      : super(const HunterLoading()) {
     on<GetHunterPartsByHunterNoEvent>(
-      onGetHunterPartsByHunterNo,
+      _onGetHunterPartsByHunterNo,
 
       /// Apply the custom `EventTransformer` to the `EventHandler`.
       transformer: debounce(),
     );
   }
 
-  void onGetHunterPartsByHunterNo(
-      GetHunterPartsByHunterNoEvent event, Emitter<HuntersState> emit) async {
+  Future<void> _onGetHunterPartsByHunterNo(
+      GetHunterPartsByHunterNoEvent event, Emitter<HunterState> emit,) async {
+    try {
     final dataState = await _getHunterPartsByHunterNoUseCase.call(
       params: event.hunterNo,
     );
 
-    if (dataState is DataSuccess && dataState.data!.isNotEmpty) {
+    if (dataState is DataSuccess && dataState.data!=null && dataState.data!.isNotEmpty) {
       // debugPrint("steven");
-      emit(HuntersDone<List<HunterEntity>>(dataState.data!));
+      emit(HunterDone<List<HunterEntity>>(dataState.data!));
     }
 
-    if (dataState is DataFailed) {
-      // debugPrint("DataFailed-> ${dataState.error!.message}");
-      // pass the data
-      emit(HuntersError(dataState.error!));
-    }
+    } on DataFailed catch (e) {
+      emit(HunterError(e.error!));
+    } catch (_) {}
   }
 
   /// For Debugging Purpose Only: observe all state changes [onChange]
   @override
-  void onChange(Change<HuntersState> change) {
+  void onChange(Change<HunterState> change) {
     super.onChange(change);
     debugPrint("Hunter-Parts-HunterNo-Bloc: ${change.currentState}\n\n");
   }
@@ -74,46 +73,45 @@ class HunterPartsByHunterNoBloc extends Bloc<HuntersEvent, HuntersState> {
   /// For Debugging Purpose Only:
   /// current state, the event, and the next state [onTransition]
   @override
-  void onTransition(Transition<HuntersEvent, HuntersState> transition) {
+  void onTransition(Transition<HunterEvent, HunterState> transition) {
     super.onTransition(transition);
     debugPrint("Hunter-Parts-HunterNo-Bloc: $transition\n\n");
   }
 }
 
 /// HunterPartsByPartNo Bloc
-class HunterPartsByPartNoBloc extends Bloc<HuntersEvent, HuntersState> {
+class HunterPartsByPartNoBloc extends Bloc<HunterEvent, HunterState> {
   final GetHunterPartsByPartNoUseCase _getHunterPartsByPartNoUseCase;
 
   HunterPartsByPartNoBloc(this._getHunterPartsByPartNoUseCase)
-      : super(const HuntersLoading()) {
+      : super(const HunterLoading()) {
     on<GetHunterPartsByPartNoEvent>(
-      onGetHunterPartsByPartNo,
+      _onGetHunterPartsByPartNo,
 
       /// Apply the custom `EventTransformer` to the `EventHandler`.
       transformer: debounce(),
     );
   }
 
-  void onGetHunterPartsByPartNo(
-      GetHunterPartsByPartNoEvent event, Emitter<HuntersState> emit) async {
+  Future<void> _onGetHunterPartsByPartNo(
+      GetHunterPartsByPartNoEvent event, Emitter<HunterState> emit) async {
+    try {
     final dataState = await _getHunterPartsByPartNoUseCase.call(
       params: event.partNo,
     );
 
     if (dataState is DataSuccess && dataState.data!.isNotEmpty) {
-      emit(HuntersDone<List<HunterEntity>>(dataState.data!));
+      emit(HunterDone<List<HunterEntity>>(dataState.data!));
     }
 
-    if (dataState is DataFailed) {
-      // debugPrint("DataFailed-> ${dataState.error!.message}");
-      // pass the data
-      emit(HuntersError(dataState.error!));
-    }
+    } on DataFailed catch (e) {
+      emit(HunterError(e.error!));
+    } catch (_) {}
   }
 
   /// For Debugging Purpose Only: observe all state changes [onChange]
   @override
-  void onChange(Change<HuntersState> change) {
+  void onChange(Change<HunterState> change) {
     super.onChange(change);
     debugPrint("Hunter-Parts-PartNo-Bloc: ${change.currentState}\n\n");
   }
@@ -121,7 +119,7 @@ class HunterPartsByPartNoBloc extends Bloc<HuntersEvent, HuntersState> {
   /// For Debugging Purpose Only:
   /// current state, the event, and the next state [onTransition]
   @override
-  void onTransition(Transition<HuntersEvent, HuntersState> transition) {
+  void onTransition(Transition<HunterEvent, HunterState> transition) {
     super.onTransition(transition);
     debugPrint("Hunter-Parts-PartNo-Bloc: $transition\n\n");
   }

@@ -1,8 +1,8 @@
-abstract class MakesEvent {
-  const MakesEvent();
+abstract class MakeEvent {
+  const MakeEvent();
 }
 
-class GetMakesEvent extends MakesEvent {
+class GetMakesEvent extends MakeEvent {
   const GetMakesEvent();
 }
 

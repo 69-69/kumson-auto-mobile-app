@@ -1,30 +1,32 @@
-import 'dart:async';
-
-enum AuthStatus { unknown, authenticated, unauthenticated }
-
-/// responsible for managing the authentication domain [AuthRepository]
-class AuthRepository {
-  final _controller = StreamController<AuthStatus>();
-
-  Stream<AuthStatus> get status async* {
-    await Future<void>.delayed(const Duration(seconds: 1));
-    yield AuthStatus.unauthenticated;
-    yield* _controller.stream;
-  }
+abstract class AuthRepository {
 
   Future<void> logIn({
-    required String username,
+    required String emailOrPhone,
     required String password,
-  }) async {
-    await Future.delayed(
-      const Duration(milliseconds: 300),
-          () => _controller.add(AuthStatus.authenticated),
-    );
-  }
+  });
 
-  void logOut() {
-    _controller.add(AuthStatus.unauthenticated);
-  }
+  Future<void> forgotPassword({required String emailOrPhone});
 
-  void dispose() => _controller.close();
+  Future<void> changeOTPPhone({required String phoneNumber});
+
+  Future<void> signUp({
+    required String email,
+    required String role,
+    required String phoneNumber,
+    required String firstName,
+    required String lastName,
+    required String password,
+  });
+
+  Future<void> temporalToken();
+
+  Future<void> verifySignup({required String phoneNumber});
+
+  Future<void> sendOTP({
+    String? otpCode,
+    String? phoneNumber,
+    bool resendOTP = false,
+  });
+
+  Future<void> logOut();
 }

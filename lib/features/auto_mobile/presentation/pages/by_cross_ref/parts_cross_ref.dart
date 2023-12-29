@@ -13,23 +13,23 @@ import 'package:automasters/features/auto_mobile/presentation/widgets/column_bui
 import 'package:automasters/features/auto_mobile/presentation/widgets/custom_app_bar.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/custom_card.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/custom_line.dart';
-import 'package:automasters/features/auto_mobile/presentation/pages/bottom_sheet/make_a_request_modal.dart';
+import 'package:automasters/features/auto_mobile/presentation/pages/bottom_sheet/send_a_request_modal.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/page_navigator.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/widgetery.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:string_capitalize/string_capitalize.dart';
 
 class PartsCrossRef extends StatelessWidget {
-  final Map<String, dynamic> data;
+  final Map<String, dynamic> map;
 
-  const PartsCrossRef({super.key, required this.data});
+  const PartsCrossRef({super.key, required this.map});
 
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
 
-    PartModel cPart = data['part'] as PartModel;
-    VehicleModel vehicle = data['vehicle'] as VehicleModel;
+    PartModel cPart = map['part'] as PartModel;
+    VehicleModel vehicle = map['vehicle'] as VehicleModel;
 
     context
         .read<HunterPartsByHunterNoBloc>()
@@ -59,26 +59,17 @@ class PartsCrossRef extends StatelessWidget {
     );
   }
 
-  showRequestForm(BuildContext context, String type){
-    Future.delayed(const Duration(milliseconds: 10),
-            () => showRequestModal(context, type));
-  }
-
-  BlocBuilder<HunterPartsByHunterNoBloc, HuntersState> _buildBlocBuilder(
+  BlocBuilder<HunterPartsByHunterNoBloc, HunterState> _buildBlocBuilder(
     PartModel cPart,
     VehicleModel vehicle,
   ) {
-    return BlocBuilder<HunterPartsByHunterNoBloc, HuntersState>(
+    return BlocBuilder<HunterPartsByHunterNoBloc, HunterState>(
         builder: (hunterContext, state) {
-      if (state is HuntersLoading) {
+      if (state is HunterLoading) {
         return _loadSpinner();
       }
 
-      /*if (state is HuntersError) {
-        return FittedBox(child: showMakeRequestButton(context, crossRefRequest),);
-      }*/
-
-      if (state is HuntersDone) {
+      if (state is HunterDone) {
         return _buildBody(
           hunterContext,
           cPart.part!,
@@ -86,8 +77,8 @@ class PartsCrossRef extends StatelessWidget {
           vehicle,
         );
       }
-      showRequestForm(hunterContext, crossRefRequest);
-      return const SizedBox.shrink();
+
+      return const InlineRequestButton(reqType: crossRefRequest);
     });
   }
 

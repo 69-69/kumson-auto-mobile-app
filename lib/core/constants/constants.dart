@@ -1,73 +1,37 @@
 import 'package:flutter/material.dart';
 
-// PART-No: BKR5ES
-// VIN: 19unc1b14hy000003 - 19unc1b04hy000002
-
 const String appName = "AutoMasters";
-final passwordRegExp = RegExp(r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$');
+const String appSubTitle = "Best Way to Buy Car Parts in Ghana";
+const ghCediSign = "GH";
+const noReply = "no-reply@automasters-app.com";
+
+const String appLogo = "assets/logo.png";
+const String appHomeBg = "assets/home-bg.jpg";
+const String kDefaultCarImage = "assets/car3.png";
+const String kDefaultPartImage = "assets/part-p.png";
+
+const kTextColor = Color(0xFF757575);
+const kLightColor = Color(0xFFF6F7F9);
+const kGreyColor = Color(0xFFB1B3B8);
+const kErrorColor = Color(0xFFFF4848); //Color(0xFFF62F2F);
+
+// Truncate String to four Char
+final RegExp truncateStrRegExp = RegExp(r'(?<=.{4})\d(?=.{4})');
+
+final RegExp nameRegExp = RegExp(r"^[a-zA-Z]+$");
+
+// final RegExp nameRegExp = RegExp(r"^[\p{L} ,.'-]*$", caseSensitive: false, unicode: true, dotAll: true);
+
+final RegExp numberRegExp = RegExp(r"^\d+$");
+
+final RegExp passwordRegExp2 =
+    RegExp(r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$');
+
+final RegExp passwordRegExp =
+    RegExp(r"^(?=.*[A-Za-z])(?=.*\d)(?=.*[$!%*@#=?&])[A-Za-z\d$!%*@#=?&]{8,}$");
+
 final RegExp emailRegExp = RegExp(
   r'^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$',
 );
 
-const String automobileAPIBaseURL = "http://ec2-18-188-42-121.us-east-2.compute.amazonaws.com";
-// "http://localhost:8080";
-const String isAPILiveUrl = "$automobileAPIBaseURL/api/v1/auth";
-const String refreshTokenUrl =
-    "$automobileAPIBaseURL/api/v1/auth/refresh/token";
-// PRODUCTION
-const String prodPath = "/api/v1/auto";
-const String authPath = "/api/v1/auth";
-// TESTING
-const String devPath = "/test/runner/2023/k1";
-const String kDefaultPartImage = "assets/part-p.png";
-const String kDefaultCarImage = "assets/car3.png";
-const String kHomeBg = "assets/home-bg.jpg";
-const String kLogo = "assets/logo.png";
-const ghCediSign = "GH";
-
-// Pagination Request
-const pagerPage = 0;
-const pagerSize = 300;
-const pagerSort = "id";
-const pagerOrder = "asc";
-
-const Map<String, dynamic> apiEndpoints = {
-// DEV / TEST ROUTES
-  "dev": {
-    "login": "$authPath/login",
-    "register": "$authPath/register",
-    "userExist": "$authPath/user_exist",
-    "refreshToken": "$authPath/refresh/token",
-    "confirmEmail": "$authPath/register/confirm_email",
-    "resendConfirmEmail": "$authPath/resend_confirm_email",
-    "vehicle": "$devPath/auto_cars",
-    "part": "$devPath/car_parts",
-    "hunter": "$devPath/parts_hunter",
-    "make": "$devPath/car_makes",
-    "model": "$devPath/car_models",
-    "vendor": "$devPath/vendors_parts"
-  },
-// DEV / TEST ROUTES
-  "prod": {
-    "login": "$authPath/login",
-    "register": "$authPath/register",
-    "userExist": "$authPath/user_exist",
-    "refreshToken": "$authPath/refresh/token",
-    "confirmEmail": "$authPath/register/confirm_email",
-    "resendConfirmEmail": "$authPath/resend_confirm_email",
-    "vehicle": "$prodPath/vehicles",
-    "part": "$prodPath/parts",
-    "hunter": "$prodPath/hunting",
-    "make": "$prodPath/make",
-    "model": "$prodPath/model",
-    "vendor": "$prodPath/vendor"
-  }
-};
-
-const Map<String, String> customHeaders = {
-  "Content-Type": "application/json; charset=UTF-8",
-  "Authorization":
-      "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJkZXZtYWlsMDI2QGdtYWlsLmNvbSIsImlhdCI6MTY5OTY0MjU1MSwiZXhwIjoxNzMxMTc4NTUxfQ.3qYTmRe_fXy6Ef3DfOIuv2cl-T4LGw8OIPEEr5ses6o",
-};
-
-const Color kPrimaryColor = Color(0xFF4F5298);
+// final RegExp nameRegExp = RegExp(r"^([a-zA-Z]{2,}\s[a-zA-Z]+'?-?[a-zA-Z]{2,}\s?([a-zA-Z]+)?)");

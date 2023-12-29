@@ -3,7 +3,7 @@ import 'package:automasters/features/auto_mobile/presentation/widgets/page_navig
 import 'package:flutter/material.dart';
 import 'package:automasters/core/util/size_config.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_pem.dart';
-import 'package:automasters/features/auto_mobile/data/data_sources/local/search_history_service.dart';
+import 'package:automasters/features/auto_mobile/data/data_sources/local/app_local_service.dart';
 import 'package:automasters/features/auto_mobile/data/models/hunter.dart';
 import 'package:automasters/features/auto_mobile/data/models/vehicle.dart';
 import 'package:automasters/features/auto_mobile/presentation/bloc/hunter/remote/index.dart';
@@ -47,7 +47,7 @@ class SearchHistory extends StatelessWidget {
   }
 
   _buildListView({required String key, String id = ""}) {
-    List<String> historyData = SearchHistoryDB().getHistory(key: key).toList();
+    List<String> historyData = AppLocalService().getHistory(key: key).toList();
 
     return historyData.isNotEmpty ? ListView.separated(
       itemCount: historyData.length,
@@ -91,17 +91,17 @@ class SearchHistory extends StatelessWidget {
   BlocBuilder vehicleBloc(String vin, BuildContext context) {
     context.read<VehicleByVinBloc>().add(GetVehicleByVinEvent(vin));
 
-    return BlocBuilder<VehicleByVinBloc, VehiclesState>(
+    return BlocBuilder<VehicleByVinBloc, VehicleState>(
       builder: (context2, state) {
-        if (state is VehiclesLoading) {
+        if (state is VehicleLoading) {
           return _loadSpinner();
         }
 
-        if (state is VehiclesError) {
+        if (state is VehicleError) {
           return buildRefreshApp(context);
         }
 
-        if (state is VehiclesDone) {
+        if (state is VehicleDone) {
           return _vehicleCard(state, vin, context2);
         }
 
@@ -110,7 +110,7 @@ class SearchHistory extends StatelessWidget {
     );
   }
 
-  _vehicleCard(VehiclesDone state, String vin, BuildContext context) {
+  _vehicleCard(VehicleDone state, String vin, BuildContext context) {
 
     VehicleModel v = state.vehicle as VehicleModel;
     Map<String, dynamic> vic = {"vehicle": v};
@@ -128,17 +128,17 @@ class SearchHistory extends StatelessWidget {
   BlocBuilder _partsBloc(String partNo, BuildContext context) {
     context.read<HunterPartsByPartNoBloc>().add(GetHunterPartsByPartNoEvent(partNo));
 
-    return BlocBuilder<HunterPartsByPartNoBloc, HuntersState>(
+    return BlocBuilder<HunterPartsByPartNoBloc, HunterState>(
       builder: (_, state) {
-        if (state is HuntersLoading) {
+        if (state is HunterLoading) {
           return _loadSpinner();
         }
 
-        if (state is HuntersError) {
+        if (state is HunterError) {
           return buildRefreshApp(context);
         }
 
-        if (state is HuntersDone) {
+        if (state is HunterDone) {
           return _partsCard(state, partNo);
         }
 
@@ -147,7 +147,7 @@ class SearchHistory extends StatelessWidget {
     );
   }
 
-  ColumnBuilder _partsCard(HuntersDone state, String partNo) {
+  ColumnBuilder _partsCard(HunterDone state, String partNo) {
     List<HunterModel> hunterParts = state.hunter as List<HunterModel>;
     return ColumnBuilder(
       itemCount: hunterParts.length,
@@ -184,9 +184,9 @@ class SearchHistory extends StatelessWidget {
               padding: const EdgeInsets.all(10.0),
               child: TabBarView(
                 children: [
-                  _buildListView(key: vinSearchHistoryKey, id: "vin"),
-                  _buildListView(key: partNoSearchHistoryKey, id: "part"),
-                  _buildListView(key: manualSearchHistoryKey),
+                  _buildListView(key: vinSearchHistoryCacheKey, id: "vin"),
+                  _buildListView(key: partNoSearchHistoryCacheKey, id: "part"),
+                  _buildListView(key: manualSearchHistoryCacheKey),
                 ],
               ),
             ),

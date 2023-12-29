@@ -14,6 +14,7 @@ import 'package:automasters/features/auto_mobile/presentation/bloc/model/remote/
 import 'package:automasters/features/auto_mobile/presentation/bloc/parts/remote/part_bloc.dart';
 import 'package:automasters/features/auto_mobile/presentation/bloc/vehicle/remote/vehicle_bloc.dart';
 import 'package:automasters/features/auto_mobile/presentation/bloc/vendor/remote/vendor_bloc.dart';
+import 'package:country_codes/country_codes.dart';
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 
@@ -34,7 +35,11 @@ final sl = GetIt.instance;
 // SINGLETON: GET IT -> SAME INSTANCE
 /// Dependencies Injection
 Future<void> initializeDependencies() async {
+  // Local Cache
   await AppLocalDatabase.initFlutterHive();
+
+  // Country Codes
+  await CountryCodes.init();
 
   /// Dio:
   sl.registerSingleton<Dio>(Dio());

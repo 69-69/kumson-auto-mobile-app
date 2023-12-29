@@ -111,4 +111,9 @@ class PartModel extends PartEntity {
   static List<PartModel> fromJsonList(List data) =>
       data.map((dynamic i) => PartModel.fromJson(i as Map<String, dynamic>))
           .toList();
+
+  @override
+  String toString() {
+    return engineType!.replaceFirst(engineType![0], engineType![0].toUpperCase());
+  }
 }

@@ -24,7 +24,7 @@ class GetHunterPartsByHunterNoUseCase
 
   @override
   Future<DataState<List<HunterEntity>>> call({String? params}) {
-    return _hunterRepository.getHunterPartsByHunterNo(params ?? "");
+    return _hunterRepository.getHunterPartsByHunterNo(params ?? "not-found");
   }
 }
 
@@ -37,6 +37,6 @@ class GetHunterPartsByPartNoUseCase
 
   @override
   Future<DataState<List<HunterEntity>>> call({String? params}) {
-    return _hunterRepository.getHunterPartsByPartNo(params ?? "");
+    return _hunterRepository.getHunterPartsByPartNo(params ?? "not-found");
   }
 }

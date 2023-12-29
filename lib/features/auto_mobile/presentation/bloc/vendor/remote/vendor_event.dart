@@ -1,19 +1,19 @@
-abstract class VendorsEvent {
-  const VendorsEvent();
+abstract class VendorEvent {
+  const VendorEvent();
 }
 
-class GetVendors extends VendorsEvent {
+class GetVendors extends VendorEvent {
   const GetVendors();
 }
 
-class GetVendorPartsByBrandPartNo extends VendorsEvent {
+class GetVendorPartsByBrandPartNo extends VendorEvent {
   final String brand;
   final String partNo;
 
   const GetVendorPartsByBrandPartNo(this.brand, this.partNo);
 }
 
-class GetVendorById extends VendorsEvent {
+class GetVendorById extends VendorEvent {
   final int id;
 
   const GetVendorById(this.id);

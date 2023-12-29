@@ -24,7 +24,7 @@ class GetPartsByVFamUseCase
 
   @override
   Future<DataState<List<PartEntity>>> call({String? params}) {
-    return _partsRepository.getPartsByVFam(params ?? "");
+    return _partsRepository.getPartsByVFam(params ?? "not-found");
   }
 }
 
@@ -37,7 +37,7 @@ class GetPartByHunterNoUseCase
 
   @override
   Future<DataState<PartEntity>> call({String? params}) {
-    return _partsRepository.getPartByHunterNo(params ?? "");
+    return _partsRepository.getPartByHunterNo(params ?? "not-found");
   }
 }
 

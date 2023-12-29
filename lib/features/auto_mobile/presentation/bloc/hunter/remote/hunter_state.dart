@@ -1,32 +1,25 @@
 import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 
-abstract class HuntersState<T> extends Equatable {
-  // final List<HunterEntity>? hunters;
-  // final HunterEntity? hunter;
+abstract class HunterState<T> extends Equatable {
   final T? hunter;
   final DioException? error;
 
-  const HuntersState({/*this.hunters,*/ this.hunter, this.error});
+  const HunterState({this.hunter, this.error});
 
   @override
-  List<Object?> get props => [/*hunters ?? [],*/ hunter, error];
+  List<Object?> get props => [hunter, error];
 }
 
-class HuntersLoading extends HuntersState {
-  const HuntersLoading();
+class HunterLoading extends HunterState {
+  const HunterLoading();
 }
 
 /// Hunters Done
-class HuntersDone<T> extends HuntersState<T> {
-  const HuntersDone(T hunters) : super(hunter: hunters);
+class HunterDone<T> extends HunterState<T> {
+  const HunterDone(T hunters) : super(hunter: hunters);
 }
 
-/// HunterBy Done
-/*class HunterByDone extends HuntersState {
-  const HunterByDone(HunterEntity hunter) : super(hunter: hunter);
-}*/
-
-class HuntersError extends HuntersState {
-  const HuntersError(DioException error) : super(error: error);
+class HunterError extends HunterState {
+  const HunterError(DioException error) : super(error: error);
 }

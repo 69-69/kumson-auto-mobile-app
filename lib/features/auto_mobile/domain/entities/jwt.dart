@@ -2,8 +2,8 @@ import 'package:equatable/equatable.dart';
 
 class JWTEntity extends Equatable {
   final String? accessToken;
-  final String? expiresIn;
-  final String? refreshExpiresIn;
+  final DateTime? expiresIn;
+  final DateTime? refreshExpiresIn;
   final String? refreshToken;
 
   const JWTEntity({

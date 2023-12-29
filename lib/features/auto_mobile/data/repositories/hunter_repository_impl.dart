@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:automasters/core/constants/constants.dart';
+import 'package:automasters/core/constants/endpoints.dart';
 import 'package:automasters/core/resources/data_state.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/local/app_local_database.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_pem.dart';
@@ -26,15 +26,14 @@ class HunterRepositoryImpl implements HunterRepository {
   Future<DataState<List<HunterModel>>> getHunters() async {
     try {
       // Get AccessToken from App localStorage
-      final accessToken = _appLocalDatabase.readData(key: accessTokenKey);
+      final accessToken = _appLocalDatabase.readCache(key: accessTokenCacheKey);
 
-      final httpResponse = await _automobileApiService.getHunterPartsByHunterNo(
-        contentType: customHeaders["Content-Type"],
+      final httpResponse = await _automobileApiService.getHunters(
+        contentType: EndPoints.headers["Content-Type"],
         authToken: "Bearer $accessToken",
-        // customHeaders["Authorization"],
         page: pagerPage,
         size: pagerSize,
-        sort: "brand,$pagerOrder",
+        sort: "brand,$orderAsc",
       );
 
       if (_responseValid<List<HunterModel>>(httpResponse)) {
@@ -60,16 +59,15 @@ class HunterRepositoryImpl implements HunterRepository {
   ) async {
     try {
       // Get AccessToken from App localStorage
-      final accessToken = _appLocalDatabase.readData(key: accessTokenKey);
+      final accessToken = _appLocalDatabase.readCache(key: accessTokenCacheKey);
 
       final httpResponse = await _automobileApiService.getHunterPartsByHunterNo(
-        contentType: customHeaders["Content-Type"],
+        contentType: EndPoints.headers["Content-Type"],
         authToken: "Bearer $accessToken",
-        // customHeaders["Authorization"],
         hunterNo: hunterNo,
         page: pagerPage,
         size: pagerSize,
-        sort: "brand,$pagerOrder",
+        sort: "brand,$orderAsc",
       );
 
       if (_responseValid<List<HunterModel>>(httpResponse)) {
@@ -95,16 +93,16 @@ class HunterRepositoryImpl implements HunterRepository {
   ) async {
     try {
       // Get AccessToken from App localStorage
-      final accessToken = _appLocalDatabase.readData(key: accessTokenKey);
+      final accessToken = _appLocalDatabase.readCache(key: accessTokenCacheKey);
 
       final httpResponse = await _automobileApiService.getHunterPartsByPartNo(
-        contentType: customHeaders["Content-Type"],
+        contentType: EndPoints.headers["Content-Type"],
         authToken: "Bearer $accessToken",
         // customHeaders["Authorization"],
         partNo: partNo,
         page: pagerPage,
         size: pagerSize,
-        sort: "brand,$pagerOrder",
+        sort: "brand,$orderAsc",
       );
 
       if (_responseValid<List<HunterModel>>(httpResponse)) {

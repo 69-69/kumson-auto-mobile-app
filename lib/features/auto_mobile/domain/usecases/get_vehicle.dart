@@ -23,7 +23,7 @@ class GetVehicleByVinUseCase implements UseCase<DataState<VehicleEntity>, String
 
   @override
   Future<DataState<VehicleEntity>> call({String? params}) async {
-    return await _vehicleRepository.getVehicleByVin(params ?? "");
+    return await _vehicleRepository.getVehicleByVin(params ?? "not-found");
   }
 }
 
@@ -35,6 +35,6 @@ class GetVehicleByVicUseCase implements UseCase<DataState<VehicleEntity>, String
 
   @override
   Future<DataState<VehicleEntity>> call({String? params}) async {
-    return await _vehicleRepository.getVehicleByVic(params ?? "");
+    return await _vehicleRepository.getVehicleByVic(params ?? "not-found");
   }
 }

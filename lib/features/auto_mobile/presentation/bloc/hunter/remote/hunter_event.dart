@@ -1,18 +1,18 @@
-abstract class HuntersEvent {
-  const HuntersEvent();
+abstract class HunterEvent {
+  const HunterEvent();
 }
 
-class GetHuntersEvent extends HuntersEvent {
+class GetHuntersEvent extends HunterEvent {
   const GetHuntersEvent();
 }
 
-class GetHunterPartsByHunterNoEvent extends HuntersEvent {
+class GetHunterPartsByHunterNoEvent extends HunterEvent {
   final String hunterNo;
 
   const GetHunterPartsByHunterNoEvent(this.hunterNo);
 }
 
-class GetHunterPartsByPartNoEvent extends HuntersEvent {
+class GetHunterPartsByPartNoEvent extends HunterEvent {
   final String partNo;
 
   const GetHunterPartsByPartNoEvent(this.partNo);

@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:automasters/core/util/size_config.dart';
 import 'package:automasters/core/constants/constants.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_pem.dart';
-import 'package:automasters/features/auto_mobile/presentation/pages/bottom_sheet/make_a_request_modal.dart';
+import 'package:automasters/features/auto_mobile/presentation/pages/bottom_sheet/send_a_request_modal.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/question_button.dart';
 import 'package:automasters/config/routes/routes_constant.dart';
 import 'package:automasters/features/auto_mobile/presentation/bloc/hunter/remote/index.dart';
 import 'package:automasters/features/auto_mobile/presentation/bloc/vendor/remote/index.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/custom_card.dart';
-import 'package:automasters/features/auto_mobile/data/data_sources/local/search_history_service.dart';
+import 'package:automasters/features/auto_mobile/data/data_sources/local/app_local_service.dart';
 import 'package:automasters/features/auto_mobile/data/models/custom_appbar.dart';
 import 'package:automasters/features/auto_mobile/data/models/hunter.dart';
 import 'package:automasters/features/auto_mobile/data/models/parts.dart';
@@ -25,9 +25,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:string_capitalize/string_capitalize.dart';
 
 class PartsByPrice extends StatefulWidget {
-  final Map<String, dynamic> data;
+  final Map<String, dynamic> map;
 
-  const PartsByPrice({super.key, required this.data});
+  const PartsByPrice({super.key, required this.map});
 
   @override
   State<PartsByPrice> createState() => _PartsByPriceState();
@@ -35,15 +35,16 @@ class PartsByPrice extends StatefulWidget {
 
 class _PartsByPriceState extends State<PartsByPrice> {
   String _productAge = "";
+  bool notFound = false;
 
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
 
-    PartModel cPart = widget.data['part'] as PartModel;
-    VehicleModel cVehicle = widget.data['vehicle'] as VehicleModel;
+    PartModel cPart = widget.map['part'] as PartModel;
+    VehicleModel cVehicle = widget.map['vehicle'] as VehicleModel;
 
-    _productAge = SearchHistoryDB().getProductStatus();
+    _productAge = AppLocalService().getProductStatus();
 
     _getHunterParts(context, cPart);
 
@@ -71,46 +72,36 @@ class _PartsByPriceState extends State<PartsByPrice> {
     );
   }
 
-  showRequestForm(BuildContext context, String type){
-    Future.delayed(const Duration(milliseconds: 10),
-            () => showRequestModal(context, type));
-  }
-
   void _getHunterParts(BuildContext parentState, PartModel carPart) {
     parentState
         .read<HunterPartsByHunterNoBloc>()
         .add(GetHunterPartsByHunterNoEvent(carPart.hunter!));
   }
 
-  BlocBuilder<HunterPartsByHunterNoBloc, HuntersState> _hunterPartsBlocBody(
+  BlocBuilder<HunterPartsByHunterNoBloc, HunterState> _hunterPartsBlocBody(
     PartModel carPart,
     VehicleModel vehicle,
   ) {
-    return BlocBuilder<HunterPartsByHunterNoBloc, HuntersState>(
+    return BlocBuilder<HunterPartsByHunterNoBloc, HunterState>(
         // If listenWhen returns true, listener will be called with new state
         // buildWhen: (previousState, state) => state != previousState,
         builder: (hunterContext, state) {
-          if (state is HuntersLoading) {
-            // return Text("HuntersState");
-            return _loadSpinner();
-          }
+      if (state is HunterLoading) {
+        // return Text("HuntersState");
+        return _loadSpinner();
+      }
 
-          /*if (state is HuntersError) {
-            return FittedBox(child: showMakeRequestButton(context, crossRefRequest),);
-          }*/
+      if (state is HunterDone) {
+        return _buildCard(
+          hunterContext,
+          carPart.part!,
+          state.hunter as List<HunterModel>,
+          vehicle,
+        );
+      }
 
-          if (state is HuntersDone) {
-            return _buildCard(
-              hunterContext,
-              carPart.part!,
-              state.hunter as List<HunterModel>,
-              vehicle,
-            );
-          }
-
-          showRequestForm(context, crossRefRequest);
-          return const SizedBox.shrink();
-        });
+      return const InlineRequestButton(reqType: crossRefRequest);
+    });
   }
 
   /// Parts Details [buildPartsDetails]
@@ -138,8 +129,10 @@ class _PartsByPriceState extends State<PartsByPrice> {
           ),
           const Divider(indent: 40),
           Expanded(
-                  child: buildListView(hunter, vehicle),
-                ),
+            child: notFound
+                ? const InlineRequestButton(reqType: priceRequest)
+                : buildListView(hunter, vehicle),
+          ),
         ],
       ),
     );
@@ -190,30 +183,36 @@ class _PartsByPriceState extends State<PartsByPrice> {
               ),
             )
           : null,
-      child: _vendorPartsBloc(huntPart),
+      child: _vendorPartsBloc(huntPart, isLastIndex),
     );
   }
 
   /// Get Prices From Vendors [_vendorPartsBloc]
-  BlocBuilder<VendorPartsByBrandPartNoBloc, VendorsState> _vendorPartsBloc(
+  BlocBuilder<VendorPartsByBrandPartNoBloc, VendorState> _vendorPartsBloc(
     HunterModel huntPart,
+    bool isLastIndex,
   ) {
     _getVendorParts(huntPart);
 
-    return BlocBuilder<VendorPartsByBrandPartNoBloc, VendorsState>(
+    return BlocBuilder<VendorPartsByBrandPartNoBloc, VendorState>(
       // If listenWhen returns true, listener will be called with new state
       // buildWhen: (previousState, state) => state != previousState,
       builder: (vendorContext, state) {
-        if (state is VendorsLoading) {
+        if (state is VendorLoading) {
           // return Text("VendorsState");
           return _loadSpinner();
         }
 
-        if (state is VendorsDone) {
-          return _buildShowPrice(vendorContext, state.vendor! as List<VendorModel>);
+        if (state is VendorDone) {
+          return _buildShowPrice(
+              vendorContext, state.vendor! as List<VendorModel>);
+        }
+        if (isLastIndex) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            setState(() => notFound = true);
+          });
         }
 
-        showRequestForm(vendorContext, priceRequest);
         return const SizedBox.shrink();
       },
     );
@@ -365,7 +364,7 @@ class _PartsByPriceState extends State<PartsByPrice> {
       const Text("...for New or Used Car Parts?"),
     );
     if (context.mounted && opt != "cancel") {
-      await SearchHistoryDB().saveProductStatus(opt);
+      await AppLocalService().saveProductStatus(opt);
 
       // Refresh Screen after Dialog Changes
       Future.delayed(const Duration(seconds: 1), () => setState(() {}));

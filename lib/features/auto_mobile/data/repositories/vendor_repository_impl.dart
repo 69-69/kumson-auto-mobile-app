@@ -1,8 +1,8 @@
 import 'dart:io';
 
+import 'package:automasters/core/constants/endpoints.dart';
 import 'package:dio/dio.dart';
 import 'package:retrofit/dio.dart';
-import 'package:automasters/core/constants/constants.dart';
 import 'package:automasters/core/resources/data_state.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/local/app_local_database.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_pem.dart';
@@ -27,14 +27,14 @@ class VendorRepositoryImpl implements VendorRepository {
   Future<DataState<List<VendorModel>>> getVendors() async {
     try {
       // Get AccessToken from App localStorage
-      final accessToken = _appLocalDatabase.readData(key: accessTokenKey);
+      final accessToken = _appLocalDatabase.readCache(key: accessTokenCacheKey);
 
       final httpResponse = await _automobileApiService.getVendors(
-        contentType: customHeaders["Content-Type"],
+        contentType: EndPoints.headers["Content-Type"],
         authToken: "Bearer $accessToken",
         page: pagerPage,
         size: pagerSize,
-        sort: "currentPrice,$pagerOrder",
+        sort: "currentPrice,$orderAsc",
       );
 
       if (_responseValid<List<VendorModel>>(httpResponse)) {
@@ -58,10 +58,10 @@ class VendorRepositoryImpl implements VendorRepository {
   Future<DataState<VendorModel>> getVendorById(int id) async {
     try {
       // Get AccessToken from App localStorage
-      final accessToken = _appLocalDatabase.readData(key: accessTokenKey);
+      final accessToken = _appLocalDatabase.readCache(key: accessTokenCacheKey);
 
       final httpResponse = await _automobileApiService.getVendorById(
-          contentType: customHeaders["Content-Type"],
+          contentType: EndPoints.headers["Content-Type"],
         authToken: "Bearer $accessToken",
           id: id);
 
@@ -89,17 +89,17 @@ class VendorRepositoryImpl implements VendorRepository {
   ) async {
     try {
       // Get AccessToken from App localStorage
-      final accessToken = _appLocalDatabase.readData(key: accessTokenKey);
+      final accessToken = _appLocalDatabase.readCache(key: accessTokenCacheKey);
 
       final httpResponse =
           await _automobileApiService.getVendorPartsByBrandPartNo(
-        contentType: customHeaders["Content-Type"],
+        contentType: EndPoints.headers["Content-Type"],
         authToken: "Bearer $accessToken",
         brand: brand,
         partNo: partNo,
         page: pagerPage,
         size: pagerSize,
-        sort: "currentPrice,$pagerOrder",
+        sort: "currentPrice,$orderAsc",
       );
 
       if (_responseValid<List<VendorModel>>(httpResponse)) {

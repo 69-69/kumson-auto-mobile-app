@@ -11,16 +11,16 @@ import 'package:automasters/features/auto_mobile/data/models/vehicle.dart';
 import 'package:string_capitalize/string_capitalize.dart';
 
 class PartDetailsCheckout extends StatelessWidget {
-  final Map<String, dynamic> data;
+  final Map<String, dynamic> map;
 
-  const PartDetailsCheckout({super.key, required this.data});
+  const PartDetailsCheckout({super.key, required this.map});
 
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
 
-    HunterModel huntPart = data['hunter'] as HunterModel;
-    VehicleModel vehicle = data['vehicle'] as VehicleModel;
+    HunterModel huntPart = map['hunter'] as HunterModel;
+    VehicleModel vehicle = map['vehicle'] as VehicleModel;
 
     return Scaffold(
       resizeToAvoidBottomInset: true,

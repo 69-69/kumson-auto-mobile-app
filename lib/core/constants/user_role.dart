@@ -1,0 +1,2 @@
+enum UserRole { user, vendor }
+

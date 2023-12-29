@@ -38,6 +38,7 @@ class CollapsePanel extends StatelessWidget {
       canTapOnHeader: true,
       backgroundColor: Theme.of(context).colorScheme.surface.withOpacity(0.9),
       headerBuilder: (BuildContext context, bool isExpanded) => ListTile(
+        dense: true,
         title: Text(
           item.headerValue,
           style: const TextStyle(

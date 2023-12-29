@@ -40,7 +40,7 @@ class TextTools {
   static stripLeadingZero(String s) => '233${removePrefix(s, '0')}';
 
   /// Auto-Generate OTP Verification Codes
-  static String otpCode({int len=4}) {
+  static String otpCode({int len=5}) {
     final r = Random();
     return List<int>.generate(len, (index) => r.nextInt(10))
         .fold<String>("", (prev, i) => prev += i.toString());

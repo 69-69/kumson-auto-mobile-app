@@ -1,10 +1,10 @@
 import 'dart:io';
 
+import 'package:automasters/core/constants/endpoints.dart';
 import 'package:dio/dio.dart';
 import 'package:retrofit/dio.dart';
-import 'package:automasters/features/auto_mobile/data/models/model.dart';
-import 'package:automasters/core/constants/constants.dart';
 import 'package:automasters/core/resources/data_state.dart';
+import 'package:automasters/features/auto_mobile/data/models/model.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/local/app_local_database.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_pem.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/remote/automobile_api_service.dart';
@@ -26,14 +26,14 @@ class ModelRepositoryImpl implements ModelRepository {
   Future<DataState<List<Model>>> getModels() async {
     try {
       // Get AccessToken from App localStorage
-      final accessToken = _appLocalDatabase.readData(key: accessTokenKey);
+      final accessToken = _appLocalDatabase.readCache(key: accessTokenCacheKey);
 
       final httpResponse = await _automobileApiService.getModels(
-          contentType: customHeaders["Content-Type"],
+          contentType: EndPoints.headers["Content-Type"],
           authToken: "Bearer $accessToken",
           page: pagerPage,
           size: pagerSize,
-          sort: "model,$pagerOrder");
+          sort: "model,$orderAsc");
 
       if (_responseValid<List<Model>>(httpResponse)) {
         //print("httpResponse-> ${httpResponse.response.data}");
@@ -58,15 +58,15 @@ class ModelRepositoryImpl implements ModelRepository {
   ) async {
     try {
       // Get AccessToken from App localStorage
-      final accessToken = _appLocalDatabase.readData(key: accessTokenKey);
+      final accessToken = _appLocalDatabase.readCache(key: accessTokenCacheKey);
 
       final httpResponse = await _automobileApiService.getModelsByMakeRef(
-          contentType: customHeaders["Content-Type"],
+          contentType: EndPoints.headers["Content-Type"],
           authToken: "Bearer $accessToken",
           makeRef: makeRef,
           page: pagerPage,
           size: pagerSize,
-          sort: "model,$pagerOrder");
+          sort: "model,$orderAsc");
 
       if (_responseValid<List<Model>>(httpResponse)) {
         // print("httpResponse-> ${httpResponse.response.data}");

@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:automasters/core/util/keyboard.dart';
 import 'package:automasters/config/routes/routes_constant.dart';
 import 'package:automasters/features/auto_mobile/data/models/vehicle.dart';
-import 'package:automasters/features/auto_mobile/data/data_sources/local/search_history_service.dart';
+import 'package:automasters/features/auto_mobile/data/data_sources/local/app_local_service.dart';
 import 'package:automasters/features/auto_mobile/presentation/pages/home/components/_outline_btn_for_search.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/async_progress_dialog.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_pem.dart';
-import 'package:automasters/features/auto_mobile/data/repositories/home_repository_impl.dart';
-import 'package:automasters/features/auto_mobile/presentation/pages/bottom_sheet/make_a_request_modal.dart';
+import 'package:automasters/features/auto_mobile/data/repositories/search_repository_impl.dart';
+import 'package:automasters/features/auto_mobile/presentation/pages/bottom_sheet/send_a_request_modal.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/page_navigator.dart';
 
 class VinTextField extends StatefulWidget {
@@ -18,8 +18,8 @@ class VinTextField extends StatefulWidget {
 }
 
 class _VinTextFieldState extends State<VinTextField> {
-  bool isSearching = false;
   String searchText = "";
+  bool isSearching = false;
   Map<String, dynamic>? oldState;
   final FocusNode focusNode = FocusNode();
   MaterialStatesController? buttonController;
@@ -30,7 +30,7 @@ class _VinTextFieldState extends State<VinTextField> {
     return searchTextField(context);
   }
 
-  TextFormField searchTextField(BuildContext context) {
+  TextFormField searchTextField(BuildContext context/*, SearchState state*/) {
     /*if (widget.vin.isNotEmpty) {
       setState(() => vinSearchTerm = widget.vin);
       txt.text = widget.vin;
@@ -39,6 +39,19 @@ class _VinTextFieldState extends State<VinTextField> {
       key: const ValueKey("vin"),
       controller: txtControl,
       focusNode: focusNode,
+      /*onTap: () {
+        if (txtControl.text.isNotEmpty) {
+          context.read<SearchBloc>().add(SearchChanged(txtControl.text));
+          debugPrint("tControl ${txtControl.text}---${state.results}");
+        }
+      },
+      onFieldSubmitted: (input) {
+        if (txtControl.text.isNotEmpty) {
+          context.read<SearchBloc>().add(SearchChanged(txtControl.text));
+          debugPrint("Submitted ${txtControl.text}");
+        }
+      },*/
+      // onChanged: (input) => context.read<SearchBloc>().add(SearchChanged(input)),
       onChanged: (value) {
         if (value.isNotEmpty) {
           setState(() {
@@ -52,38 +65,37 @@ class _VinTextFieldState extends State<VinTextField> {
         // FocusScope.of(context).requestFocus(FocusNode());
         buttonController?.update(MaterialState.pressed, false);
       },
-      decoration: inputDecoration(context),
+      decoration: inputDecoration(context, /*state*/),
       keyboardType: TextInputType.text,
       textInputAction: TextInputAction.search,
     );
   }
 
-  InputDecoration inputDecoration(BuildContext context) {
+  InputDecoration inputDecoration(BuildContext context, /*SearchState state*/) {
     return InputDecoration(
       filled: true,
       isDense: true,
       /*prefixIcon: isSearching
           ? showCircularProgress(height: 12, width: 12, strokeWidth: 2)
           : null,*/
-      prefixText: "VIN",
+      prefixText: "VIN: ",
       prefixStyle: const TextStyle(fontWeight: FontWeight.w600),
       hintText: " Enter your VIN...",
       alignLabelWithHint: true,
-      /*border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(50),
-      ),*/
       fillColor: Theme.of(context).colorScheme.primary.withOpacity(0.04),
       contentPadding:
           const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
+      // suffixIcon: _SearchButton(),
       suffixIcon: outlinedButton(context),
       suffixIconConstraints: const BoxConstraints.expand(width: 60, height: 40),
+      // errorText: state.searchTerm.displayError != null ? 'Enter your VIN' : null,
     );
   }
 
   OutlinedButton outlinedButton(BuildContext btnContext) {
     return outlinedBtnForSearch(
       btnContext,
-      isSearching: isSearching,
+      isPressed: isSearching,
       buttonController: buttonController,
       onPress: () async {
         if (searchText.length > 7) {
@@ -95,17 +107,17 @@ class _VinTextFieldState extends State<VinTextField> {
   }
 
   Future<void> _onVinSearchFun() async {
-    final getData = HomeRepositoryImpl().getVehicleByVin(searchText);
+    final getData = SearchRepositoryImpl().getVehicleByVin(searchText);
 
     // Show progressBar dialog/modal
     await showProgressDialog(context, request: getData,
         onSuccess: (VehicleModel? vehicle) async {
-      if (vehicle != null && vehicle.vin!.isNotEmpty) {
+      if (vehicle != null && vehicle.isNotEmpty) {
         //Save VIN as recent searches.
-        await SearchHistoryDB()
-            .saveHistory(searchText, key: vinSearchHistoryKey)
+        await AppLocalService()
+            .saveHistory(searchText, key: vinSearchHistoryCacheKey)
             .whenComplete(() {
-          Map<String, dynamic> v = {"vehicle": vehicle};
+          Map<String, dynamic> v = {"data": vehicle};
           _navigating(context, v);
         });
       } else {
@@ -118,8 +130,8 @@ class _VinTextFieldState extends State<VinTextField> {
 
   // Save this VIN for reference in Make-Request-Form
   Future<void> _saveReadOnlyVIN() async {
-    await SearchHistoryDB()
-        .saveReadOnly(searchText, key: readOnlyVinKey)
+    await AppLocalService()
+        .saveReadOnly(searchText, key: readOnlyVinCacheKey)
         .then((_) {
       _resetState();
       showRequestModal(context, vinRequest);
@@ -151,8 +163,7 @@ class _VinTextFieldState extends State<VinTextField> {
 }
 
 /*Dirty Work Bloc
-*
-  OutlinedButton outlinedButton(BuildContext context2) {
+* OutlinedButton outlinedButton(BuildContext context2) {
     return outlinedBtnForSearch(
       context2,
       isSearching: isSearching,

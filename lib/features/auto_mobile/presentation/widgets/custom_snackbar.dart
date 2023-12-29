@@ -1,15 +1,28 @@
 import 'package:flutter/material.dart';
 
-customSnackBar(BuildContext context, {required String msg}){
-
+customSnackBar(
+  BuildContext context, {
+  required dynamic content,
+  bool? showCloseIcon,
+  Duration? timeout,
+  Color? bgColor,
+}) {
   final snackBar = SnackBar(
-    behavior: SnackBarBehavior.floating,
+    backgroundColor: bgColor,
+    showCloseIcon: showCloseIcon,
+    behavior: SnackBarBehavior.fixed,
     dismissDirection: DismissDirection.up,
-    content: Text(
-      msg,
-      style: const TextStyle(fontSize: 20),
-    ),
+    duration: timeout ?? const Duration(seconds: 3),
+    content: content is Text
+        ? content
+        : Text(
+            content,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 20),
+          ),
   );
 
-  ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  ScaffoldMessenger.of(context)
+    ..hideCurrentSnackBar()
+    ..showSnackBar(snackBar);
 }

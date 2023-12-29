@@ -22,6 +22,6 @@ class GetModelsByMakeRefUseCase implements UseCase<DataState<List<ModelEntity>>,
 
   @override
   Future<DataState<List<ModelEntity>>> call({String? params}) {
-    return _modelRepository.getModelsByMakeRef(params ?? "");
+    return _modelRepository.getModelsByMakeRef(params ?? "not-found");
   }
 }
