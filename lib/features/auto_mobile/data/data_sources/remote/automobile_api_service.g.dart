@@ -8,6 +8,9 @@ part of 'automobile_api_service.dart';
 
 // ignore_for_file: unnecessary_brace_in_string_interps,no_leading_underscores_for_local_identifiers
 
+const _path = '/test/runner/2023/k1';
+
+
 class _AutomobileApiService implements AutomobileApiService {
   _AutomobileApiService(
     this._dio, {
@@ -20,6 +23,7 @@ class _AutomobileApiService implements AutomobileApiService {
   Dio _dio;
   String? baseUrl;
 
+  /// Vehicle Makes \\\
   @override
   Future<HttpResponse<List<MakeModel>>> getMakes({
     String? contentType,
@@ -43,7 +47,8 @@ class _AutomobileApiService implements AutomobileApiService {
     };
     _headers.removeWhere((k, v) => v == null);
     const Map<String, dynamic>? _data = null;
-    final _result = await _dio.fetch<Map<String, dynamic>>(
+    // final _result = await _dio.fetch<Map<String, dynamic>>(
+    final _result = await _dio.fetch<List<dynamic>>(
         _setStreamType<HttpResponse<List<MakeModel>>>(Options(
       method: 'GET',
       headers: _headers,
@@ -52,7 +57,7 @@ class _AutomobileApiService implements AutomobileApiService {
     )
             .compose(
               _dio.options,
-              '/test/runner/2023/k1/car_makes',
+              '$_path/car_makes',
               queryParameters: queryParameters,
               data: _data,
             )
@@ -65,12 +70,13 @@ class _AutomobileApiService implements AutomobileApiService {
         .map((dynamic i) => MakeModel.fromJson(i as Map<String, dynamic>));
     List<MakeModel> value = List<MakeModel>.from(json);*/
 
-    List<MakeModel> value = MakeModel.fromJsonList(_result.data!['content']);
+    List<MakeModel> value = MakeModel.fromJsonList(_result.data!);
 
     final httpResponse = HttpResponse(value, _result);
     return httpResponse;
   }
 
+  /// Vehicle Models \\\
   @override
   Future<HttpResponse<List<Model>>> getModels({
     String? contentType,
@@ -94,8 +100,9 @@ class _AutomobileApiService implements AutomobileApiService {
     };
     _headers.removeWhere((k, v) => v == null);
     const Map<String, dynamic>? _data = null;
-    final _result = await _dio.fetch<Map<String, dynamic>>(
-        _setStreamType<HttpResponse<List<Model>>>(Options(
+    // final _result = await _dio.fetch<Map<String, dynamic>>(
+    final _result = await _dio
+        .fetch<List<dynamic>>(_setStreamType<HttpResponse<List<Model>>>(Options(
       method: 'GET',
       headers: _headers,
       extra: _extra,
@@ -103,7 +110,7 @@ class _AutomobileApiService implements AutomobileApiService {
     )
             .compose(
               _dio.options,
-              '/test/runner/2023/k1/car_models',
+              '$_path/car_models',
               queryParameters: queryParameters,
               data: _data,
             )
@@ -117,7 +124,7 @@ class _AutomobileApiService implements AutomobileApiService {
         .map((dynamic i) => Model.fromJson(i as Map<String, dynamic>));
     List<Model> value = List<Model>.from(json);*/
 
-    List<Model> value = Model.fromJsonList(_result.data!['content']);
+    List<Model> value = Model.fromJsonList(_result.data!);
 
     final httpResponse = HttpResponse(value, _result);
     return httpResponse;
@@ -147,8 +154,9 @@ class _AutomobileApiService implements AutomobileApiService {
     };
     _headers.removeWhere((k, v) => v == null);
     const Map<String, dynamic>? _data = null;
-    final _result = await _dio.fetch<Map<String, dynamic>>(
-        _setStreamType<HttpResponse<List<Model>>>(Options(
+    // final _result = await _dio.fetch<Map<String, dynamic>>(
+    final _result = await _dio
+        .fetch<List<dynamic>>(_setStreamType<HttpResponse<List<Model>>>(Options(
       method: 'GET',
       headers: _headers,
       extra: _extra,
@@ -156,7 +164,7 @@ class _AutomobileApiService implements AutomobileApiService {
     )
             .compose(
               _dio.options,
-              '/test/runner/2023/k1/car_models/make_ref/${makeRef}',
+              '$_path/car_models/make_ref/${makeRef}',
               queryParameters: queryParameters,
               data: _data,
             )
@@ -170,12 +178,13 @@ class _AutomobileApiService implements AutomobileApiService {
     json.map((dynamic i) => Model.fromJson(i as Map<String, dynamic>));
     List<Model> value = List<Model>.from(json);*/
 
-    List<Model> value = Model.fromJsonList(_result.data!['content']);
+    List<Model> value = Model.fromJsonList(_result.data!);
 
     final httpResponse = HttpResponse(value, _result);
     return httpResponse;
   }
 
+  /// Vehicles \\\
   @override
   Future<HttpResponse<List<VehicleModel>>> getVehicles({
     String? contentType,
@@ -199,7 +208,8 @@ class _AutomobileApiService implements AutomobileApiService {
     };
     _headers.removeWhere((k, v) => v == null);
     const Map<String, dynamic>? _data = null;
-    final _result = await _dio.fetch<Map<String, dynamic>>(
+    // final _result = await _dio.fetch<Map<String, dynamic>>(
+    final _result = await _dio.fetch<List<dynamic>>(
         _setStreamType<HttpResponse<List<VehicleModel>>>(Options(
       method: 'GET',
       headers: _headers,
@@ -208,7 +218,7 @@ class _AutomobileApiService implements AutomobileApiService {
     )
             .compose(
               _dio.options,
-              '/test/runner/2023/k1/auto_cars',
+              '$_path/auto_cars',
               queryParameters: queryParameters,
               data: _data,
             )
@@ -222,8 +232,7 @@ class _AutomobileApiService implements AutomobileApiService {
         .map((dynamic i) => VehicleModel.fromJson(i as Map<String, dynamic>));
     List<VehicleModel> value = List<VehicleModel>.from(json);*/
 
-    List<VehicleModel> value =
-        VehicleModel.fromJsonList(_result.data!['content']);
+    List<VehicleModel> value = VehicleModel.fromJsonList(_result.data!);
 
     final httpResponse = HttpResponse(value, _result);
     return httpResponse;
@@ -262,7 +271,7 @@ class _AutomobileApiService implements AutomobileApiService {
     )
             .compose(
               _dio.options,
-              '/test/runner/2023/k1/auto_cars/${vin}',
+              '$_path/auto_cars/${vin}',
               queryParameters: queryParameters,
               data: _data,
             )
@@ -303,7 +312,7 @@ class _AutomobileApiService implements AutomobileApiService {
     )
             .compose(
               _dio.options,
-              '/test/runner/2023/k1/auto_cars/v_code/${vehicleCode}',
+              '$_path/auto_cars/v_code/${vehicleCode}',
               queryParameters: queryParameters,
               data: _data,
             )
@@ -317,6 +326,7 @@ class _AutomobileApiService implements AutomobileApiService {
     return httpResponse;
   }
 
+  /// Parts \\\
   @override
   Future<HttpResponse<List<PartModel>>> getParts({
     String? contentType,
@@ -340,7 +350,8 @@ class _AutomobileApiService implements AutomobileApiService {
     };
     _headers.removeWhere((k, v) => v == null);
     const Map<String, dynamic>? _data = null;
-    final _result = await _dio.fetch<Map<String, dynamic>>(
+    // final _result = await _dio.fetch<Map<String, dynamic>>(
+    final _result = await _dio.fetch<List<dynamic>>(
         _setStreamType<HttpResponse<List<PartModel>>>(Options(
       method: 'GET',
       headers: _headers,
@@ -349,7 +360,7 @@ class _AutomobileApiService implements AutomobileApiService {
     )
             .compose(
               _dio.options,
-              '/test/runner/2023/k1/car_parts',
+              '$_path/car_parts',
               queryParameters: queryParameters,
               data: _data,
             )
@@ -366,7 +377,7 @@ class _AutomobileApiService implements AutomobileApiService {
         .map((dynamic i) => PartModel.fromJson(i as Map<String, dynamic>));
     List<PartModel> value = List<PartModel>.from(json);*/
 
-    List<PartModel> value = PartModel.fromJsonList(_result.data!['content']);
+    List<PartModel> value = PartModel.fromJsonList(_result.data!);
 
     final httpResponse = HttpResponse(value, _result);
     return httpResponse;
@@ -396,7 +407,8 @@ class _AutomobileApiService implements AutomobileApiService {
     };
     _headers.removeWhere((k, v) => v == null);
     const Map<String, dynamic>? _data = null;
-    final _result = await _dio.fetch<Map<String, dynamic>>(
+    // final _result = await _dio.fetch<Map<String, dynamic>>(
+    final _result = await _dio.fetch<List<dynamic>>(
         _setStreamType<HttpResponse<List<PartModel>>>(Options(
       method: 'GET',
       headers: _headers,
@@ -405,7 +417,7 @@ class _AutomobileApiService implements AutomobileApiService {
     )
             .compose(
               _dio.options,
-              '/test/runner/2023/k1/car_parts/${vfam}',
+              '$_path/car_parts/${vfam}',
               queryParameters: queryParameters,
               data: _data,
             )
@@ -418,7 +430,7 @@ class _AutomobileApiService implements AutomobileApiService {
         .map((dynamic i) => PartModel.fromJson(i as Map<String, dynamic>));
     List<PartModel> value = List<PartModel>.from(json);*/
 
-    List<PartModel> value = PartModel.fromJsonList(_result.data!['content']);
+    List<PartModel> value = PartModel.fromJsonList(_result.data!);
 
     final httpResponse = HttpResponse(value, _result);
     return httpResponse;
@@ -450,7 +462,7 @@ class _AutomobileApiService implements AutomobileApiService {
     )
             .compose(
               _dio.options,
-              '/test/runner/2023/k1/car_parts/hunter/${hunterNo}',
+              '$_path/car_parts/hunter/${hunterNo}',
               queryParameters: queryParameters,
               data: _data,
             )
@@ -489,7 +501,8 @@ class _AutomobileApiService implements AutomobileApiService {
     };
     _headers.removeWhere((k, v) => v == null);
     const Map<String, dynamic>? _data = null;
-    final _result = await _dio.fetch<Map<String, dynamic>>(
+    // final _result = await _dio.fetch<Map<String, dynamic>>(
+    final _result = await _dio.fetch<List<dynamic>>(
         _setStreamType<HttpResponse<List<PartModel>>>(Options(
       method: 'GET',
       headers: _headers,
@@ -498,7 +511,7 @@ class _AutomobileApiService implements AutomobileApiService {
     )
             .compose(
               _dio.options,
-              '/test/runner/2023/k1/car_parts/${make}/${model}',
+              '$_path/car_parts/${make}/${model}',
               queryParameters: queryParameters,
               data: _data,
             )
@@ -511,7 +524,7 @@ class _AutomobileApiService implements AutomobileApiService {
         .map((dynamic i) => PartModel.fromJson(i as Map<String, dynamic>));
     List<PartModel> value = List<PartModel>.from(json);*/
 
-    List<PartModel> value = PartModel.fromJsonList(_result.data!['content']);
+    List<PartModel> value = PartModel.fromJsonList(_result.data!);
 
     final httpResponse = HttpResponse(value, _result);
     return httpResponse;
@@ -544,7 +557,7 @@ class _AutomobileApiService implements AutomobileApiService {
     )
             .compose(
               _dio.options,
-              '/test/runner/2023/k1/car_parts/year_range/${make}/${model}',
+              '$_path/car_parts/year_range/${make}/${model}',
               queryParameters: queryParameters,
               data: _data,
             )
@@ -558,6 +571,7 @@ class _AutomobileApiService implements AutomobileApiService {
     return httpResponse;
   }
 
+  /// Hunter (CrossRef) \\\
   @override
   Future<HttpResponse<List<HunterModel>>> getHunters({
     String? contentType,
@@ -581,7 +595,8 @@ class _AutomobileApiService implements AutomobileApiService {
     };
     _headers.removeWhere((k, v) => v == null);
     const Map<String, dynamic>? _data = null;
-    final _result = await _dio.fetch<Map<String, dynamic>>(
+    // final _result = await _dio.fetch<Map<String, dynamic>>(
+    final _result = await _dio.fetch<List<dynamic>>(
         _setStreamType<HttpResponse<List<HunterModel>>>(Options(
       method: 'GET',
       headers: _headers,
@@ -590,7 +605,7 @@ class _AutomobileApiService implements AutomobileApiService {
     )
             .compose(
               _dio.options,
-              '/test/runner/2023/k1/parts_hunter',
+              '$_path/parts_hunter',
               queryParameters: queryParameters,
               data: _data,
             )
@@ -603,8 +618,7 @@ class _AutomobileApiService implements AutomobileApiService {
         .map((dynamic i) => HunterModel.fromJson(i as Map<String, dynamic>));
     List<HunterModel> value = List<HunterModel>.from(json);*/
 
-    List<HunterModel> value =
-        HunterModel.fromJsonList(_result.data!['content']);
+    List<HunterModel> value = HunterModel.fromJsonList(_result.data!);
 
     final httpResponse = HttpResponse(value, _result);
     return httpResponse;
@@ -634,7 +648,8 @@ class _AutomobileApiService implements AutomobileApiService {
     };
     _headers.removeWhere((k, v) => v == null);
     const Map<String, dynamic>? _data = null;
-    final _result = await _dio.fetch<Map<String, dynamic>>(
+    // final _result = await _dio.fetch<Map<String, dynamic>>(
+    final _result = await _dio.fetch<List<dynamic>>(
         _setStreamType<HttpResponse<List<HunterModel>>>(Options(
       method: 'GET',
       headers: _headers,
@@ -643,7 +658,7 @@ class _AutomobileApiService implements AutomobileApiService {
     )
             .compose(
               _dio.options,
-              '/test/runner/2023/k1/parts_hunter/${hunterNo}',
+              '$_path/parts_hunter/${hunterNo}',
               queryParameters: queryParameters,
               data: _data,
             )
@@ -657,8 +672,7 @@ class _AutomobileApiService implements AutomobileApiService {
         .map((dynamic i) => HunterModel.fromJson(i as Map<String, dynamic>));
     List<HunterModel> value = List<HunterModel>.from(json);*/
 
-    List<HunterModel> value =
-        HunterModel.fromJsonList(_result.data!['content']);
+    List<HunterModel> value = HunterModel.fromJsonList(_result.data!);
 
     final httpResponse = HttpResponse(value, _result);
     return httpResponse;
@@ -688,7 +702,8 @@ class _AutomobileApiService implements AutomobileApiService {
     };
     _headers.removeWhere((k, v) => v == null);
     const Map<String, dynamic>? _data = null;
-    final _result = await _dio.fetch<Map<String, dynamic>>(
+    // final _result = await _dio.fetch<Map<String, dynamic>>(
+    final _result = await _dio.fetch<List<dynamic>>(
         _setStreamType<HttpResponse<List<HunterModel>>>(Options(
       method: 'GET',
       headers: _headers,
@@ -698,7 +713,7 @@ class _AutomobileApiService implements AutomobileApiService {
     )
             .compose(
               _dio.options,
-              '/test/runner/2023/k1/parts_hunter/part_no/${partNo}',
+              '$_path/parts_hunter/part_no/${partNo}',
               queryParameters: queryParameters,
               data: _data,
             )
@@ -711,13 +726,13 @@ class _AutomobileApiService implements AutomobileApiService {
         .map((dynamic i) => HunterModel.fromJson(i as Map<String, dynamic>));
     List<HunterModel> value = List<HunterModel>.from(json);*/
 
-    List<HunterModel> value =
-        HunterModel.fromJsonList(_result.data!['content']);
+    List<HunterModel> value = HunterModel.fromJsonList(_result.data!);
 
     final httpResponse = HttpResponse(value, _result);
     return httpResponse;
   }
 
+  /// Vendors \\\
   @override
   Future<HttpResponse<List<VendorModel>>> getVendors({
     String? contentType,
@@ -741,7 +756,8 @@ class _AutomobileApiService implements AutomobileApiService {
     };
     _headers.removeWhere((k, v) => v == null);
     const Map<String, dynamic>? _data = null;
-    final _result = await _dio.fetch<Map<String, dynamic>>(
+    // final _result = await _dio.fetch<Map<String, dynamic>>(
+    final _result = await _dio.fetch<List<dynamic>>(
         _setStreamType<HttpResponse<List<VendorModel>>>(Options(
       method: 'GET',
       headers: _headers,
@@ -750,7 +766,7 @@ class _AutomobileApiService implements AutomobileApiService {
     )
             .compose(
               _dio.options,
-              '/test/runner/2023/k1/vendors_parts',
+              '$_path/vendors_parts',
               queryParameters: queryParameters,
               data: _data,
             )
@@ -763,8 +779,7 @@ class _AutomobileApiService implements AutomobileApiService {
         .map((dynamic i) => VendorModel.fromJson(i as Map<String, dynamic>));
     List<VendorModel> value = List<VendorModel>.from(json);*/
 
-    List<VendorModel> value =
-        VendorModel.fromJsonList(_result.data!['content']);
+    List<VendorModel> value = VendorModel.fromJsonList(_result.data!);
 
     final httpResponse = HttpResponse(value, _result);
     return httpResponse;
@@ -796,7 +811,7 @@ class _AutomobileApiService implements AutomobileApiService {
     )
             .compose(
               _dio.options,
-              '/test/runner/2023/k1/vendors_parts/${id}',
+              '$_path/vendors_parts/${id}',
               queryParameters: queryParameters,
               data: _data,
             )
@@ -835,7 +850,8 @@ class _AutomobileApiService implements AutomobileApiService {
     };
     _headers.removeWhere((k, v) => v == null);
     const Map<String, dynamic>? _data = null;
-    final _result = await _dio.fetch<Map<String, dynamic>>(
+    // final _result = await _dio.fetch<Map<String, dynamic>>(
+    final _result = await _dio.fetch<List<dynamic>>(
         _setStreamType<HttpResponse<List<VendorModel>>>(Options(
       method: 'GET',
       headers: _headers,
@@ -844,7 +860,7 @@ class _AutomobileApiService implements AutomobileApiService {
     )
             .compose(
               _dio.options,
-              '/test/runner/2023/k1/vendors_parts/lowest_price/${brand}/${partNo}',
+              '$_path/vendors_parts/lowest_price/${brand}/${partNo}',
               queryParameters: queryParameters,
               data: _data,
             )
@@ -853,13 +869,12 @@ class _AutomobileApiService implements AutomobileApiService {
               _dio.options.baseUrl,
               baseUrl,
             ))));
-    // debugPrint(_result.data!['content'].toString());
+    // debugPrint("httpResponse-> ${_result.data}");
     /*var json = _result.data!['content']
         .map((dynamic i) => VendorModel.fromJson(i as Map<String, dynamic>));
     List<VendorModel> value = List<VendorModel>.from(json);*/
 
-    List<VendorModel> value =
-        VendorModel.fromJsonList(_result.data!['content']);
+    List<VendorModel> value = VendorModel.fromJsonList(_result.data!);
 
     final httpResponse = HttpResponse(value, _result);
     return httpResponse;

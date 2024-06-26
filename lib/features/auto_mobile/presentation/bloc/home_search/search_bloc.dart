@@ -54,23 +54,15 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
 
         Future request = event.isVin
             ? _searchRepository.getVehicleByVin(searchTerm)
-            : _searchRepository.getHunterPartsByPartNo(searchTerm);
+            : _searchRepository.getHunterPartsByPartNo2(searchTerm);
 
-        final data = await request;
-        // debugPrint("bloc $searchTerm == $data == ${event.isVin}");
+        final data = await Future.wait([request]);
 
         emit(
-          data != null
-              ? state.copyWith(
-                  status: FormzSubmissionStatus.success,
-                  future: request,
-                  getData: data,
-                )
-              : state.copyWith(
-                  status: FormzSubmissionStatus.failure,
-                  future: Future.delayed(const Duration(milliseconds: 1)),
-                  isValid: false,
-                ),
+          state.copyWith(
+            status: FormzSubmissionStatus.success,
+            getData: data[0],
+          ),
         );
       } on DioException catch (e) {
         emit(
@@ -84,4 +76,5 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       }
     }
   }
+
 }

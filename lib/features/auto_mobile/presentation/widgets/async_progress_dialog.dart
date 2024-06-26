@@ -123,12 +123,14 @@ class _AsyncProgressDialogState extends State<AsyncProgressDialog> {
       widget.future!.then(
         (val) {
           if (widget.onSuccess != null) {
+            debugPrint('async-progress-dialog onSuccess');
             widget.onSuccess!.call(val);
           }
           Navigator.of(context).pop(val);
         },
         onError: (e) {
           if (widget.onError != null) {
+            debugPrint('async-progress-dialog onError');
             widget.onError!.call(e);
           }
           Navigator.of(context).pop();

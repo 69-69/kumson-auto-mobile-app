@@ -7,10 +7,12 @@ class ParentBackground extends StatelessWidget {
     super.key,
     required this.child,
     this.addScroll = true,
+    this.scrollController,
   });
 
   final Widget child;
   final bool addScroll;
+  final ScrollController? scrollController;
 
   @override
   Widget build(BuildContext context) {
@@ -34,8 +36,7 @@ class ParentBackground extends StatelessWidget {
 
   SingleChildScrollView _buildScroll() {
     return SingleChildScrollView(
-      primary: true,
-      scrollDirection: Axis.vertical,
+      controller: scrollController,
       physics: const BouncingScrollPhysics(),
       child: buildContainer(),
     );

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:automasters/core/util/size_config.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/elevated_btn.dart';
-import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_pem.dart';
+import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_key.dart';
 import 'package:automasters/features/auto_mobile/presentation/pages/by_cross_ref/cross_ref_request_form.dart';
 import 'package:automasters/features/auto_mobile/presentation/pages/home/components/part_no_request_form.dart';
 import 'package:automasters/features/auto_mobile/presentation/pages/home/components/vin_request_form.dart';
@@ -42,11 +42,11 @@ class InlineRequestButton extends StatelessWidget {
 
           /// Or Section
           orSeparator(
-              lineColor: color, textColor: color, text: orMsg ?? " You can "),
+              lineColor: color, textColor: color, label: orMsg ?? " You can "),
           showMakeRequestButton(
             context,
             reqType,
-            borderColor: Colors.transparent,
+            // borderColor: Colors.transparent,
           ),
         ],
       ),
@@ -179,7 +179,7 @@ class _SendRequestModalState extends State<SendRequestModal> {
           ),
 
           /// Or Section
-          orSeparator(lineColor: color, textColor: color, text: "You can"),
+          orSeparator(lineColor: color, textColor: color, label: "You can"),
           const SizedBox(height: 10),
           buildElevatedBtn(
             context,

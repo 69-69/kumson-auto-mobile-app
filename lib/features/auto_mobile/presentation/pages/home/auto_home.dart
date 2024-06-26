@@ -110,11 +110,11 @@ class _AutoHomeState extends State<AutoHome>
     ];
     setState(() {});
   }
-
+// sudo gem install cocoapods
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
-    final customTheme = Theme.of(context);
+    // final customTheme = Theme.of(context);
 
     // Lets restart the app so icons can load
     return Scaffold(
@@ -137,7 +137,14 @@ class _AutoHomeState extends State<AutoHome>
         child: buildAnimatedSwitcher(
           _currentIndex > 0
               ? _bottomScreens[_currentIndex]
-              : _buildBody(customTheme, context),
+              : const Text(
+                  'Dashboard Here',
+                  style: TextStyle(
+                    height: 1.2,
+                    fontSize: 20.0,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ), // _buildBody(customTheme, context),
           animationItems,
         ),
       ),
@@ -151,17 +158,17 @@ class _AutoHomeState extends State<AutoHome>
       bottomWidget: SizedBox(width: SizeConfig.screenWidth),
       // hideAppBar: _currentIndex == 0 ? true : false,
       // child: _bottomScreens[_currentIndex],
-      *//* bottomWidget: Builder(
+      */ /* bottomWidget: Builder(
       builder: (context) {
         final userId = context.select(
-          (AuthBloc bloc) => bloc.state.loggedInUser.role,
+          (AuthBloc bloc) => bloc.state.currentUser.role,
         );
         return Text(
           "Role: $userId",
           style: const TextStyle(overflow: TextOverflow.ellipsis,color: Colors.white),
         );
       },
-    ),*//*
+    ),*/ /*
     );
   }*/
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:automasters/core/util/size_config.dart';
 import 'package:automasters/core/constants/constants.dart';
-import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_pem.dart';
+import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_key.dart';
 import 'package:automasters/features/auto_mobile/presentation/pages/bottom_sheet/send_a_request_modal.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/question_button.dart';
 import 'package:automasters/config/routes/routes_constant.dart';
@@ -24,64 +24,71 @@ import 'package:automasters/features/auto_mobile/presentation/widgets/widgetery.
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:string_capitalize/string_capitalize.dart';
 
-class PartsByPrice extends StatefulWidget {
+class PartsByPrice extends StatelessWidget {
   final Map<String, dynamic> map;
 
   const PartsByPrice({super.key, required this.map});
 
   @override
-  State<PartsByPrice> createState() => _PartsByPriceState();
-}
-
-class _PartsByPriceState extends State<PartsByPrice> {
-  String _productAge = "";
-  bool notFound = false;
-
-  @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
 
-    PartModel cPart = widget.map['part'] as PartModel;
-    VehicleModel cVehicle = widget.map['vehicle'] as VehicleModel;
-
-    _productAge = AppLocalService().getProductStatus();
-
-    _getHunterParts(context, cPart);
+    PartModel cPart = map['part'] as PartModel;
+    VehicleModel cVehicle = map['vehicle'] as VehicleModel;
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
       // backgroundColor: Theme.of(context).colorScheme.primary,
       body: NestedScrollView(
         physics: const BouncingScrollPhysics(),
-        headerSliverBuilder: (_, __) {
-          CustomAppBarModel appBarInfo = CustomAppBarModel(
-            imageUrl: kDefaultPartImage,
-            videoUrl: 'https://youtu.be/EgF01aSQyno?si=HBUGAORJ-DPVH0CY',
-            title: "${cVehicle.year} ${cVehicle.make} ${cVehicle.model}",
-            subTitle: cPart.part!,
-            subMiniTitle: "${cPart.part}s".capitalizeEach(),
-            expandedHeight: getProportionateScreenHeight(250),
-            currentScreen: partRequest,
-          );
-
-          return [CustomSliverAppBar(data: appBarInfo)];
-        },
-        body: _hunterPartsBlocBody(cPart, cVehicle),
+        headerSliverBuilder: (_, __) => [
+          CustomSliverAppBar(
+            data: _customAppBarModel(cVehicle, cPart),
+          ),
+        ],
+        body: _HunterPartsBc(carPart: cPart, vehicle: cVehicle),
         // _buildBody(context, cPart),
       ),
     );
   }
 
-  void _getHunterParts(BuildContext parentState, PartModel carPart) {
-    parentState
+  CustomAppBarModel _customAppBarModel(VehicleModel cVehicle, PartModel cPart) {
+    return CustomAppBarModel(
+      imageUrl: kDefaultPartImage,
+      videoUrl: 'https://youtu.be/EgF01aSQyno?si=HBUGAORJ-DPVH0CY',
+      title: "${cVehicle.year} ${cVehicle.make} ${cVehicle.model}",
+      subTitle: cPart.part!,
+      subMiniTitle: "${cPart.part}s".capitalizeEach(),
+      expandedHeight: getProportionateScreenHeight(250),
+      currentScreen: partRequest,
+    );
+  }
+}
+
+class _HunterPartsBc extends StatelessWidget {
+  const _HunterPartsBc({
+    required this.carPart,
+    required this.vehicle,
+  });
+
+  final PartModel carPart;
+  final VehicleModel vehicle;
+
+  @override
+  Widget build(BuildContext context) {
+    return _hunterPartsBlocBody(context);
+  }
+
+  void _getHunterParts(BuildContext context) {
+    context
         .read<HunterPartsByHunterNoBloc>()
         .add(GetHunterPartsByHunterNoEvent(carPart.hunter!));
   }
 
   BlocBuilder<HunterPartsByHunterNoBloc, HunterState> _hunterPartsBlocBody(
-    PartModel carPart,
-    VehicleModel vehicle,
-  ) {
+      BuildContext context) {
+    _getHunterParts(context);
+
     return BlocBuilder<HunterPartsByHunterNoBloc, HunterState>(
         // If listenWhen returns true, listener will be called with new state
         // buildWhen: (previousState, state) => state != previousState,
@@ -92,25 +99,46 @@ class _PartsByPriceState extends State<PartsByPrice> {
       }
 
       if (state is HunterDone) {
-        return _buildCard(
-          hunterContext,
-          carPart.part!,
-          state.hunter as List<HunterModel>,
-          vehicle,
+        return _PartsCard(
+          vehicle: vehicle,
+          part: carPart.part!,
+          hunter: state.hunter as List<HunterModel>,
         );
       }
 
-      return const InlineRequestButton(reqType: crossRefRequest);
+      return const Padding(
+        padding: EdgeInsets.symmetric(horizontal: 20),
+        child: InlineRequestButton(reqType: crossRefRequest),
+      );
     });
+  }
+}
+
+class _PartsCard extends StatefulWidget {
+  const _PartsCard({
+    required this.part,
+    required this.hunter,
+    required this.vehicle,
+  });
+
+  final String part;
+  final VehicleModel vehicle;
+  final List<HunterModel> hunter;
+
+  @override
+  State<_PartsCard> createState() => _PartsCardState();
+}
+
+class _PartsCardState extends State<_PartsCard> {
+  bool notFound = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return _buildCard(context);
   }
 
   /// Parts Details [buildPartsDetails]
-  Widget _buildCard(
-    BuildContext hunterContext,
-    String part,
-    List<HunterModel> hunter,
-    VehicleModel vehicle,
-  ) {
+  Widget _buildCard(BuildContext hunterContext) {
     return buildCurveContainer(
       hunterContext,
       const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
@@ -120,7 +148,7 @@ class _PartsByPriceState extends State<PartsByPrice> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              customLine(part.toUpperCase(), hunterContext),
+              customLine(widget.part.toUpperCase(), hunterContext),
               buildQuestionButton(
                 hunterContext,
                 onPress: () => displayDialog(hunterContext),
@@ -131,23 +159,44 @@ class _PartsByPriceState extends State<PartsByPrice> {
           Expanded(
             child: notFound
                 ? const InlineRequestButton(reqType: priceRequest)
-                : buildListView(hunter, vehicle),
+                : _ListCard(
+                    hunter: widget.hunter,
+                    vehicle: widget.vehicle,
+                    onNotFound: (bool val) => setState(() => notFound = val),
+                  ),
           ),
         ],
       ),
     );
   }
+}
+
+class _ListCard extends StatelessWidget {
+  const _ListCard({
+    required this.vehicle,
+    required this.hunter,
+    required this.onNotFound,
+  });
+
+  final Function(bool) onNotFound;
+  final VehicleModel vehicle;
+  final List<HunterModel> hunter;
+
+  @override
+  Widget build(BuildContext context) {
+    return buildListView();
+  }
 
   /// done-1 List view display[buildListView]
-  buildListView(result, VehicleModel vehicle) {
+  buildListView() {
     return SingleChildScrollView(
       padding: EdgeInsets.zero,
       physics: const NeverScrollableScrollPhysics(),
       child: ColumnBuilder(
-        itemCount: result.length,
+        itemCount: hunter.length,
         itemBuilder: (context, index) {
-          HunterModel hunterPart = result[index];
-          bool isLastIndex = index == result.length - 1;
+          HunterModel hunterPart = hunter[index];
+          bool isLastIndex = index == hunter.length - 1;
 
           return InkWell(
             onTap: () {
@@ -183,20 +232,47 @@ class _PartsByPriceState extends State<PartsByPrice> {
               ),
             )
           : null,
-      child: _vendorPartsBloc(huntPart, isLastIndex),
+      child: _VendorPartsBc(
+        huntPart: huntPart,
+        isLastIndex: isLastIndex,
+        onNotFound: (bool val) => onNotFound(val),
+      ),
     );
+  }
+}
+
+class _VendorPartsBc extends StatelessWidget {
+  const _VendorPartsBc({
+    required this.huntPart,
+    required this.onNotFound,
+    required this.isLastIndex,
+  });
+
+  final Function(bool) onNotFound;
+  final HunterModel huntPart;
+  final bool isLastIndex;
+
+  @override
+  Widget build(BuildContext context) {
+    return _vendorPartsBloc(context);
+  }
+
+  void _getVendorParts(BuildContext context) {
+    context
+        .read<VendorPartsByBrandPartNoBloc>()
+        .add(GetVendorPartsByBrandPartNo(huntPart.brand!, huntPart.partNo!));
   }
 
   /// Get Prices From Vendors [_vendorPartsBloc]
   BlocBuilder<VendorPartsByBrandPartNoBloc, VendorState> _vendorPartsBloc(
-    HunterModel huntPart,
-    bool isLastIndex,
+    BuildContext context,
   ) {
-    _getVendorParts(huntPart);
+    _getVendorParts(context);
+    // VendorModel s= context.select((VendorPartsByBrandPartNoBloc v) => v.state.vendor);
 
     return BlocBuilder<VendorPartsByBrandPartNoBloc, VendorState>(
       // If listenWhen returns true, listener will be called with new state
-      // buildWhen: (previousState, state) => state != previousState,
+      buildWhen: (preState, curState) => preState != curState,
       builder: (vendorContext, state) {
         if (state is VendorLoading) {
           // return Text("VendorsState");
@@ -209,19 +285,13 @@ class _PartsByPriceState extends State<PartsByPrice> {
         }
         if (isLastIndex) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            setState(() => notFound = true);
+            onNotFound(true);
           });
         }
 
         return const SizedBox.shrink();
       },
     );
-  }
-
-  void _getVendorParts(HunterModel huntPart) {
-    context
-        .read<VendorPartsByBrandPartNoBloc>()
-        .add(GetVendorPartsByBrandPartNo(huntPart.brand!, huntPart.partNo!));
   }
 
   _buildShowPrice(BuildContext context, List<VendorModel> result) {
@@ -253,12 +323,13 @@ class _PartsByPriceState extends State<PartsByPrice> {
     VendorModel withOPM,
     VendorModel withoutOPM,
   ) {
+    String productAge = AppLocalService().getProductStatus();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (withoutOPM.stockStatus == "instock" &&
             withoutOPM.opm == "no" &&
-            withoutOPM.productAge == _productAge) ...{
+            withoutOPM.productAge == productAge) ...{
           buildTag(context, withoutOPM),
           Row(
             children: [
@@ -270,7 +341,7 @@ class _PartsByPriceState extends State<PartsByPrice> {
         },
         if (withOPM.stockStatus == "instock" &&
             withOPM.opm == "yes" &&
-            withOPM.productAge == _productAge) ...{
+            withOPM.productAge == productAge) ...{
           const Divider(height: 1.0),
           buildTag(context, withOPM, isRadius: false),
           Row(
@@ -346,28 +417,28 @@ class _PartsByPriceState extends State<PartsByPrice> {
       child: child,
     );
   }
+}
 
-  Padding _loadSpinner() {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: showCircularProgress(strokeWidth: 3, width: 20, height: 20),
-    );
-  }
+Padding _loadSpinner() {
+  return Padding(
+    padding: const EdgeInsets.all(8.0),
+    child: showCircularProgress(strokeWidth: 3, width: 20, height: 20),
+  );
+}
 
-  displayDialog(BuildContext context) async {
-    final opt = await showConfirmationDialog(
-      context,
-      title: "Searching",
-      isDismissible: false,
-      positiveResponse: "New",
-      negativeResponse: "Used",
-      const Text("...for New or Used Car Parts?"),
-    );
-    if (context.mounted && opt != "cancel") {
-      await AppLocalService().saveProductStatus(opt);
+displayDialog(BuildContext context) async {
+  final opt = await showConfirmationDialog(
+    context,
+    title: "Searching",
+    isDismissible: false,
+    positiveResponse: "New",
+    negativeResponse: "Used",
+    const Text("...for New or Used Car Parts?"),
+  );
+  if (context.mounted && opt != "cancel") {
+    await AppLocalService().saveProductStatus(opt);
 
-      // Refresh Screen after Dialog Changes
-      Future.delayed(const Duration(seconds: 1), () => setState(() {}));
-    }
+    // Refresh Screen after Dialog Changes
+    // Future.delayed(const Duration(seconds: 1), () => setState(() {}));
   }
 }

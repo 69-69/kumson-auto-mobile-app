@@ -3,7 +3,7 @@ import 'package:automasters/features/auto_mobile/data/models/jwt.dart';
 import 'package:automasters/features/auto_mobile/data/models/sms_config.dart';
 import 'package:flutter/material.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/local/app_local_database.dart';
-import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_pem.dart';
+import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_key.dart';
 
 class AppLocalService extends AppLocalDatabase with ChangeNotifier {
   _getData(String key) => readCache(key: key);
@@ -62,7 +62,7 @@ class AppLocalService extends AppLocalDatabase with ChangeNotifier {
   Future saveReadOnly(String vin, {String? key}) async {
     if (vin.isEmpty) return; //Should not be null
 
-    await writeCache(key: key ?? readOnlyVinCacheKey, data: vin);
+    await writeCache(key: key ?? sendRequestVinCacheKey, data: vin);
     // notifyListeners();
   }
 

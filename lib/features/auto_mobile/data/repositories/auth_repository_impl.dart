@@ -14,7 +14,7 @@ import 'package:automasters/features/auto_mobile/data/data_sources/remote/dio_ut
 import 'package:automasters/features/auto_mobile/domain/repositories/auth_repository.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/local/app_local_database.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/local/app_local_service.dart';
-import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_pem.dart';
+import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_key.dart';
 
 enum AuthStatus {
   unknown,
@@ -34,7 +34,7 @@ class AuthRepositoryImpl implements AuthRepository {
   Stream<AuthStatus> get status async* {
     await Future<void>.delayed(const Duration(seconds: 1));
 
-    yield currentUser.isNotEmpty
+    yield _currentUser.isNotEmpty
         ? AuthStatus.authenticated
         : (currentSignup.isNotEmpty)
             ? AuthStatus.continueSignup
@@ -59,8 +59,8 @@ class AuthRepositoryImpl implements AuthRepository {
     return newDateTime;
   }
 
-  /// Get Current-USER from CACHE: Return UserModel Or Empty [currentUser]
-  UserModel get currentUser {
+  /// Get Current-USER from CACHE: Return UserModel Or Empty [_currentUser]
+  UserModel get _currentUser {
     final userCache = _cache.readCache(key: userCacheKey);
     if (userCache == null) return UserModel.empty;
 

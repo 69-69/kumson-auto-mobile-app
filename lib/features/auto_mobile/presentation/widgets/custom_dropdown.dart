@@ -6,6 +6,7 @@ import 'package:string_capitalize/string_capitalize.dart';
 typedef AsyncSearchItems<T> = Future<List<T>> Function(String text);
 
 class CustomDropdown<T> extends StatefulWidget {
+  final bool? enabledTextField;
   final String hintText;
   final Widget? suffixIcon;
   final dynamic value;
@@ -21,6 +22,7 @@ class CustomDropdown<T> extends StatefulWidget {
     this.value,
     required this.onChanged,
     required this.asyncItems,
+    this.enabledTextField,
     // this.controller,
   });
 
@@ -127,6 +129,7 @@ class _CustomDropdownState<T> extends State<CustomDropdown<T>> {
 
   TextFieldConfiguration _textFieldConfiguration(BuildContext context) {
     return TextFieldConfiguration(
+      enabled: widget.enabledTextField ?? true,
       focusNode: _focusNode,
       controller: _typeAheadController,
       style: DefaultTextStyle.of(context).style.copyWith(fontSize: 13),
@@ -140,6 +143,12 @@ class _CustomDropdownState<T> extends State<CustomDropdown<T>> {
             ? _closeButton()
             : widget.suffixIcon,
         alignLabelWithHint: true,
+        contentPadding: EdgeInsets.only(
+          top: 20.0,
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+          right: 20.0,
+          left: 20.0,
+        ),
       ),
     );
   }

@@ -1,9 +1,9 @@
-import 'package:automasters/features/auto_mobile/presentation/form_models/email_or_phone.dart';
 import 'package:dio/dio.dart';
 import 'package:formz/formz.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:automasters/core/util/utils.dart';
+import 'package:automasters/features/auto_mobile/presentation/form_models/email_or_phone.dart';
 import 'package:automasters/features/auto_mobile/data/repositories/auth_repository_impl.dart';
 import 'package:automasters/features/auto_mobile/presentation/form_models/index.dart';
 

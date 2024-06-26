@@ -23,6 +23,8 @@ class MakesBloc extends Bloc<MakeEvent, MakeState> {
 
     if (dataState is DataSuccess && dataState.data!.isNotEmpty) {
       emit(MakeDone<List<MakeEntity>>(dataState.data!));
+    }else{
+      emit(MakeError(dataState.error!));
     }
 
     } on DataFailed catch (e) {

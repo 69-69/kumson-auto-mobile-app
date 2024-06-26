@@ -4,7 +4,8 @@ import 'package:equatable/equatable.dart';
 class VehicleEntity extends Equatable {
   final int? id;
   final String? vin;
-  final String? vehicleCode;
+  // vehicleCode
+  final String? vic;
   final String? vfam;
   final String? model;
   final String? make;
@@ -31,7 +32,7 @@ class VehicleEntity extends Equatable {
   const VehicleEntity({
     this.id,
     this.vin,
-    this.vehicleCode,
+    this.vic,
     this.vfam,
     this.model,
     this.make,
@@ -68,7 +69,7 @@ class VehicleEntity extends Equatable {
   List<Object?> get props => [
         id,
         vin,
-        vehicleCode,
+        vic,
         vfam,
         model,
         make,

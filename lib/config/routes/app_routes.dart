@@ -6,7 +6,10 @@ class AppRoutes {
   static Route onGenerateRoutes(RouteSettings settings) {
     switch (settings.name) {
       case appRootRoute:
-        return _materialRoute(const Welcome());
+        return _materialRoute(Welcome(activeSignup: settings.arguments as SignupModel?));
+
+      /*case dashboardRoute:
+        return _materialRoute(const Dashboard());*/
 
       case autoHomeRoute:
         return _materialRoute(const AutoHome());
@@ -28,7 +31,7 @@ class AppRoutes {
 
       case partsByPartNoRoute:
         return _materialRoute(
-          PartsByPartNo(map: settings.arguments as Map<String, dynamic>),
+          PartsByPartNo(list: settings.arguments as List),
         );
 
       case vehicleDetailsRoute:

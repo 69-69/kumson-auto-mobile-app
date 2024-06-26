@@ -2,7 +2,7 @@ import 'package:country_codes/country_codes.dart';
 import 'package:flutter/material.dart';
 import 'package:automasters/core/util/size_config.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/custom_stepper.dart';
-import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_pem.dart';
+import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_key.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/local/app_local_service.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/items_dropdown.dart';
 
@@ -115,7 +115,7 @@ class _PartNoRequestFormState extends State<PartNoRequestForm> {
 
   TextFormField _buildPartNoFormField(BuildContext context) {
     String readOnlyPartNo =
-        AppLocalService().getProductStatus(key: readOnlyPartNoCacheKey);
+        AppLocalService().getProductStatus(key: sendRequestPartNoCacheKey);
     Color color = Theme.of(context).colorScheme.primary;
     const textStyle = TextStyle(color: Colors.white, fontSize: 12);
 

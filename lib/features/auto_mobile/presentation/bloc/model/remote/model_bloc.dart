@@ -13,23 +13,25 @@ class ModelsBloc extends Bloc<ModelEvent, ModelState> {
   ModelsBloc(this._getModelsUseCase) : super(const ModelLoading()) {
     on<GetModelsEvent>(
       _onGetModels,
+
       /// Apply the custom `EventTransformer` to the `EventHandler`.
       transformer: debounce(),
     );
   }
 
   void _onGetModels(GetModelsEvent event, Emitter<ModelState> emit) async {
-    final dataState = await _getModelsUseCase();
+    try {
+      final dataState = await _getModelsUseCase();
 
-    if (dataState is DataSuccess && dataState.data!.isNotEmpty) {
-      emit(ModelDone<List<ModelEntity>>(dataState.data!));
-    }
-
-    if (dataState is DataFailed) {
-      // debugPrint("DataFailed-> ${dataState.error!.message}");
-      // pass the data
-      emit(ModelError(dataState.error!));
-    }
+      if (dataState is DataSuccess && dataState.data!.isNotEmpty) {
+        emit(ModelDone<List<ModelEntity>>(dataState.data!));
+      } else {
+        // debugPrint("DataFailed-> ${dataState.error!.message}");
+        emit(ModelError(dataState.error!));
+      }
+    } on DataFailed catch (e) {
+      emit(ModelError(e.error!));
+    } catch (_) {}
   }
 }
 
@@ -37,25 +39,31 @@ class ModelsBloc extends Bloc<ModelEvent, ModelState> {
 class ModelsByMakeRefBloc extends Bloc<ModelEvent, ModelState> {
   final GetModelsByMakeRefUseCase _getModelsByMakeRefUseCase;
 
-  ModelsByMakeRefBloc(this._getModelsByMakeRefUseCase) : super(const ModelLoading()) {
+  ModelsByMakeRefBloc(this._getModelsByMakeRefUseCase)
+      : super(const ModelLoading()) {
     on<GetModelsByEvent>(
       _onGetModelsByMakeRef,
+
       /// Apply the custom `EventTransformer` to the `EventHandler`.
       transformer: debounce(),
     );
   }
 
-  Future<void> _onGetModelsByMakeRef(GetModelsByEvent event, Emitter<ModelState> emit,) async {
+  Future<void> _onGetModelsByMakeRef(
+    GetModelsByEvent event,
+    Emitter<ModelState> emit,
+  ) async {
     try {
-    final dataState = await _getModelsByMakeRefUseCase.call(params: event.makeRef);
+      final dataState =
+          await _getModelsByMakeRefUseCase.call(params: event.makeRef);
 
-    if (dataState is DataSuccess && dataState.data!.isNotEmpty) {
-      emit(ModelDone<List<ModelEntity>>(dataState.data!));
-    }
-
+      if (dataState is DataSuccess && dataState.data!.isNotEmpty) {
+        emit(ModelDone<List<ModelEntity>>(dataState.data!));
+      } else {
+        emit(ModelError(dataState.error!));
+      }
     } on DataFailed catch (e) {
       emit(ModelError(e.error!));
     } catch (_) {}
   }
 }
-

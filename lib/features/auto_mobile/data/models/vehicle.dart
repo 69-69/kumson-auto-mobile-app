@@ -5,7 +5,8 @@ class VehicleModel extends VehicleEntity {
   const VehicleModel({
     super.id,
     super.vin,
-    super.vehicleCode,
+    // vehicleCode
+    super.vic,
     super.vfam,
     super.model,
     super.make,
@@ -32,7 +33,7 @@ class VehicleModel extends VehicleEntity {
   VehicleModel copyWith({
     int? id,
     String? vin,
-    String? vehicleCode,
+    String? vic,
     String? vfam,
     String? model,
     String? make,
@@ -43,7 +44,7 @@ class VehicleModel extends VehicleEntity {
     return VehicleModel(
       id: id ?? this.id,
       vin: vin ?? this.vin,
-      vehicleCode: vehicleCode ?? this.vehicleCode,
+      vic: vic ?? this.vic,
       vfam: vfam ?? this.vfam,
       model: model ?? this.model,
       make: make ?? this.make,
@@ -57,8 +58,8 @@ class VehicleModel extends VehicleEntity {
     return VehicleModel(
       id: map['id'] ?? "",
       vin: map['vin'] ?? "",
-      vehicleCode: map['vehicleCode'] ?? "",
       vfam: map['vfam'] ?? "",
+      vic: map['vic'] ?? "",
       model: map['model'] ?? "",
       make: map['make'] ?? "",
       fuelType: map['fuelType'] ?? "",
@@ -85,7 +86,7 @@ class VehicleModel extends VehicleEntity {
   factory VehicleModel.fromEntity(VehicleEntity entity) => VehicleModel(
       id: entity.id,
       vin: entity.vin,
-      vehicleCode: entity.vehicleCode,
+      vic: entity.vic,
       vfam: entity.vfam,
       model: entity.model,
       make: entity.make,

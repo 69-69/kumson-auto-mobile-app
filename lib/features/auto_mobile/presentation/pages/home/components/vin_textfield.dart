@@ -5,7 +5,7 @@ import 'package:automasters/features/auto_mobile/data/models/vehicle.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/local/app_local_service.dart';
 import 'package:automasters/features/auto_mobile/presentation/pages/home/components/_outline_btn_for_search.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/async_progress_dialog.dart';
-import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_pem.dart';
+import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_key.dart';
 import 'package:automasters/features/auto_mobile/data/repositories/search_repository_impl.dart';
 import 'package:automasters/features/auto_mobile/presentation/pages/bottom_sheet/send_a_request_modal.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/page_navigator.dart';
@@ -131,7 +131,7 @@ class _VinTextFieldState extends State<VinTextField> {
   // Save this VIN for reference in Make-Request-Form
   Future<void> _saveReadOnlyVIN() async {
     await AppLocalService()
-        .saveReadOnly(searchText, key: readOnlyVinCacheKey)
+        .saveReadOnly(searchText, key: sendRequestVinCacheKey)
         .then((_) {
       _resetState();
       showRequestModal(context, vinRequest);

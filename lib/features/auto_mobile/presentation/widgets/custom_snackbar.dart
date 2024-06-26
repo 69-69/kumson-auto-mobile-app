@@ -13,13 +13,13 @@ customSnackBar(
     behavior: SnackBarBehavior.fixed,
     dismissDirection: DismissDirection.up,
     duration: timeout ?? const Duration(seconds: 3),
-    content: content is Text
-        ? content
-        : Text(
+    content: content is String
+        ? Text(
             content,
             textAlign: TextAlign.center,
             style: const TextStyle(fontSize: 20),
-          ),
+          )
+        : content,
   );
 
   ScaffoldMessenger.of(context)

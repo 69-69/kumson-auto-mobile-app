@@ -8,8 +8,8 @@ const orderAsc = "asc";
 const orderDesc = "desc";
 
 class EndPoints {
-  // "http://localhost:8080";
-  static const String apiBaseUrl = "http://ec2-18-188-42-121.us-east-2.compute.amazonaws.com";
+  static const String apiBaseUrl = "http://localhost:8080";
+      // "http://ec2-18-188-42-121.us-east-2.compute.amazonaws.com/api/v1/auth";
 
   // AUTH-PRODUCTION PURPOSES ONLY
   static const String authPath = "/api/v1/auth";
@@ -18,7 +18,8 @@ class EndPoints {
   static const String autoProdPath = "/api/v1/auto";
 
   // DEVELOPMENT/TESTING PURPOSES ONLY
-  static const String autoTestPath = "/test/runner/2023/k1";
+  static const String autoTestPath = "/test/now/2025/k1";
+  // static const String autoTestPath = "/test/runner/2023/k1";
 
   // AUTH-PATHS: Don't need ACCESS_TOKEN
   static const String login = '$apiBaseUrl$authPath/login';

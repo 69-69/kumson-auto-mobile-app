@@ -4,6 +4,7 @@
 
 const String appRootRoute = "welcome";
 const String splashScreenRoute = "splash_screen";
+const String dashboardRoute = "dash_board";
 const String autoHomeRoute = "auto_home";
 const String autoHomeWithAuthRoute = "auto_home_auth";
 const String vehicleDetailsRoute = "vehicle_details";

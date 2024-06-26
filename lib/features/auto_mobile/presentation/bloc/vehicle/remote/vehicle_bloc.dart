@@ -22,17 +22,17 @@ class VehiclesBloc extends Bloc<VehicleEvent, VehicleState> {
 
   void _onGetVehicles(
       GetVehiclesEvent event, Emitter<VehicleState> emit) async {
-    final dataState = await _getVehicleUseCase();
+    try {
+      final dataState = await _getVehicleUseCase();
 
-    if (dataState is DataSuccess && dataState.data!.isNotEmpty) {
-      emit(VehicleDone<List<VehicleEntity>>(dataState.data!));
-    }
-
-    if (dataState is DataFailed) {
-      // debugPrint("DataFailed-> ${dataState.error!.message}");
-      // pass the data
-      emit(VehicleError(dataState.error!));
-    }
+      if (dataState is DataSuccess && dataState.data!.isNotEmpty) {
+        emit(VehicleDone<List<VehicleEntity>>(dataState.data!));
+      } else {
+        emit(VehicleError(dataState.error!));
+      }
+    } on DataFailed catch (e) {
+      emit(VehicleError(e.error!));
+    } catch (_) {}
   }
 }
 
@@ -59,6 +59,8 @@ class VehicleByVinBloc extends Bloc<VehicleEvent, VehicleState> {
 
       if (dataState is DataSuccess && dataState.data!.isNotEmpty) {
         emit(VehicleDone<VehicleEntity>(dataState.data!));
+      } else {
+        emit(VehicleError(dataState.error!));
       }
     } on DataFailed catch (e) {
       // debugPrint("DataFailed-> ${e.error!.message}");
@@ -108,13 +110,14 @@ class VehicleByVicBloc extends Bloc<VehicleEvent, VehicleState> {
   Future<void> _onGetVehicleByVic(
       GetVehicleByVicEvent event, Emitter<VehicleState> emit) async {
     try {
-    final dataState =
-        await _getVehicleByVicUseCase.call(params: event.vehicleCode);
+      final dataState =
+          await _getVehicleByVicUseCase.call(params: event.vehicleCode);
 
-    if (dataState is DataSuccess && dataState.data!.isNotEmpty) {
-      emit(VehicleDone<VehicleEntity>(dataState.data!));
-    }
-
+      if (dataState is DataSuccess && dataState.data!.isNotEmpty) {
+        emit(VehicleDone<VehicleEntity>(dataState.data!));
+      } else {
+        emit(VehicleError(dataState.error!));
+      }
     } on DataFailed catch (e) {
       // debugPrint("DataFailed-> ${e.error!.message}");
       emit(VehicleError(e.error!));

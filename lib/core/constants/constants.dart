@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 
-const String appName = "AutoMasters";
+// const String appName = "AutoMasters";
+const String appName = "Abossey Okia Hub";
 const String appSubTitle = "Best Way to Buy Car Parts in Ghana";
 const ghCediSign = "GH";
 const noReply = "no-reply@automasters-app.com";
 
 const String appLogo = "assets/logo.png";
 const String appHomeBg = "assets/home-bg.jpg";
+const String gearBox = "assets/car_light_bulb.jpeg";
+const String carBulb = "assets/gear_box.jpeg";
 const String kDefaultCarImage = "assets/car3.png";
 const String kDefaultPartImage = "assets/part-p.png";
 

@@ -187,8 +187,8 @@ class FilterPartsCategory extends StatelessWidget {
     );
   }
 
-  buildListCard(PartModel item, BuildContext context) {
-    return item.part != "0"
+  buildListCard(PartModel carPart, BuildContext context) {
+    return carPart.part != "0"
         ? InkWell(
             child: customCard(
               child: Padding(
@@ -197,7 +197,7 @@ class FilterPartsCategory extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      item.part!.capitalizeEach(),
+                      carPart.part!.capitalizeEach(),
                       style: const TextStyle(
                         fontWeight: FontWeight.normal,
                       ),
@@ -212,12 +212,12 @@ class FilterPartsCategory extends StatelessWidget {
                 context,
                 positiveResponse: "Price",
                 negativeResponse: "Cross Ref",
-                const Text("Shop by Price or Cross Reference?"),
+                Text("Shop by Price or Cross Reference? ${carPart.partCode}"),
               );
               if (context.mounted) {
                 if (isPrice != "cancel") {
                   Map<String, dynamic> data = {
-                    'part': item,
+                    'part': carPart,
                     'vehicle': vehicle
                   };
 

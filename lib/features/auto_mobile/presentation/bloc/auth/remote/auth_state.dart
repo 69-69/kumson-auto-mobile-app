@@ -16,7 +16,7 @@ The [AuthState] class has four named constructors:
 class AuthState extends Equatable {
   const AuthState._({
     this.status = AuthStatus.unknown,
-    this.loggedInUser = UserModel.empty,
+    this.currentUser = UserModel.empty,
     this.activeSignup = SignupModel.empty,
     this.activeOTP = OTPModel.empty,
   });
@@ -38,17 +38,17 @@ class AuthState extends Equatable {
   const AuthState.authenticated(UserModel user)
       : this._(
           status: AuthStatus.authenticated,
-          loggedInUser: user,
+          currentUser: user,
         );
 
   const AuthState.unauthenticated()
       : this._(status: AuthStatus.unauthenticated);
 
   final AuthStatus status;
-  final UserModel loggedInUser;
+  final UserModel currentUser;
   final SignupModel activeSignup;
   final OTPModel activeOTP;
 
   @override
-  List<Object> get props => [status, loggedInUser, activeSignup, activeOTP];
+  List<Object> get props => [status, currentUser, activeSignup, activeOTP];
 }

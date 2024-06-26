@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 
 class SplashScreen extends StatefulWidget {
   final String? label;
+
   const SplashScreen({this.label, super.key});
 
   @override
@@ -47,43 +48,9 @@ class _SplashScreenState extends State<SplashScreen>
                   alignment: AlignmentDirectional.center,
                   clipBehavior: Clip.none,
                   children: [
-                    AvatarGlow(
-                      wrapChild: true,
-                      endRadius: 90,
-                      duration: const Duration(seconds: 2),
-                      glowColor: customTheme.colorScheme.primary,
-                      repeat: true,
-                      repeatPauseDuration: const Duration(microseconds: 2),
-                      startDelay: const Duration(seconds: 1),
-                      child: RotationTransition(
-                        turns: turnsTween.animate(_controller),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(50),
-                          child: Image.asset(
-                            appLogo,
-                            fit: BoxFit.scaleDown,
-                            scale: 1,
-                          ),
-                        ),
-                      ),
-                    ),
-                    AsyncProgressDialog(
-                      null,
-                      isDialog: false,
-                      size: 100,
-                      strokeWidth: 6.0,
-                      bgColor: Theme.of(context).colorScheme.inversePrimary,
-                      strokeCap: StrokeCap.butt,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 135.0),
-                      child: Text(
-                        widget.label ?? "Getting AutoMasters ready",
-                        style: TextStyle(
-                            color: customTheme.colorScheme.primary,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ),
+                    _glow(customTheme),
+                    _spinner(context),
+                    buildPadding(customTheme),
                   ],
                 ),
               ),
@@ -94,4 +61,44 @@ class _SplashScreenState extends State<SplashScreen>
       ),
     );
   }
+
+  Padding buildPadding(ThemeData customTheme) => Padding(
+        padding: const EdgeInsets.only(top: 135.0),
+        child: Text(
+          widget.label ?? "Getting AutoMasters ready",
+          style: TextStyle(
+              color: customTheme.colorScheme.primary,
+              fontWeight: FontWeight.bold),
+        ),
+      );
+
+  AvatarGlow _glow(ThemeData customTheme) => AvatarGlow(
+        wrapChild: true,
+        endRadius: 90,
+        duration: const Duration(seconds: 2),
+        glowColor: customTheme.colorScheme.primary,
+        repeat: true,
+        repeatPauseDuration: const Duration(microseconds: 2),
+        startDelay: const Duration(seconds: 1),
+        child: RotationTransition(
+          turns: turnsTween.animate(_controller),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(50),
+            child: Image.asset(
+              appLogo,
+              fit: BoxFit.scaleDown,
+              scale: 1,
+            ),
+          ),
+        ),
+      );
+
+  AsyncProgressDialog _spinner(BuildContext context) => AsyncProgressDialog(
+        null,
+        isDialog: false,
+        size: 100,
+        strokeWidth: 6.0,
+        bgColor: Theme.of(context).colorScheme.inversePrimary,
+        strokeCap: StrokeCap.butt,
+      );
 }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:automasters/config/routes/routes_constant.dart';
 import 'package:automasters/core/constants/constants.dart';
 import 'package:automasters/core/util/size_config.dart';
-import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_pem.dart';
+import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_key.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/local/app_local_service.dart';
 import 'package:automasters/features/auto_mobile/data/models/custom_appbar.dart';
 import 'package:automasters/features/auto_mobile/data/models/vehicle.dart';
@@ -26,11 +26,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../widgets/refresh_button.dart';
 
 class PartsByPartNo extends StatefulWidget {
-  final Map<String, dynamic> map;
+  final List list;
 
   const PartsByPartNo({
     super.key,
-    required this.map,
+    required this.list,
   });
 
   @override
@@ -39,24 +39,33 @@ class PartsByPartNo extends StatefulWidget {
 
 class _PartsByPartNoState extends State<PartsByPartNo> {
   String productAge = "";
+  List<HunterModel> hunters = [const HunterModel()];
   VehicleModel vehicle = const VehicleModel();
+
+  @override
+  void initState() {
+    hunters = widget.list as List<HunterModel>;
+    debugPrint(hunters.toString());
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
-    final List<HunterModel> hunters = widget.map['data'] as List<HunterModel>;
-
-    productAge = AppLocalService().getProductStatus();
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
       // backgroundColor: Theme.of(context).colorScheme.primary,
-      body: buildNestedScrollView(hunters, context),
+      body: buildNestedScrollView(context),
     );
   }
 
-  NestedScrollView buildNestedScrollView(
-      List<HunterModel> hunters, BuildContext context) {
+  NestedScrollView buildNestedScrollView(BuildContext context) {
     return NestedScrollView(
       physics: const BouncingScrollPhysics(),
       headerSliverBuilder: (_, __) {
@@ -72,7 +81,7 @@ class _PartsByPartNoState extends State<PartsByPartNo> {
 
         return [CustomSliverAppBar(data: appBar)];
       },
-      body: _buildBody(context, hunters),
+      body: _buildBody(context),
     );
   }
 
@@ -82,7 +91,7 @@ class _PartsByPartNoState extends State<PartsByPartNo> {
         : "${vehicle.year} ${vehicle.make} ${vehicle.model}";
   }
 
-  _buildBody(BuildContext context, List<HunterModel> hunters) {
+  _buildBody(BuildContext context) {
     return buildCurveContainer(
       context,
       const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
@@ -101,21 +110,62 @@ class _PartsByPartNoState extends State<PartsByPartNo> {
           ),
           const Divider(indent: 40),
           Expanded(
-            child: _buildListView(hunters),
+            child: _PartCard(
+              hunters: hunters,
+              vehicle: vehicle,
+              onVehicle: (car) => setState(() => vehicle = car),
+            ),
           ),
         ],
       ),
     );
   }
 
+  displayDialog(BuildContext context) async {
+    final opt = await showConfirmationDialog(
+      context,
+      title: "Searching",
+      isDismissible: false,
+      positiveResponse: "New",
+      negativeResponse: "Used",
+      const Text("...for New or Used Car Parts?"),
+    );
+    if (context.mounted && opt != "cancel") {
+      await AppLocalService().saveProductStatus(opt);
+
+      // Refresh Screen after Dialog Changes
+      Future.delayed(
+        const Duration(seconds: 1),
+        () => setState(() {}),
+      );
+    }
+  }
+}
+
+class _PartCard extends StatelessWidget {
+  const _PartCard({
+    required this.hunters,
+    required this.vehicle,
+    required this.onVehicle,
+  });
+
+  final List<HunterModel> hunters;
+  final VehicleModel vehicle;
+  final Function(VehicleModel) onVehicle;
+
+  @override
+  Widget build(BuildContext context) {
+    return _buildListView();
+  }
+
   /// List view display[_buildListView]
-  _buildListView(result) {
+  _buildListView() {
     return SingleChildScrollView(
       padding: EdgeInsets.zero,
       child: ColumnBuilder(
-        itemCount: result.length,
+        itemCount: hunters.length,
         itemBuilder: (context, index) {
-          HunterModel huntPart = result[index];
+          HunterModel huntPart = hunters[index];
           // bool isLastIndex = index == result.length - 1;
 
           return InkWell(
@@ -135,7 +185,10 @@ class _PartsByPartNoState extends State<PartsByPartNo> {
               padding: const EdgeInsets.symmetric(vertical: 2.0),
               child: Card(
                 elevation: 2.0,
-                child: _vendorPartsBloc(huntPart),
+                child: _VendorPartsBc(
+                  huntPart: huntPart,
+                  onVehicle: (car) => onVehicle(car),
+                ),
               ),
             ),
           );
@@ -143,9 +196,32 @@ class _PartsByPartNoState extends State<PartsByPartNo> {
       ),
     );
   }
+}
+
+/// Get Prices From Vendors [_VendorPartsBc], [_vendorPartsBloc]
+class _VendorPartsBc extends StatelessWidget {
+  const _VendorPartsBc({
+    required this.huntPart,
+    required this.onVehicle,
+  });
+
+  final HunterModel huntPart;
+  final Function(VehicleModel) onVehicle;
+
+  @override
+  Widget build(BuildContext context) {
+    return _vendorPartsBloc(context);
+  }
+
+  Padding _loadSpinner() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: showCircularProgress(strokeWidth: 3, width: 20, height: 20),
+    );
+  }
 
   /// Get Prices From Vendors [_vendorPartsBloc]
-  Builder _vendorPartsBloc(HunterModel huntPart) {
+  Builder _vendorPartsBloc(BuildContext context) {
     context
         .read<PartByHunterNoBloc>()
         .add(GetPartByHunterNoEvent(huntPart.hunter!));
@@ -180,23 +256,36 @@ class _PartsByPartNoState extends State<PartsByPartNo> {
       if ((cState is VehicleDone) && (state is VendorDone)) {
         final car = cState.vehicle! as VehicleModel;
         SchedulerBinding.instance.addPostFrameCallback(
-          (_) => setState(() => vehicle = car),
+          (_) => onVehicle(car),
         );
 
         final vendors = state.vendor as List<VendorModel>;
-        return _buildShowPrice(vendors, car);
+        return _ShowPrice(
+          vendor: vendors,
+          vehicleData: car,
+        );
       }
       return const InlineRequestButton(reqType: partRequest);
     });
   }
+}
 
-  Column _buildShowPrice(List<VendorModel> vendor, VehicleModel vehicleData) {
-    if (context.mounted) {
-      // Future.delayed(const Duration(seconds: 1));
-      SchedulerBinding.instance
-          .addPostFrameCallback((_) => vehicle = vehicleData);
-    }
+/// [_ShowPrice] [_buildShowPrice]
+class _ShowPrice extends StatelessWidget {
+  const _ShowPrice({
+    required this.vendor,
+    required this.vehicleData,
+  });
 
+  final List<VendorModel> vendor;
+  final VehicleModel vehicleData;
+
+  @override
+  Widget build(BuildContext context) {
+    return _buildShowPrice();
+  }
+
+  _buildShowPrice() {
     /// Filtering for Min-Price without OPM
     VendorModel minPriceWithoutOPM =
         vendor.reduce((VendorModel curr, VendorModel next) {
@@ -217,38 +306,56 @@ class _PartsByPartNoState extends State<PartsByPartNo> {
       }
     }
 
-    return _minPriceCard(minPriceWithoutOPM, minPriceWithOPM);
+    return _PriceCard(
+      minPriceWithoutOPM: minPriceWithoutOPM,
+      minPriceWithOPM: minPriceWithOPM,
+    );
+  }
+}
+
+/// [_minPriceCard]
+class _PriceCard extends StatelessWidget {
+  const _PriceCard({
+    required this.minPriceWithoutOPM,
+    required this.minPriceWithOPM,
+  });
+
+  final VendorModel minPriceWithoutOPM;
+  final VendorModel minPriceWithOPM;
+
+  @override
+  Widget build(BuildContext context) {
+    return _minPriceCard(context);
   }
 
-  Column _minPriceCard(
-    VendorModel withoutOPM,
-    VendorModel withOPM,
-  ) {
+  Column _minPriceCard(BuildContext context) {
+    final productAge = AppLocalService().getProductStatus();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (withoutOPM.stockStatus == "instock" &&
-            withoutOPM.opm == "no" &&
-            withoutOPM.productAge == productAge) ...{
-          buildTag(context, withoutOPM),
+        if (minPriceWithoutOPM.stockStatus == "instock" &&
+            minPriceWithoutOPM.opm == "no" &&
+            minPriceWithoutOPM.productAge == productAge) ...{
+          _StatusTag(vendor: minPriceWithoutOPM),
           Row(
             children: [
               buildContainerImage(child: Image.asset(kDefaultPartImage)),
-              buildProductInfo(withoutOPM.partNo!.toUpperCase(),
-                  "$ghCediSign ${withoutOPM.currentPrice}"),
+              buildProductInfo(minPriceWithoutOPM.partNo!.toUpperCase(),
+                  "$ghCediSign ${minPriceWithoutOPM.currentPrice}"),
             ],
           ),
         },
-        if (withOPM.stockStatus == "instock" &&
-            withOPM.opm == "yes" &&
-            withoutOPM.productAge == productAge) ...{
+        if (minPriceWithOPM.stockStatus == "instock" &&
+            minPriceWithOPM.opm == "yes" &&
+            minPriceWithOPM.productAge == productAge) ...{
           const Divider(height: 1.0),
-          buildTag(context, withOPM, isRadius: false),
+          _StatusTag(vendor: minPriceWithOPM, isRadius: false),
           Row(
             children: [
               buildContainerImage(child: Image.asset(kDefaultPartImage)),
-              buildProductInfo(withOPM.partNo!.toUpperCase(),
-                  "$ghCediSign ${withOPM.currentPrice}"),
+              buildProductInfo(minPriceWithOPM.partNo!.toUpperCase(),
+                  "$ghCediSign ${minPriceWithOPM.currentPrice}"),
             ],
           ),
         }
@@ -256,6 +363,8 @@ class _PartsByPartNoState extends State<PartsByPartNo> {
     );
   }
 
+/*
+  // not in use
   Column buildColumn(
     VendorModel minPriceWithoutOPM,
     BuildContext context,
@@ -290,25 +399,38 @@ class _PartsByPartNoState extends State<PartsByPartNo> {
         }
       ],
     );
+  }*/
+}
+
+class _StatusTag extends StatelessWidget {
+  const _StatusTag({
+    this.isRadius = true,
+    required this.vendor,
+  });
+
+  final VendorModel vendor;
+  final bool isRadius;
+
+  @override
+  Widget build(BuildContext context) {
+    return buildTag(context);
   }
 
-  Row buildTag(
-    BuildContext context,
-    VendorModel vendor, {
-    bool isRadius = true,
-  }) {
+  Row buildTag(BuildContext context) {
     String opmCheck(String opm) => opm == "yes" ? "OPEN MARKET " : "";
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         tagCard(
+          context,
           child: tagLabel(
               "${vendor.brand} ${opmCheck(vendor.opm!)}${vendor.brandType}",
               color: Theme.of(context).colorScheme.onInverseSurface),
           isRadius: isRadius,
         ),
         tagCard(
+          context,
           child: tagLabel(vendor.productAge!),
           isRadius: false,
           radiusRight: true,
@@ -330,7 +452,8 @@ class _PartsByPartNoState extends State<PartsByPartNo> {
     );
   }
 
-  Container tagCard({
+  Container tagCard(
+    BuildContext context, {
     required Text child,
     bool isRadius = true,
     bool radiusRight = false,
@@ -349,32 +472,5 @@ class _PartsByPartNoState extends State<PartsByPartNo> {
       ),
       child: child,
     );
-  }
-
-  Padding _loadSpinner() {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: showCircularProgress(strokeWidth: 3, width: 20, height: 20),
-    );
-  }
-
-  displayDialog(BuildContext context) async {
-    final opt = await showConfirmationDialog(
-      context,
-      title: "Searching",
-      isDismissible: false,
-      positiveResponse: "New",
-      negativeResponse: "Used",
-      const Text("...for New or Used Car Parts?"),
-    );
-    if (context.mounted && opt != "cancel") {
-      await AppLocalService().saveProductStatus(opt);
-
-      // Refresh Screen after Dialog Changes
-      Future.delayed(
-        const Duration(seconds: 1),
-        () => setState(() {}),
-      );
-    }
   }
 }

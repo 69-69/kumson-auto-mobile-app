@@ -7,7 +7,7 @@ import 'package:automasters/core/util/size_config.dart';
 import 'package:automasters/config/routes/routes_constant.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/parent_background.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/local/app_local_database.dart';
-import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_pem.dart';
+import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_key.dart';
 import 'package:automasters/features/auto_mobile/presentation/bloc/otp/remote/otp_bloc.dart';
 import 'package:automasters/features/auto_mobile/data/repositories/auth_repository_impl.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/or_separator.dart';
@@ -122,7 +122,7 @@ class _OTPPhoneNumberFromState extends State<OTPPhoneNumberFrom> {
             AppLocalDatabase().deleteCache(key: signupIdCacheKey).whenComplete(
                   () => pageNavigator(
                     context,
-                    routeName: autoHomeWithAuthRoute,
+                    routeName: appRootRoute,
                   ),
                 );
           },

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:automasters/core/util/keyboard.dart';
 import 'package:automasters/config/routes/routes_constant.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/local/app_local_service.dart';
-import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_pem.dart';
+import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_key.dart';
 import 'package:automasters/features/auto_mobile/data/repositories/search_repository_impl.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/async_progress_dialog.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/page_navigator.dart';
@@ -84,7 +84,7 @@ class _PartNoTextFieldState extends State<PartNoTextField> {
 
   Future<void> _onPartNoSearchFun() async {
     if (searchText.isNotEmpty) {
-      final getData = SearchRepositoryImpl().getHunterPartsByPartNo(searchText);
+      final getData = SearchRepositoryImpl().getHunterPartsByPartNo2(searchText);
 
       // Show progressBar dialog/modal
       await showProgressDialog(context, request: getData,
@@ -108,16 +108,14 @@ class _PartNoTextFieldState extends State<PartNoTextField> {
   // Save this PartNo for reference in Make-Request-Form
   Future<void> _saveReadOnlyPartNo() async {
     await AppLocalService()
-        .saveReadOnly(searchText, key: readOnlyPartNoCacheKey)
+        .saveReadOnly(searchText, key: sendRequestPartNoCacheKey)
         .then((_) {
       _resetState();
       showRequestModal(context, partNoRequest);
     });
   }
 
-  _navigating(BuildContext context, List<HunterModel> data) {
-    Map<String, dynamic> hunters = {"data": data};
-
+  _navigating(BuildContext context, List<HunterModel> hunters) {
     pageNavigator(
       context,
       routeName: partsByPartNoRoute,

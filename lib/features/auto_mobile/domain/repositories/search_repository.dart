@@ -13,7 +13,10 @@ abstract class SearchRepository {
   Future<List<dynamic>> getCarEngineType(String make, String model);
 
   /// Get Remote Makes from API
-  Future<List<HunterModel>?> getHunterPartsByPartNo(String partNo);
-
   Future<VehicleModel?> getVehicleByVin(String vin);
+
+  Future<List<dynamic>?> getHunterPartsByPartNo(String hunter);
+
+  Future<List<HunterModel>?> getHunterPartsByPartNo2(String partNo);
+
 }

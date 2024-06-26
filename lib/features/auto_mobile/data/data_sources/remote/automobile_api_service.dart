@@ -1,6 +1,6 @@
-import 'package:automasters/core/constants/endpoints.dart';
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
+import 'package:automasters/core/constants/endpoints.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/remote/dio_util.dart';
 import 'package:automasters/features/auto_mobile/data/models/model.dart';
 import 'package:automasters/features/auto_mobile/data/models/hunter.dart';

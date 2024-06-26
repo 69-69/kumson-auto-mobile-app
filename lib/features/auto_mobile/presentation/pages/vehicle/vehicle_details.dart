@@ -3,7 +3,7 @@ import 'package:automasters/core/util/size_config.dart';
 import 'package:automasters/core/constants/constants.dart';
 import 'package:automasters/core/util/get_distinct_by.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_pem.dart';
+import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_key.dart';
 import 'package:automasters/features/auto_mobile/data/models/custom_appbar.dart';
 import 'package:automasters/features/auto_mobile/presentation/bloc/parts/remote/index.dart';
 import 'package:automasters/features/auto_mobile/presentation/pages/vehicle/filter_parts_category.dart';
@@ -28,7 +28,7 @@ class VehicleDetails extends StatelessWidget {
   Widget build(BuildContext context) {
     SizeConfig().init(context);
 
-    VehicleModel vehicle = map['data'] as VehicleModel;
+    VehicleModel vehicle = map['vehicle'];
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -73,12 +73,24 @@ class VehicleDetails extends StatelessWidget {
               vehicle: vehicle,
               carParts: _removeDuplicate(map['parts']),
             )
-          : _partsBloc(parentContext, vehicle),
+          : _PartBc(vehicle: vehicle, focusNode: focusNode),
     );
+  }
+}
+
+class _PartBc extends StatelessWidget {
+  const _PartBc({required this.vehicle, required this.focusNode});
+
+  final VehicleModel vehicle;
+  final FocusNode focusNode;
+
+  @override
+  Widget build(BuildContext context) {
+    return _partsBloc(context);
   }
 
   BlocBuilder<PartsByVFamBloc, PartState> _partsBloc(
-      BuildContext parentContext, VehicleModel vehicle) {
+      BuildContext parentContext) {
     _getPartsFunc(parentContext, vehicle);
 
     return BlocBuilder<PartsByVFamBloc, PartState>(

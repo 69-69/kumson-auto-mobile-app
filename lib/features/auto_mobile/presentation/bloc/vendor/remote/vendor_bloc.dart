@@ -14,23 +14,27 @@ class VendorsBloc extends Bloc<VendorEvent, VendorState> {
   final GetVendorsUseCase _getVendorsUseCase;
 
   VendorsBloc(this._getVendorsUseCase) : super(const VendorLoading()) {
-    on<GetVendors>(_onGetVendors,
+    on<GetVendors>(
+      _onGetVendors,
+
       /// Apply the custom `EventTransformer` to the `EventHandler`.
       transformer: debounce(),
     );
   }
 
   void _onGetVendors(GetVendors event, Emitter<VendorState> emit) async {
-    final dataState = await _getVendorsUseCase.call();
+    try{
+      final dataState = await _getVendorsUseCase.call();
 
-    if (dataState is DataSuccess && dataState.data!.isNotEmpty) {
-      emit(VendorDone<List<VendorEntity>>(dataState.data!));
-    }
-
-    if (dataState is DataFailed) {
+      if (dataState is DataSuccess && dataState.data!.isNotEmpty) {
+        emit(VendorDone<List<VendorEntity>>(dataState.data!));
+      }else{
+        emit(VendorError(dataState.error!));
+      }
+    }on DataFailed catch(e){
       // debugPrint("DataFailed-> ${dataState.error!.message}");
       // pass the data
-      emit(VendorError(dataState.error!));
+      emit(VendorError(e.error!));
     }
   }
 }
@@ -48,14 +52,16 @@ class VendorByIdBloc extends Bloc<VendorEvent, VendorState> {
     );
   }
 
-  Future<void> _onGetVendorById(GetVendorById event, Emitter<VendorState> emit) async {
+  Future<void> _onGetVendorById(
+      GetVendorById event, Emitter<VendorState> emit) async {
     try {
-    final dataState = await _getVendorByIdUseCase.call(params: event.id);
+      final dataState = await _getVendorByIdUseCase.call(params: event.id);
 
-    if (dataState is DataSuccess && dataState.data!.isNotEmpty) {
-      emit(VendorDone<VendorEntity>(dataState.data!));
-    }
-
+      if (dataState is DataSuccess && dataState.data!.isNotEmpty) {
+        emit(VendorDone<VendorEntity>(dataState.data!));
+      }else{
+        emit(VendorError(dataState.error!));
+      }
     } on DataFailed catch (e) {
       emit(VendorError(e.error!));
     } catch (_) {}
@@ -77,18 +83,21 @@ class VendorPartsByBrandPartNoBloc extends Bloc<VendorEvent, VendorState> {
   }
 
   Future<void> _onGetVendorPartsByBrandPartNo(
-      GetVendorPartsByBrandPartNo event, Emitter<VendorState> emit,) async {
+    GetVendorPartsByBrandPartNo event,
+    Emitter<VendorState> emit,
+  ) async {
     try {
-    VendorEntity params =
-        VendorEntity(brand: event.brand, partNo: event.partNo);
-    final dataState = await _getVendorPartsByBrandPartNoUseCase.call(
-      params: params,
-    );
+      VendorEntity params =
+          VendorEntity(brand: event.brand, partNo: event.partNo);
+      final dataState = await _getVendorPartsByBrandPartNoUseCase.call(
+        params: params,
+      );
 
-    if (dataState is DataSuccess && dataState.data!.isNotEmpty) {
-      emit(VendorDone<List<VendorEntity>>(dataState.data!));
-    }
-
+      if (dataState is DataSuccess && dataState.data!.isNotEmpty) {
+        emit(VendorDone<List<VendorEntity>>(dataState.data!));
+      }else{
+        emit(VendorError(dataState.error!));
+      }
     } on DataFailed catch (e) {
       emit(VendorError(e.error!));
     } catch (_) {}

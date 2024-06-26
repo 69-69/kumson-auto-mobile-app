@@ -21,17 +21,17 @@ class PartsBloc extends Bloc<PartEvent, PartState> {
   }
 
   void _onGetParts(GetPartsEvent event, Emitter<PartState> emit) async {
-    final dataState = await _getPartsUseCase();
+    try{
+      final dataState = await _getPartsUseCase();
 
-    if (dataState is DataSuccess && dataState.data!.isNotEmpty) {
-      emit(PartDone<List<PartEntity>>(dataState.data!));
-    }
-
-    if (dataState is DataFailed) {
-      // debugPrint("DataFailed-> ${dataState.error!.message}");
-      // pass the data
-      emit(PartError(dataState.error!));
-    }
+      if (dataState is DataSuccess && dataState.data!.isNotEmpty) {
+        emit(PartDone<List<PartEntity>>(dataState.data!));
+      }else{
+        emit(PartError(dataState.error!));
+      }
+    }on DataFailed catch(e){
+      emit(PartError(e.error!));
+    }catch(_){}
   }
 }
 
@@ -59,6 +59,8 @@ class PartByHunterNoBloc extends Bloc<PartEvent, PartState> {
 
       if (dataState is DataSuccess && dataState.data!.isNotEmpty) {
         emit(PartDone<PartEntity>(dataState.data!));
+      }else{
+        emit(PartError(dataState.error!));
       }
     } on DataFailed catch (e) {
       // debugPrint("DataFailed-> ${e.error!.message}");
@@ -115,6 +117,8 @@ class PartsByVFamBloc extends Bloc<PartEvent, PartState> {
       final dataState = await _getPartsByVFamUseCase.call(params: event.vfam);
       if (dataState is DataSuccess && dataState.data!.isNotEmpty) {
         emit(PartDone<List<PartEntity>>(dataState.data!));
+      }else{
+        emit(PartError(dataState.error!));
       }
     } on DataFailed catch (e) {
       // debugPrint("DataFailed-> ${dataState.error!.message}");
@@ -163,6 +167,8 @@ class PartsByMakeModelBloc extends Bloc<PartEvent, PartState> {
 
       if (dataState is DataSuccess && dataState.data!.isNotEmpty) {
         emit(PartDone<List<PartEntity>>(dataState.data!));
+      }else{
+        emit(PartError(dataState.error!));
       }
     } on DataFailed catch (e) {
       emit(PartError(e.error!));
@@ -209,6 +215,8 @@ class PartsYearsByMakeModelBloc extends Bloc<PartEvent, PartState> {
 
       if (dataState is DataSuccess && dataState.data!.isNotEmpty) {
         emit(PartDone<List<int>>(dataState.data!));
+      }else{
+        emit(PartError(dataState.error!));
       }
     } on DataFailed catch (e) {
       emit(PartError(e.error!));

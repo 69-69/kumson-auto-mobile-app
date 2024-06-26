@@ -1,16 +1,24 @@
 import 'package:automasters/features/auto_mobile/presentation/widgets/horizontal_line.dart';
 import 'package:flutter/material.dart';
 
-orSeparator(
-    {Color? lineColor, Color? textColor, Color? bgColor, String? text}) {
-  final txt = Text(
-    text ?? 'OR',
-    style: TextStyle(
-      color: textColor ?? Colors.white,
-      fontWeight: FontWeight.bold,
-      fontSize: 12,
-    ),
-  );
+orSeparator({
+  Color? lineColor,
+  Color? textColor,
+  Color? bgColor,
+  dynamic label,
+  double? iconSize,
+}) {
+  final txt = label is IconData
+      ? Icon(label, size: iconSize)
+      : Text(
+          label ?? 'OR',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: textColor ?? Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 10,
+          ),
+        );
 
   return Row(
     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -24,9 +32,7 @@ orSeparator(
                 borderRadius: BorderRadius.circular(50),
                 boxShadow: const [
                   BoxShadow(
-                      color: Colors.pink,
-                      offset: Offset(0, -1),
-                      blurRadius: 8)
+                      color: Colors.pink, offset: Offset(0, -1), blurRadius: 8)
                 ],
               ),
               child: txt,

@@ -18,17 +18,17 @@ class HuntersBloc extends Bloc<HunterEvent, HunterState> {
   }
 
   void _onGetHunters(GetHuntersEvent event, Emitter<HunterState> emit) async {
-    final dataState = await _getHunterUseCase();
+    try {
+      final dataState = await _getHunterUseCase();
 
-    if (dataState is DataSuccess && dataState.data!.isNotEmpty) {
-      emit(HunterDone<List<HunterEntity>>(dataState.data!));
-    }
-
-    if (dataState is DataFailed) {
-      // debugPrint("DataFailed-> ${dataState.error!.message}");
-      // pass the data
-      emit(HunterError(dataState.error!));
-    }
+      if (dataState is DataSuccess && dataState.data!.isNotEmpty) {
+        emit(HunterDone<List<HunterEntity>>(dataState.data!));
+      } else {
+        emit(HunterError(dataState.error!));
+      }
+    } on DataFailed catch (e) {
+      emit(HunterError(e.error!));
+    } catch (_) {}
   }
 }
 
@@ -47,17 +47,22 @@ class HunterPartsByHunterNoBloc extends Bloc<HunterEvent, HunterState> {
   }
 
   Future<void> _onGetHunterPartsByHunterNo(
-      GetHunterPartsByHunterNoEvent event, Emitter<HunterState> emit,) async {
+    GetHunterPartsByHunterNoEvent event,
+    Emitter<HunterState> emit,
+  ) async {
     try {
-    final dataState = await _getHunterPartsByHunterNoUseCase.call(
-      params: event.hunterNo,
-    );
+      final dataState = await _getHunterPartsByHunterNoUseCase.call(
+        params: event.hunterNo,
+      );
 
-    if (dataState is DataSuccess && dataState.data!=null && dataState.data!.isNotEmpty) {
-      // debugPrint("steven");
-      emit(HunterDone<List<HunterEntity>>(dataState.data!));
-    }
-
+      if (dataState is DataSuccess &&
+          dataState.data != null &&
+          dataState.data!.isNotEmpty) {
+        // debugPrint("steven");
+        emit(HunterDone<List<HunterEntity>>(dataState.data!));
+      } else {
+        emit(HunterError(dataState.error!));
+      }
     } on DataFailed catch (e) {
       emit(HunterError(e.error!));
     } catch (_) {}
@@ -96,14 +101,15 @@ class HunterPartsByPartNoBloc extends Bloc<HunterEvent, HunterState> {
   Future<void> _onGetHunterPartsByPartNo(
       GetHunterPartsByPartNoEvent event, Emitter<HunterState> emit) async {
     try {
-    final dataState = await _getHunterPartsByPartNoUseCase.call(
-      params: event.partNo,
-    );
+      final dataState = await _getHunterPartsByPartNoUseCase.call(
+        params: event.partNo,
+      );
 
-    if (dataState is DataSuccess && dataState.data!.isNotEmpty) {
-      emit(HunterDone<List<HunterEntity>>(dataState.data!));
-    }
-
+      if (dataState is DataSuccess && dataState.data!.isNotEmpty) {
+        emit(HunterDone<List<HunterEntity>>(dataState.data!));
+      } else {
+        emit(HunterError(dataState.error!));
+      }
     } on DataFailed catch (e) {
       emit(HunterError(e.error!));
     } catch (_) {}

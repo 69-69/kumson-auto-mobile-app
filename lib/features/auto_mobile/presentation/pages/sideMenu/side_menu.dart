@@ -1,3 +1,6 @@
+import 'package:automasters/config/routes/routes_constant.dart';
+import 'package:automasters/features/auto_mobile/presentation/pages/bottom_sheet/auth_modal.dart';
+import 'package:automasters/features/auto_mobile/presentation/widgets/page_navigator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:automasters/core/constants/constants.dart';
@@ -15,7 +18,7 @@ class SideMenu extends StatelessWidget {
 
   Drawer _customDrawer(BuildContext context) {
     final currentUser =
-        context.select((AuthBloc bloc) => bloc.state.loggedInUser);
+        context.select((AuthBloc bloc) => bloc.state.currentUser);
 
     return Drawer(
       // backgroundColor: const Color.fromRGBO(250, 249, 249, 0.4),
@@ -43,7 +46,14 @@ class SideMenu extends StatelessWidget {
                   children: [
                     if (currentUser.isNotEmpty) ...{
                       listTile('Profile', icon: Icons.account_box_rounded),
-                      listTile('Stock', icon: Icons.dashboard),
+                      listTile(
+                        'Dashboard',
+                        icon: Icons.dashboard,
+                        onPress: ()=> pageNavigator(
+                          context,
+                          routeName: autoHomeRoute,
+                        ),
+                      ),
                     },
                     listTile('Service', icon: Icons.home_repair_service),
                     listTile('Contact', icon: Icons.contact_support),
@@ -53,7 +63,6 @@ class SideMenu extends StatelessWidget {
               ),
             ),
             const Divider(height: 1, thickness: 0.5),
-            listTile('Feedback', icon: Icons.feedback),
             if (currentUser.isNotEmpty) ...{
               listTile(
                 'Logout',
@@ -61,7 +70,19 @@ class SideMenu extends StatelessWidget {
                 onPress: () =>
                     context.read<AuthBloc>().add(AuthLogoutRequested()),
               )
+            } else ...{
+              listTile(
+                'LogIn',
+                icon: Icons.account_box,
+                onPress: () => buildAuthModal(context, 'login'),
+              ),
+              listTile(
+                'SignUp',
+                icon: Icons.app_registration,
+                onPress: () => buildAuthModal(context, 'signup'),
+              ),
             },
+            listTile('Feedback', icon: Icons.feedback),
             const Divider(height: 1, thickness: 0.5),
             listTile(
               const DeveloperInfo(

@@ -16,10 +16,12 @@ class ProductsDropdown {
   );
 
   CustomDropdown buildMakesDropdown({
+    bool? enabledTextField,
     TextEditingController? controller,
     required Function(dynamic) onChanged,
   }) {
     return CustomDropdown<MakeModel>(
+      enabledTextField: enabledTextField,
       value: controller?.text,
       hintText: 'Car Make',
       onChanged: onChanged,
@@ -29,7 +31,7 @@ class ProductsDropdown {
         v.add({'make': 'others: specify', 'makeRef': 'others'});
         List<MakeModel> matches = MakeModel.fromJsonList(v);
 
-        debugPrint(matches.toString());
+        // debugPrint(matches.toString());
         filterResults<MakeModel>(matches, search);
         return matches;
       },
@@ -38,10 +40,12 @@ class ProductsDropdown {
 
   CustomDropdown buildModelsDropdown(
     String makeRef, {
+    bool? enabledTextField,
     TextEditingController? controller,
     required Function(dynamic) onChanged,
   }) {
     return CustomDropdown<Model>(
+      enabledTextField: enabledTextField,
       value: controller?.text,
       hintText: 'Car Model',
       onChanged: onChanged,
@@ -60,10 +64,12 @@ class ProductsDropdown {
   buildYearsDropdown(
     String make,
     String model, {
+    bool? enabledTextField,
     TextEditingController? controller,
     required Function(dynamic) onChanged,
   }) {
     return CustomDropdown<int>(
+      enabledTextField: enabledTextField,
       value: controller?.text,
       hintText: 'Car Year',
       onChanged: onChanged,
@@ -82,15 +88,18 @@ class ProductsDropdown {
   buildEnginesDropdown(
     String make,
     String model, {
+    bool? enabledTextField,
     TextEditingController? controller,
     required Function(dynamic) onChanged,
   }) {
     return CustomDropdown<PartModel>(
+      enabledTextField: enabledTextField,
       value: controller?.text,
       hintText: 'Engine Type',
       onChanged: (val) async {
         List<dynamic> list = await _getEngineTypes(make, model);
-        final filter = list.where((e) => e['engineType'] == val.toString()).toList();
+        final filter =
+            list.where((e) => e['engineType'] == val.toString()).toList();
 
         onChanged(filter);
       },
@@ -100,7 +109,7 @@ class ProductsDropdown {
         List res = v.getDistinctBy((x) => x['engineType']).toList();
         List<PartModel> matches = PartModel.fromJsonList(res);
 
-        // filterResults<PartModel>(matches, search);
+        filterResults<PartModel>(matches, search);
         return matches;
       },
     );
@@ -112,10 +121,12 @@ class ProductsDropdown {
   }
 
   CustomDropdown buildProductsDropdown({
+    bool? enabledTextField,
     TextEditingController? controller,
     required Function(dynamic) onChanged,
   }) {
     return CustomDropdown<ProductModel>(
+      enabledTextField: enabledTextField,
       value: controller?.text,
       hintText: 'Product Name',
       onChanged: onChanged,

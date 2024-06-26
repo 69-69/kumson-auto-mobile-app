@@ -1,11 +1,11 @@
-import 'package:automasters/features/auto_mobile/data/models/hunter.dart';
-import 'package:automasters/features/auto_mobile/data/models/vehicle.dart';
 import 'package:dio/dio.dart';
 import 'package:automasters/core/constants/endpoints.dart';
+import 'package:automasters/features/auto_mobile/data/models/hunter.dart';
+import 'package:automasters/features/auto_mobile/data/models/vehicle.dart';
+import 'package:automasters/features/auto_mobile/data/data_sources/remote/dio_util.dart';
 import 'package:automasters/features/auto_mobile/domain/repositories/search_repository.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/local/app_local_database.dart';
-import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_pem.dart';
-import 'package:automasters/features/auto_mobile/data/data_sources/remote/dio_util.dart';
+import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_key.dart';
 
 class SearchRepositoryImpl implements SearchRepository {
   final AppLocalDatabase _cache = AppLocalDatabase();
@@ -25,7 +25,7 @@ class SearchRepositoryImpl implements SearchRepository {
       if (response.statusCode == 200) {
         // debugPrint("httpResponse-> ${response.data}");
 
-        return hasKey ? response.data! : response.data!['content'];
+        return hasKey ? response.data! : response.data!;
       } else {
         return [];
       }
@@ -64,7 +64,7 @@ class SearchRepositoryImpl implements SearchRepository {
       if (response.statusCode == 200) {
         // debugPrint("httpResponse-> ${response.data['content']}");
 
-        return response.data!['content'];
+        return response.data;
       } else {
         return [];
       }
@@ -112,13 +112,14 @@ class SearchRepositoryImpl implements SearchRepository {
       dio.options.headers["Content-Type"] = EndPoints.headers["Content-Type"];
       dio.options.extra = EndPoints.forceDioHttpRefresh;
 
-      var response = await dio.getUri(Uri.parse(apiUrl));
+      var response = await dio.get(apiUrl);
+
+      // await Future.delayed(const Duration(seconds: 3));
 
       if (response.statusCode == 200) {
         // debugPrint("httpResponse-> ${response.data}");
         // _cache.writeCache(key: homeSearchDataKey, data: response.data);
 
-        // await Future.delayed(const Duration(seconds: 3));
         return VehicleModel.fromJson(response.data);
       } else {
         return null;
@@ -130,10 +131,53 @@ class SearchRepositoryImpl implements SearchRepository {
 
   /// Get Remote Makes from API
   @override
-  Future<List<HunterModel>?> getHunterPartsByPartNo(String partNo) async {
+  Future<List<dynamic>?> getHunterPartsByPartNo(String partNo) async {
     try {
       var dio = DioUtil.getInstance(interceptRequest: false);
 
+      var baseUrl = EndPoints.apiBaseUrl;
+      final String apiUrl = "$baseUrl${EndPoints.huntersByPartNo}/$partNo";
+      // Get AccessToken from App localStorage
+      final accessToken = _cache.readCache(key: accessTokenCacheKey);
+      dio.options.headers["Authorization"] = "Bearer $accessToken";
+      dio.options.headers["Content-Type"] = EndPoints.headers["Content-Type"];
+      dio.options.extra = EndPoints.forceDioHttpRefresh;
+
+      var response = await dio.get(apiUrl);
+
+      // await Future.delayed(const Duration(seconds: 5));
+
+      if (response.statusCode == 200) {
+        // debugPrint("httpResponse-> ${response.data}");
+
+        List jsonList = response.data;
+
+        var res = await dio.get(
+            "$baseUrl${EndPoints.partsByHunterNo}/${jsonList[0]['hunter']}");
+
+        if (res.statusCode == 200) {
+          return [
+            HunterModel.fromJsonList(jsonList),
+            res.data['vin'],
+          ];
+        } else {
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } on DioException catch (_) {
+      //debugPrint(e.toString());
+      return null;
+    }
+  }
+
+  /// Get Remote Makes from API
+  @override
+  Future<List<HunterModel>?> getHunterPartsByPartNo2(String partNo) async {
+    try {
+      var dio = DioUtil.getInstance(interceptRequest: false);
+      // partsByHunterNo
       final String apiUrl =
           "${EndPoints.apiBaseUrl}${EndPoints.huntersByPartNo}/$partNo";
       // Get AccessToken from App localStorage
@@ -144,12 +188,12 @@ class SearchRepositoryImpl implements SearchRepository {
 
       var response = await dio.get(apiUrl);
 
+      // await Future.delayed(const Duration(seconds: 5));
+
       if (response.statusCode == 200) {
         // debugPrint("httpResponse-> ${response.data}");
 
-        List jsonList = response.data['content'];
-
-        // await Future.delayed(const Duration(seconds: 5));
+        List jsonList = response.data;
         return HunterModel.fromJsonList(jsonList);
       } else {
         return null;

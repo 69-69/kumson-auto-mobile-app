@@ -40,7 +40,8 @@ class _SignupFormState extends State<SignupForm> {
         : BlocProvider(
             create: (context) {
               return SignupBloc(
-                authRepository: RepositoryProvider.of<AuthRepositoryImpl>(context),
+                authRepository:
+                    RepositoryProvider.of<AuthRepositoryImpl>(context),
               );
             },
             child: _buildBody(context),
@@ -170,45 +171,51 @@ class _NameInput extends StatelessWidget {
   }
 
   TextFormField _firstNameInput(BuildContext context, SignupState state) {
-    return TextFormField(
-      key: const Key('SignupForm_firstNameInput_textField'),
-      keyboardType: TextInputType.text,
+    return _nameFormField(
+      'SignupForm_firstNameInput_textField',
+      label: 'First',
+      context: context,
+      hasError: state.firstName.displayError != null,
       onChanged: (firstName) =>
           context.read<SignupBloc>().add(SignupFirstNameChanged(firstName)),
-      decoration: InputDecoration(
-        filled: true,
-        hintText: "First name",
-        labelText: "First name",
-        fillColor: Theme.of(context).colorScheme.primary.withOpacity(0.04),
-        contentPadding:
-            const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
-        alignLabelWithHint: true,
-        errorText:
-            state.firstName.displayError != null ? 'Valid name required' : null,
-      ),
-      validator: (v) => v == null || v.isEmpty ? 'Valid name required' : null,
     );
   }
 
   TextFormField _lastNameInput(BuildContext context, SignupState state) {
-    return TextFormField(
-      key: const Key('SignupForm_lastNameInput_textField'),
-      keyboardType: TextInputType.text,
+    return _nameFormField(
+      'SignupForm_lastNameInput_textField',
+      label: 'last',
+      context: context,
+      hasError: state.lastName.displayError != null,
       onChanged: (lastName) =>
           context.read<SignupBloc>().add(SignupLastNameChanged(lastName)),
+    );
+  }
+
+  TextFormField _nameFormField(
+    String key, {
+    String label = '',
+    bool hasError = false,
+    Function(String)? onChanged,
+    required BuildContext context,
+  }) {
+    return TextFormField(
+      key: Key(key),
+      keyboardType: TextInputType.name,
+      // onChanged: (name) => onChanged(name),
+
       decoration: InputDecoration(
         filled: true,
-        hintText: "Last name",
-        labelText: "Last name",
+        hintText: "$label name",
+        labelText: "$label name",
         fillColor: Theme.of(context).colorScheme.primary.withOpacity(0.04),
         contentPadding:
             const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
         alignLabelWithHint: true,
-        errorText: state.lastName.displayError != null
-            ? 'Only letters are required'
-            : null,
+        errorText: hasError ? 'Valid $label name required' : null,
       ),
-      validator: (v) => v == null || v.isEmpty ? 'Valid name required' : null,
+      validator: (v) =>
+          v == null || v.isEmpty ? 'Valid $label name required' : null,
     );
   }
 }
@@ -237,12 +244,11 @@ class _PhoneNumberInput extends StatelessWidget {
       keyboardType: TextInputType.phone,
       inputFormatters: [DialCodeFormatter()],
       onChanged: (phoneNumber) {
-
         // Remove leading zeros, if any
         String phone = stripLeadingZero(phoneNumber);
 
         String phoneWithCountryCode =
-        stripZeroFromPhoneAreaCode(phone, countryCode);
+            stripZeroFromPhoneAreaCode(phone, countryCode);
 
         // Remove leading '+', if any
         String number = stripLeadingPlus(phoneWithCountryCode);

@@ -69,9 +69,7 @@ class MakeModel extends MakeEntity {
   bool get isNotEmpty => this != MakeModel.empty;
 
   ///custom comparing function to check if two models are equal
-  bool isEqual(MakeModel model) {
-    return id == model.id;
-  }
+  bool isEqual(MakeModel model) => id == model.id;
 
   @override
   String toString() {

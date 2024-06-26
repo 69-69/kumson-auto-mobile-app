@@ -6,7 +6,7 @@ import 'package:automasters/core/constants/endpoints.dart';
 import 'package:automasters/features/auto_mobile/data/models/jwt.dart';
 import 'package:automasters/features/auto_mobile/presentation/pages/home/index.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/local/app_local_database.dart';
-import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_pem.dart';
+import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_key.dart';
 
 class DioUtil {
   static final _cache = <Uri, Response>{};
@@ -37,7 +37,7 @@ class DioUtil {
       ..add(
         QueuedInterceptorsWrapper(
           onRequest: (options, handler) {
-            final res = _cache[options.uri];
+            // final res = _cache[options.uri];
 
             // Check if the requested endpoint match in the
             if (!whiteList.contains(options.path)) {

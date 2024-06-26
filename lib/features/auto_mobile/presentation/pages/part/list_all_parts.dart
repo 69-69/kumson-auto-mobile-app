@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/async_progress_dialog.dart';
 import 'package:automasters/core/util/size_config.dart';
 import 'package:automasters/core/constants/constants.dart';
-import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_pem.dart';
+import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_key.dart';
 import 'package:automasters/config/routes/routes_constant.dart';
 import 'package:automasters/features/auto_mobile/data/models/hunter.dart';
 import 'package:automasters/features/auto_mobile/presentation/bloc/hunter/remote/index.dart';
@@ -66,38 +66,74 @@ class ListAllParts extends StatelessWidget {
           customLine("Choose Your\nCar Part", context),
           const Divider(indent: 40),
           Expanded(
-            child: _columnBuilder(carParts, vehicle),
+            child: _PartItemBuilder(carParts: carParts, vehicle: vehicle),
           ),
         ],
       ),
     );
   }
+}
 
-  /// List view display[_columnBuilder]
-  _columnBuilder(List<PartModel> carParts, VehicleModel vehicle) {
-    return SingleChildScrollView(
-      padding: EdgeInsets.zero,
-      physics: const NeverScrollableScrollPhysics(),
-      child: ColumnBuilder(
-        itemCount: carParts.length,
-        itemBuilder: (columnContext, index) {
-          PartModel carPart = carParts[index];
-          bool isLastIndex = index == carParts.length - 1;
+class _HunterPartsBc extends StatelessWidget {
+  const _HunterPartsBc({
+    required this.carPart,
+    required this.vehicle,
+    required this.isLastIndex,
+  });
 
-          return carPart.part! != "0"
-              ? _hunterPartsBloc(
-            columnContext,
-                  carPart,
-                  vehicle,
-                  isLastIndex,
-                )
-              : const SizedBox.shrink();
-        },
-      ),
+  final PartModel carPart;
+  final VehicleModel vehicle;
+  final bool isLastIndex;
+
+  @override
+  Widget build(BuildContext context) {
+    return _hunterPartsBloc(context);
+  }
+
+  BlocBuilder<HunterPartsByHunterNoBloc, HunterState> _hunterPartsBloc(
+    BuildContext parentContext,
+  ) {
+    _getHunterParts(parentContext, carPart.hunter!);
+
+    return BlocBuilder<HunterPartsByHunterNoBloc, HunterState>(
+        builder: (context, state) {
+      if (state is HunterLoading) {
+        return _loadSpinner();
+      }
+
+      /*if (state is HuntersError) {
+        return const Text("context");
+      }*/
+
+      if (state is HunterDone) {
+        final hunterParts = state.hunter! as List<HunterModel>;
+
+        return _HunterItemBuilder(
+          carPart: carPart,
+          vehicle: vehicle,
+          hunterParts: hunterParts,
+          isLastIndex: isLastIndex,
+        );
+      }
+
+      return const SizedBox();
+    });
+  }
+
+  void _getHunterParts(BuildContext context, String hunterNo) {
+    context
+        .watch<HunterPartsByHunterNoBloc>()
+        .add(GetHunterPartsByHunterNoEvent(hunterNo));
+  }
+
+  Padding _loadSpinner() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: showCircularProgress(strokeWidth: 3, width: 20, height: 20),
     );
   }
 
-  /*_hunterPartsBloc(
+/*_hunterPartsBloc(
     BuildContext context,
     PartModel carPart,
     VehicleModel vehicle,
@@ -118,110 +154,134 @@ class ListAllParts extends StatelessWidget {
     }
     return SizedBox.shrink();
   }*/
+}
 
-  void _getHunterParts(BuildContext context, String hunterNo) {
-    context
-        .watch<HunterPartsByHunterNoBloc>()
-        .add(GetHunterPartsByHunterNoEvent(hunterNo));
-  }
+class _HunterItemBuilder extends StatelessWidget {
+  const _HunterItemBuilder({
+    required this.carPart,
+    required this.vehicle,
+    required this.hunterParts,
+    required this.isLastIndex,
+  });
 
-  BlocBuilder<HunterPartsByHunterNoBloc, HunterState> _hunterPartsBloc(
-    BuildContext context2,
-    PartModel carPart,
-    VehicleModel vehicle,
-    bool isLastIndex,
-  ) {
-    _getHunterParts(context2, carPart.hunter!);
+  final bool isLastIndex;
+  final PartModel carPart;
+  final VehicleModel vehicle;
+  final List<HunterModel> hunterParts;
 
-    return BlocBuilder<HunterPartsByHunterNoBloc, HunterState>(
-        builder: (context, state) {
-      if (state is HunterLoading) {
-        return _loadSpinner();
-      }
-
-      /*if (state is HuntersError) {
-        return const Text("context");
-      }*/
-
-      if (state is HunterDone) {
-        final hunterParts = state.hunter! as List<HunterModel>;
-
-        return _buildListView(
-            carPart, vehicle, hunterParts, isLastIndex);
-      }
-
-      return const SizedBox();
-    });
-  }
-
-  _buildListView(
-    PartModel carPart,
-    VehicleModel vehicle,
-    List<HunterModel> hunterParts,
-    bool isLastIndex,
-  ) {
-
-    return ColumnBuilder(
-        itemCount: hunterParts.length,
-        itemBuilder: (hunterContext, index) {
-          HunterModel hunterPart = hunterParts[index];
-
-
-          return InkWell(
-            onTap: () {
-              Map<String, dynamic> data = {
-                'hunter': hunterPart,
-                'vehicle': vehicle
-              };
-
-              pageNavigator(
-                hunterContext,
-                routeName: partDetailsCheckout,
-                arguments: data,
-              );
-            },
-            child: _buildCard(carPart, isLastIndex),
-          );
-        },
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: EdgeInsets.zero,
+      physics: const NeverScrollableScrollPhysics(),
+      child: _columnBuilder(),
     );
+  }
 
+  /// List view display[_columnBuilder]
+  _columnBuilder() {
+    return ColumnBuilder(
+      itemCount: hunterParts.length,
+      itemBuilder: (hunterContext, index) {
+        HunterModel hunterPart = hunterParts[index];
+
+        return InkWell(
+          onTap: () {
+            Map<String, dynamic> data = {
+              'hunter': hunterPart,
+              'vehicle': vehicle
+            };
+
+            pageNavigator(
+              hunterContext,
+              routeName: partDetailsCheckout,
+              arguments: data,
+            );
+          },
+          child: _PartsCard(carPart: carPart, isLastIndex: isLastIndex),
+        );
+      },
+    );
+  }
+}
+
+class _PartItemBuilder extends StatelessWidget {
+  const _PartItemBuilder({
+    required this.carParts,
+    required this.vehicle,
+  });
+
+  final List<PartModel> carParts;
+  final VehicleModel vehicle;
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: EdgeInsets.zero,
+      physics: const NeverScrollableScrollPhysics(),
+      child: _columnBuilder(),
+    );
+  }
+
+  /// List view display[_columnBuilder]
+  _columnBuilder() {
+    return ColumnBuilder(
+      itemCount: carParts.length,
+      itemBuilder: (columnContext, index) {
+        PartModel carPart = carParts[index];
+        bool isLastIndex = index == carParts.length - 1;
+
+        return carPart.part! != "0"
+            ? _HunterPartsBc(
+                carPart: carPart,
+                vehicle: vehicle,
+                isLastIndex: isLastIndex,
+              )
+            : const SizedBox.shrink();
+      },
+    );
+  }
+}
+
+class _PartsCard extends StatelessWidget {
+  const _PartsCard({required this.carPart, required this.isLastIndex});
+
+  final PartModel carPart;
+  final bool isLastIndex;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2.0),
+      child: _buildCard(),
+    );
   }
 
   /// Card [_buildCard]
-  _buildCard(PartModel carPart, bool isLastIndex) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2.0),
-      child: customCard(
-        shape: isLastIndex
-            ? const ContinuousRectangleBorder(
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(80),
-                  bottomRight: Radius.circular(80),
-                ),
-              )
-            : null,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                buildContainerImage(child: Image.asset(kDefaultPartImage)),
-                buildProductInfo(
-                  carPart.part!.capitalizeEach(),
-                  carPart.model!.capitalize(),
-                ),
-              ],
-            ),
-          ],
-        ),
+  _buildCard() {
+    return customCard(
+      shape: isLastIndex
+          ? const ContinuousRectangleBorder(
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(80),
+                bottomRight: Radius.circular(80),
+              ),
+            )
+          : null,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              buildContainerImage(child: Image.asset(kDefaultPartImage)),
+              buildProductInfo(
+                carPart.part!.capitalizeEach(),
+                carPart.model!.capitalize(),
+              ),
+            ],
+          ),
+        ],
       ),
-    );
-  }
-
-  Padding _loadSpinner() {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: showCircularProgress(strokeWidth: 3, width: 20, height: 20),
     );
   }
 }

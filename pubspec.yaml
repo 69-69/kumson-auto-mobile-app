@@ -39,7 +39,6 @@ dependencies:
   # flutter_hooks:
 
   # cached image
-  cached_network_image:
 
   # capitalize string in sentenceCase
   string_capitalize: ^0.0.10

@@ -43,16 +43,18 @@ ThemeData buildThemeData(BuildContext context, {required ColorScheme cs}) {
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         side: const BorderSide(width: 1.0),
-        shape: RoundedRectangleBorder(
+        shape: const StadiumBorder(),
+        /*shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(radius)),
-        ),
+        ),*/
       ),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        shape: RoundedRectangleBorder(
+        shape: const StadiumBorder(),
+        /*shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(radius)),
-        ),
+        ),*/
       ),
     ),
     // primarySwatch: Colors.red,

@@ -2,7 +2,7 @@ import 'package:automasters/features/auto_mobile/presentation/widgets/custom_ste
 import 'package:country_codes/country_codes.dart';
 import 'package:flutter/material.dart';
 import 'package:automasters/core/util/size_config.dart';
-import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_pem.dart';
+import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_key.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/local/app_local_service.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/items_dropdown.dart';
 
@@ -230,7 +230,7 @@ class _VinRequestFormState extends State<VinRequestForm> {
 
   TextFormField _buildVinFormField(BuildContext context) {
     String readOnlyVin =
-        AppLocalService().getProductStatus(key: readOnlyVinCacheKey);
+        AppLocalService().getProductStatus(key: sendRequestVinCacheKey);
     Color color = Theme.of(context).colorScheme.primary;
     const textStyle = TextStyle(color: Colors.white, fontSize: 12);
 

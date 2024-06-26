@@ -116,7 +116,7 @@ class _OTPFormState extends State<OTPForm> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         const Text(
-          "Didn't get Code? Resend OTP in ",
+          "Didn't receive Code? Resend OTP in ",
           style: TextStyle(fontSize: 12),
         ),
         _buildTweenAnimationBuilder(resetKey: resetKey),

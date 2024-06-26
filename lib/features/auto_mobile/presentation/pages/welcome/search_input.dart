@@ -1,15 +1,16 @@
+import 'package:flutter/material.dart';
+import 'package:formz/formz.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:automasters/config/routes/routes_constant.dart';
 import 'package:automasters/core/constants/search_type.dart';
+import 'package:automasters/features/auto_mobile/data/models/vehicle.dart';
 import 'package:automasters/features/auto_mobile/data/data_sources/local/app_local_service.dart';
-import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_pem.dart';
+import 'package:automasters/features/auto_mobile/data/data_sources/local/local_repository_key.dart';
 import 'package:automasters/features/auto_mobile/presentation/bloc/index.dart';
 import 'package:automasters/features/auto_mobile/presentation/pages/bottom_sheet/send_a_request_modal.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/async_progress_dialog.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/elevated_btn.dart';
 import 'package:automasters/features/auto_mobile/presentation/widgets/page_navigator.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:formz/formz.dart';
 import 'package:string_capitalize/string_capitalize.dart';
 
 class SearchInput extends StatefulWidget {
@@ -61,8 +62,12 @@ class SearchInputState extends State<SearchInput> {
       labelText: "VIN or Part number",
       hintText: "VIN or Part number",
       fillColor: tColor.onPrimary.withOpacity(0.04),
-      contentPadding:
-          const EdgeInsets.symmetric(vertical: 2.0, horizontal: 2.0),
+      contentPadding: EdgeInsets.only(
+        top: 2.0,
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+        right: 2.0,
+        left: 2.0,
+      ),
       alignLabelWithHint: true,
       prefixIcon: searchTypeDropdown(context),
       prefixIconConstraints: const BoxConstraints(maxWidth: 50),
@@ -74,8 +79,8 @@ class SearchInputState extends State<SearchInput> {
             }
           }),
       suffixIconConstraints: const BoxConstraints(maxWidth: 70),
-      errorText: state.searchTerm.displayError != null || state.getData == null
-          ? 'Invalid VIN or Part number'
+      errorText: state.searchTerm.displayError != null
+          ? 'Enter VIN or Part number'
           : null,
 
       /*border: OutlineInputBorder(
@@ -181,34 +186,45 @@ class _SearchButton extends StatelessWidget {
       // If listenWhen returns true, listener will be called with new state
       listenWhen: (preState, curtState) => preState != curtState,
       buildWhen: (preState, curtState) => preState != curtState,
-      listener: (_, state) async {
+      listener: (listenerContext, state) async {
         String loaderText = 'Searching by ${isVin ? 'VIN' : 'Part No'}...';
 
-        if (state.status.isInProgress && state.isValid) {
-
+        if (state.isValid && state.status.isSuccess) {
           // Show progressBar dialog/modal
-          await showProgressDialog(context,
-            request: state.future,
-            child: Text(loaderText),);
-        } else {}
-        if (context.mounted) {
-          if (state.status.isSuccess && state.getData != null) {
-            Map<String, dynamic> m = {'data': state.getData};
-            String route = isVin ? vehicleDetailsRoute : partsByPartNoRoute;
-
-            pageNavigator(context, routeName: route, arguments: m);
-          } else if (state.status.isFailure) {
-            _saveReadOnly(context,
-                isVin: isVin, searchText: state.searchTerm.value);
-          }
+          await showProgressDialog(
+            listenerContext,
+            request: Future.delayed(const Duration(seconds: 1)),
+            child: Text(loaderText),
+          ).then(
+            (_) => _whenComplete(state, isVin, listenerContext),
+          );
+          state.copyWith(isValid: false, status: FormzSubmissionStatus.failure);
         }
       },
-      builder: (context, state) {
+      builder: (builderContext, state) {
         return state.status.isInProgress
             ? showCircularProgress(width: 15, height: 15)
-            : elevatedBtn(context, state: state, isVin: isVin);
+            : elevatedBtn(builderContext, state: state, isVin: isVin);
       },
     );
+  }
+
+  // navigate to vehicle page
+  void _whenComplete(SearchState state, bool isVin, BuildContext context) {
+    if (state.getData != null) {
+      String route = isVin ? vehicleDetailsRoute : partsByPartNoRoute;
+
+      // if isVin is TRUE, then create a key-value MAP, else return Parts data
+      Object? args = isVin
+          ? {'data': VehicleModel.fromJson(state.getData)}
+          : state.getData;
+
+      // Update input validity state to false
+
+      pageNavigator(context, routeName: route, arguments: args);
+    } else {
+      _saveReadOnly(context, isVin: isVin, searchText: state.searchTerm.value);
+    }
   }
 
   ElevatedButton elevatedBtn(
@@ -238,11 +254,11 @@ class _SearchButton extends StatelessWidget {
     required bool isVin,
     required String searchText,
   }) async {
-    final key = isVin ? readOnlyVinCacheKey : readOnlyPartNoCacheKey;
+    final key = isVin ? sendRequestVinCacheKey : sendRequestPartNoCacheKey;
     final req = isVin ? vinRequest : partNoRequest;
 
-    await AppLocalService().saveReadOnly(searchText, key: key).then((_) {
-      showRequestModal(context, req);
-    });
+    await AppLocalService().saveReadOnly(searchText, key: key).whenComplete(
+          () => showRequestModal(context, req),
+        );
   }
 }

@@ -8,7 +8,6 @@ import 'package:automasters/core/constants/constants.dart';
 import 'package:automasters/config/routes/app_routes.dart';
 import 'package:automasters/features/injection_container.dart';
 import 'package:automasters/features/auto_mobile/presentation/bloc/index.dart';
-import 'package:automasters/features/auto_mobile/data/repositories/search_repository_impl.dart';
 import 'package:automasters/features/auto_mobile/data/repositories/auth_repository_impl.dart';
 import 'package:automasters/features/auto_mobile/data/repositories/user_repository_impl.dart';
 
@@ -22,7 +21,8 @@ class App extends StatefulWidget {
 class _AppState extends State<App> {
   late final AuthRepositoryImpl _authRepository;
   late final UserRepositoryImpl _userRepository;
-  late final SearchRepositoryImpl _searchRepository;
+
+  // late final SearchRepositoryImpl _searchRepository;
   final _navigatorKey = GlobalKey<NavigatorState>();
 
   NavigatorState? get _navigator => _navigatorKey.currentState;
@@ -32,7 +32,7 @@ class _AppState extends State<App> {
     super.initState();
     _authRepository = AuthRepositoryImpl();
     _userRepository = UserRepositoryImpl();
-    _searchRepository = SearchRepositoryImpl();
+    // _searchRepository = SearchRepositoryImpl();
     _neededPlugin();
   }
 
@@ -56,6 +56,7 @@ class _AppState extends State<App> {
     // Call SizeConfig on your starting screen
     SizeConfig().init(context);
 
+    // Delay by 1 seconds to help initialize RepositoryProvider
     Future.delayed(const Duration(seconds: 1));
 
     return RepositoryProvider.value(
@@ -80,15 +81,12 @@ class _AppState extends State<App> {
       builder: (context, child) => BlocListener<AuthBloc, AuthState>(
         listener: (_, state) {
           switch (state.status) {
-            case AuthStatus.authenticated:
-              _navigator?.pushReplacementNamed(appRootRoute);
-
-            case AuthStatus.unauthenticated:
+            case AuthStatus.authenticated || AuthStatus.unauthenticated:
               _navigator?.pushReplacementNamed(appRootRoute);
 
             case AuthStatus.continueSignup:
               _navigator?.pushReplacementNamed(
-                autoHomeWithAuthRoute,
+                appRootRoute,
                 arguments: state.activeSignup,
               );
 
@@ -130,11 +128,11 @@ class _AppState extends State<App> {
         ),
 
         /// SearchBloc
-        BlocProvider(
+        /*BlocProvider(
           create: (_) => SearchBloc(
             searchRepository: _searchRepository,
           ),
-        ),
+        ),*/
 
         /// Vehicles/Cars
         BlocProvider<VehicleByVinBloc>(
